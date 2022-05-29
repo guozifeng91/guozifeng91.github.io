@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>SOM</title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      /* unvisited link */
+      a:link {
+        color: gray;
+        text-decoration: none;
+      }
+
+      /* visited link */
+      a:visited {
+        color: gray;
+        text-decoration: none;
+      }
+
+      /* mouse over link */
+      a:hover {
+        color: black;
+        text-decoration: none;
+      }
+
+      /* selected link */
+      a:active {
+        color: gray;
+        text-decoration: none;
+      }
+  	  #display_section{
+    		position:absolute;
+        overflow: visible;
+    		/* width: 80%;
+    		left: 20%; */
+        transition-property: left width;
+            transition-duration: 0.2s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+        z-index: 0;
+  	  }
+      #display_details{
+        position:fixed;
+        display: flex;
+        height:100vh;
+        top:0%;
+
+        transition-property: left;
+            transition-duration: 0.2s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+        z-index: 1;
+      }
+      #som{
+        position:relative;
+        display: grid;
+        line-height: 0;
+        box-sizing: border-box;
+        width:100%;
+      }
+      .placed_button{
+        /* position:absolute; */
+        color:#ffffff;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 1px solid #ffffff;
+        text-align: center;
+        cursor: pointer;
+      }
+      .stretch_text{
+        position: relative;
+        width: 96%;
+        max-width: 96%;
+        padding: 2%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .big_header{
+        font-size: 60px;
+      }
+      img.cell_img {
+        position:relative;
+        width:100%;
+        border: 0px;
+        transform: scale(1.05);
+        /* z-index:1; */
+        transition-property: transform;
+            transition-duration: 0.2s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+      }
+      .free_element{
+        position: absolute;
+      }
+      .layout_element{
+        position: relative;
+      }
+      .fill_parent{
+        left:0%;
+        top:0%;
+        height: 100%;
+        width: 100%;
+      }
+      .column_container{
+        display: flex;
+        flex-direction: column;
+      }
+      .row_column_container{
+        display:flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+      }
+      .last_child{
+        flex-grow: 1;
+      }
+      .cell{
+        position:relative;
+        overflow: hidden;
+        border:0px;
+        transition-property: opacity;
+            transition-duration: 0.2s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+      }
+      .no_opacity{
+        opacity:1;
+      }
+      .has_opacity{
+        opacity:0.3;
+      }
+      .color_block::before{
+        margin-left: 10%;
+      }
+      .color_block{
+        width: 15px;
+        height: 15px;
+      }
+      .slot{
+        margin:2%;
+        color:gray;
+        text-align:justify;
+        word-break: break-all;
+        /* font-stretch: expanded; */
+      }
+
+    </style>
+    <!-- read data from json (js) files  -->
+    <script type="text/javascript" src="data/som/20x20/cell_projects.js"></script>
+    <script type="text/javascript" src="data/som/20x20/namelist.js"></script>
+    <script type="text/javascript" src="data/som/20x20/urllist.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="listcontainer.js"></script>
+    <script type="text/javascript">
+      // declare the global variable selected_cells
+      var selected_cells=[];
+      var selected_cell_groups={};
+
+      // const group_color=["#ffffff","#ff8080","#000000"];
+      const group_color=["#FEFEFA", "#848482", "#A52A2A", "#568203","#007FFF", "#1B1811"];
+      const group_num_max=group_color.length;
+      var showing_side=true;
+    </script>
+    <script type="text/javascript">
+    // get url of a page
+    function get_page_source (url){
+    }
+    </script>
+  </head>
+  <body>
+    <div id="display_section" style="width:80%; left:20%">
+      <!-- where som will be displayed -->
+    </div>
+    <div id="display_details" style="width:20%; left:0%">
+      <div class="fill_parent column_container free_element">   <!-- column of header and body -->
+        <div id="project_title" class="stretch_text big_header layout_element"></div>
+        <div id="selected_group_info", class="layout_element slot row_column_container">CLICK&#160;<i>Cells</i>&#160;and WHEEL&#160;<i>Colors</i></div>
+        <div id="list_cell_contents" class="column_container layout_element last_child"></div>
+      </div>
+
+      <div id="display_details_button" class="placed_button free_element" style="left:100%; width:10px;top:0%;height:60px;line-height:60px;"></div>
+    </div>
+    <!-- js for initializing the som -->
+    <script type="text/javascript">
+      // initialization sequence
+
+      // show title
+      (function(word){
+        const letters=word.split("");
+        let htmlspans=""
+        for (const l of letters){
+          if (l==" "){
+            htmlspans = htmlspans + ("<span>&nbsp;</span>");
+          }else if (l=="\n"){
+            htmlspans = htmlspans + "<br/>"
+          }else{
+            htmlspans = htmlspans + (`<span>${l}</span>`);
+          }
+        }
+        // assign header text
+        const detail_div=document.getElementById("project_title");
+        detail_div.innerHTML = htmlspans;
+      })("AN ARCHDAILY LEXICON");
+
+      // record the predefined width for later use
+      const predefined_width=document.getElementById("display_section").style.width;
+      // display list area
+      const list_div_obj=new overflowlist(document.getElementById("list_cell_contents"));
+      // mouse wheel event on slots, update pos bar while wheeling
+      wheelElement(list_div_obj.slots, function(){list_div_obj.update_bar_pos_by_slot()});
+      dragElementY(list_div_obj.pos_bar, `${100-list_div_obj.bar_size_percentage}%`, function(){list_div_obj.update_slot_pos_by_bar()})
+
+      // generate display items (the list)
+      const display_content_selected_cells_groups=function () {
+        let onehot_activated_group=0;
+
+        let counts={};
+        let names=[];
+        let urls=[];
+
+        // count how many times each project shows up
+        for (let c of selected_cells){
+          const current_group=selected_cell_groups[c];
+          onehot_activated_group = onehot_activated_group | (1<<current_group);
+
+          for (let i of cell_projects[c]){
+            if (i in counts){
+              counts[i]= counts[i] | (1<<current_group);
+            } else {
+              counts[i]=(1<<current_group);
+            }
+          }
+        }
+
+        // display those that shows up top
+        for (let i of Object.keys(counts)){
+          if (counts[i]==onehot_activated_group){
+            names.push(namelist[i]);
+            urls.push(urllist[i]);
+          }
+        }
+
+        list_div_obj.sync_items(names,urls);
+      }
+
+      // show and hide
+      const show_details = function(){
+        const side_div=document.getElementById("display_details");
+        const som_div=document.getElementById("display_section");
+        const button=document.getElementById("display_details_button");
+        button.innerHTML="&#60;";
+        showing_side=true;
+
+        som_div.style.left=side_div.style.width;
+        som_div.style.width=predefined_width;
+        side_div.style.left="0%";
+      };
+
+      const hide_details = function(){
+        const side_div=document.getElementById("display_details");
+        const som_div=document.getElementById("display_section");
+        const button=document.getElementById("display_details_button");
+        button.innerHTML="&#62;";
+        showing_side=false;
+
+        side_div.style.left="-"+side_div.style.width;
+        som_div.style.left="0%";
+        som_div.style.width="100%";
+      };
+
+      const show_or_hide = function(){
+        if (showing_side){
+          hide_details();
+        } else{
+          show_details();
+        }
+      };
+
+      // show and hide button
+      (function(){
+        const button=document.getElementById("display_details_button");
+        button.onclick=show_or_hide;
+      })();
+
+      show_details();
+
+      // display group info (i.e., color AND color AND color)
+      const selected_group_info=document.getElementById("selected_group_info");
+      const default_inner_text=selected_group_info.innerHTML;
+      const update_selected_group_info = function(){
+        if (selected_cells.length==0){
+          selected_group_info.innerHTML=default_inner_text;
+        } else {
+          selected_group_info.innerHTML="";
+          let indicator=0;
+          let added_colors=0;
+
+          // add info blocks
+          for (let c of selected_cells){
+            const current_group=selected_cell_groups[c];
+            if ((indicator & (1<<current_group))==0){
+              indicator = indicator | (1<<current_group);
+              if (added_colors>0){
+                let span_and=document.createElement("div");
+                span_and.className="layout_element";
+                span_and.innerText="AND";
+                span_and.style="margin-left: 10px;margin-right: 10px;"
+                selected_group_info.appendChild(span_and);
+              }
+              let span=document.createElement("div");
+              span.className="color_block layout_element";
+              span.style="background-color:"+group_color[current_group] + ";border:1px solid #000000";
+              selected_group_info.appendChild(span);
+              added_colors++;
+            }
+          }
+
+          // add clear all button
+          let clear_button=document.createElement("div");
+          clear_button.className="placed_button layout_element";
+          clear_button.style="color:gray;border:0px;width:100%;margin-top: 2px;margin-bottom: 2px;";
+          clear_button.innerText="Clear All";
+          clear_button.onclick=clear_all_selection;
+          clear_button.onmouseover=function(e){clear_button.style.color="black"};
+          clear_button.onmouseout=function(e){clear_button.style.color="gray"};
+          selected_group_info.appendChild(clear_button);
+        }
+      };
+
+      const clear_all_selection=function(){
+        selected_cells=[];
+        selected_cell_groups={};
+        // const cells are returned by the SOM part
+        apply_selection_style(cells,selected_cells);
+        display_content_selected_cells_groups();
+        update_selected_group_info();
+      };
+
+      function apply_selection_style(cells, selected_cells){
+        if (selected_cells.length==0){
+          for (let c of cells){
+            // c.style.opacity="1.0";
+            c.className="cell";
+            c.style.border="0px";
+          }
+        } else {
+          for (let c of cells){
+            // c.style.opacity="0.3";
+            c.className="cell has_opacity";
+            c.style.border="0px";
+          }
+          for (let i of selected_cells){
+            // cells[i].style.opacity="1.0";
+            cells[i].className="cell";
+            // cells[i].style.border="2px solid #ffffff";
+            cells[i].style.border=`4px solid ${group_color[selected_cell_groups[i]]}`;
+          }
+        }
+      };
+    </script>
+
+    <script type="text/javascript">
+      // generate som and som grid
+      // the size of SOM will change depends on its container
+      const cells = (function (cell_num,img_size){
+        (function (cell_num){
+          const parent=document.getElementById("display_section");
+          let som=document.createElement("div");
+          som.id="som";
+          // som.className="parent";
+          som.style=`grid-template-columns:repeat(${cell_num},1fr);`
+          parent.appendChild(som);
+        })(cell_num);
+
+        // populate som grid
+        const cells = (function (cell_num,img_size){
+          let som=document.getElementById("som");
+          let cells=[];
+
+          for(let row=0;row<cell_num;row++){
+            for(let col=0;col<cell_num;col++){
+              let index=row*cell_num+col;
+              let cell=document.createElement("div");
+              cell.className="cell";
+              cell.id=`cell${index}`;
+              som.appendChild(cell);
+
+              let cell_img=document.createElement("img");
+              cell_img.className="cell_img";
+              cell_img.src=`data/som/${cell_num}x${cell_num}/cells/${row}-${col}-${img_size}.png`;
+
+              cell.appendChild(cell_img);
+              cells.push(cell);
+
+              cell.onmouseover = cell.onmouseout = function (event) {
+                let type = event.type;
+                if (type=="mouseover"){
+                  cell_img.style.transform="scale(1.5)";
+                  cell.style.opacity="1.0"; // override opacity setting
+                }else{
+                  cell_img.style.transform="scale(1.01)";
+                  cell.style.removeProperty("opacity"); // remove element-level setting
+                }
+              }
+
+              cell.onclick=function(){
+                const i = selected_cells.indexOf(index);
+                if (i > -1) {
+                  selected_cells.splice(i, 1);
+                  delete selected_cell_groups[i];
+                  cell.onwheel=null;
+                } else {
+                  selected_cells.push(index);
+                  selected_cell_groups[index]=0;
+
+                  cell.onwheel=function(e){
+                    e = e || window.event;
+                    e.preventDefault();
+                    selected_cell_groups[index] = (selected_cell_groups[index] + group_num_max + Math.sign(e.deltaY))%group_num_max;
+                    cell.style.border=`4px solid ${group_color[selected_cell_groups[index]]}`;
+
+                    display_content_selected_cells_groups();
+                    update_selected_group_info();
+                  }
+                }
+                // if(selected_cells.length>0){
+                //   show_details();
+                // }
+
+                apply_selection_style(cells, selected_cells);
+                display_content_selected_cells_groups();
+                update_selected_group_info();
+              }
+            }
+          }
+          return cells;
+        })(cell_num,img_size);
+        return cells;
+      })(20,100); // 20x20 som, 100px x 100px images
+    </script>
+  </body>
+</html>
