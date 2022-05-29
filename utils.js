@@ -47,16 +47,9 @@ function touchElement(elmnt, func=null){
 
   function touchStart(e){
     e = e || window.event;
-    e.preventDefault();
+    // e.preventDefault();
 
     pos1=e["touches"][0].screenY;
-    // document.addEventListener("touchstart",touchEnd,false);
-    // document.addEventListener("touchmove",touchMove,false);
-  }
-
-  function touchEnd(e){
-    // document.removeEventListener("touchstart",touchEnd);
-    // document.removeEventListener("touchmove",touchMove);
   }
 
   function touchMove(e) {
