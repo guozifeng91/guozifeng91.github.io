@@ -544,49 +544,51 @@
       touchElement(list_div_obj.pos_bar, function(){list_div_obj.update_slot_pos_by_bar()});
 
       // apply touch style changer
-      (function(){
-        function cell_style_update(e){
-          e = e || window.event;
-          if (e.touches.length==1){
-            if (e.type=="touchmove"){
-              e.preventDefault();
-            }
-            const loc = event.changedTouches[0];
-            let cell_img = document.elementFromPoint(loc.clientX, loc.clientY);
-            // console.log(cell_img.tagName);
-            if (cell_img.tagName.toLowerCase()=="img"){
-              let cell=cell_img.parentElement;
-              cell_img.style.transform="scale(1.5)";
-              cell.style.opacity="1.0"; // override opacity setting
-
-              for (let c of cells){
-                if (c!=cell){
-                  c.children[0].style.transform="scale(1.01)";
-                  c.style.removeProperty("opacity"); // override opacity setting
-                }
-              }// end for
-            }
-          } // end if
-        }; // end function
-
-        function cell_style_reset(){
-          for (let c of cells){
-              c.children[0].style.transform="scale(1.01)";
-              c.style.removeProperty("opacity"); // override opacity setting
-          }
-        };
-
-        const parent=document.getElementById("display_section");
-        parent.addEventListener("touchmove",function(e){
-          e = e || window.event;
-          cell_style_update(e);
-        },{passive: false});
-
-        parent.addEventListener("touchend",function(e){
-          cell_style_reset();
-        },{passive: false});
-
-      })();
+      // removed as it is not easy for user to get how to use
+      
+      // (function(){
+      //   function cell_style_update(e){
+      //     e = e || window.event;
+      //     if (e.touches.length==1){
+      //       if (e.type=="touchmove"){
+      //         e.preventDefault();
+      //       }
+      //       const loc = event.changedTouches[0];
+      //       let cell_img = document.elementFromPoint(loc.clientX, loc.clientY);
+      //       // console.log(cell_img.tagName);
+      //       if (cell_img.tagName.toLowerCase()=="img"){
+      //         let cell=cell_img.parentElement;
+      //         cell_img.style.transform="scale(1.5)";
+      //         cell.style.opacity="1.0"; // override opacity setting
+      //
+      //         for (let c of cells){
+      //           if (c!=cell){
+      //             c.children[0].style.transform="scale(1.01)";
+      //             c.style.removeProperty("opacity"); // override opacity setting
+      //           }
+      //         }// end for
+      //       }
+      //     } // end if
+      //   }; // end function
+      //
+      //   function cell_style_reset(){
+      //     for (let c of cells){
+      //         c.children[0].style.transform="scale(1.01)";
+      //         c.style.removeProperty("opacity"); // override opacity setting
+      //     }
+      //   };
+      //
+      //   const parent=document.getElementById("display_section");
+      //   parent.addEventListener("touchmove",function(e){
+      //     e = e || window.event;
+      //     cell_style_update(e);
+      //   },{passive: false});
+      //
+      //   parent.addEventListener("touchend",function(e){
+      //     cell_style_reset();
+      //   },{passive: false});
+      //
+      // })();
     </script>
   </body>
 </html>
