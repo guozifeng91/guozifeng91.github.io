@@ -48,21 +48,24 @@ function touchElement(elmnt, func=null){
   function touchStart(e){
     e = e || window.event;
     // e.preventDefault();
-
-    pos1=e["touches"][0].screenY;
+    if (e.touhes.length==1){
+      pos1=e["touches"][0].screenY;
+    }
   }
 
   function touchMove(e) {
     e = e || window.event;
-    e.preventDefault();
+    if (e.touhes.length==1){
+      e.preventDefault();
 
-    pos0=pos1-e["touches"][0].screenY;
-    pos1=e["touches"][0].screenY;
-    // set the element's new position:
-    elmnt.style.top = "max(-" + (elmnt.offsetHeight-elmnt.parentElement.offsetHeight) + "px ,min(0%," + (elmnt.offsetTop - pos0) + "px))";
+      pos0=pos1-e["touches"][0].screenY;
+      pos1=e["touches"][0].screenY;
+      // set the element's new position:
+      elmnt.style.top = "max(-" + (elmnt.offsetHeight-elmnt.parentElement.offsetHeight) + "px ,min(0%," + (elmnt.offsetTop - pos0) + "px))";
 
-    if (func!=null){
-      func();
+      if (func!=null){
+        func();
+      }
     }
   }
 }
