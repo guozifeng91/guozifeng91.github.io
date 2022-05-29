@@ -532,6 +532,14 @@
           const cell_touchmove_func=function(e){bh.cell_touchmove(e);};
           cell.addEventListener("touchstart", cell_touchmove_func, {passive:false});
           cell.addEventListener("touchmove", cell_touchmove_func, {passive:false});
+          cell.addEventListener("touchend",
+            function (e){
+              for (let c of cells){
+                  c.children[0].style.transform="scale(1.01)";
+                  c.style.removeProperty("opacity"); // override opacity setting
+              }
+            }
+          ,{passive:false});
         }
 
         return cells;
@@ -545,7 +553,7 @@
 
       // apply touch style changer
       // removed as it is not easy for user to get how to use
-      
+
       // (function(){
       //   function cell_style_update(e){
       //     e = e || window.event;
