@@ -8,9 +8,7 @@ function createElementFromHTML(htmlString) {
   return div.firstChild;
 }
 
-// make the window dragable
-// this part of code is from
-// https://www.w3schools.com/howto/howto_js_draggable.asp
+
 function wheelElement(elmnt, func=null){
   var pos0 = 0, pos1=0;
   if (document.getElementById(elmnt.id + "header")) {
@@ -26,6 +24,49 @@ function wheelElement(elmnt, func=null){
     e.preventDefault();
     // set the element's new position:
     elmnt.style.top = "max(-" + (elmnt.offsetHeight-elmnt.parentElement.offsetHeight) + "px ,min(0%," + (elmnt.offsetTop - e.deltaY) + "px))";
+
+    if (func!=null){
+      func();
+    }
+  }
+}
+
+function touchElement(elmnt, func=null){
+  var pos0 = 0, pos1=0;
+  if (document.getElementById(elmnt.id + "header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "header").addEventListener("touchstart",touchStart,{passive: false });
+    document.getElementById(elmnt.id + "header").addEventListener("touchmove",touchMove,{passive: false });
+    // document.getElementById(elmnt.id + "header").addEventListener("touchend",touchEnd,false);
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.addEventListener("touchstart",touchStart,{ passive: false });
+    elmnt.addEventListener("touchmove",touchMove,{ passive: false });
+    // elmnt.addEventListener("touchend",touchEnd,false);
+  }
+
+  function touchStart(e){
+    e = e || window.event;
+    e.preventDefault();
+
+    pos1=e["touches"][0].screenY;
+    // document.addEventListener("touchstart",touchEnd,false);
+    // document.addEventListener("touchmove",touchMove,false);
+  }
+
+  function touchEnd(e){
+    // document.removeEventListener("touchstart",touchEnd);
+    // document.removeEventListener("touchmove",touchMove);
+  }
+
+  function touchMove(e) {
+    e = e || window.event;
+    e.preventDefault();
+
+    pos0=pos1-e["touches"][0].screenY;
+    pos1=e["touches"][0].screenY;
+    // set the element's new position:
+    elmnt.style.top = "max(-" + (elmnt.offsetHeight-elmnt.parentElement.offsetHeight) + "px ,min(0%," + (elmnt.offsetTop - pos0) + "px))";
 
     if (func!=null){
       func();
@@ -73,7 +114,9 @@ function dragElementY(elmnt, max_y="100%", func=null) {
   }
 }
 
-
+// make the window dragable
+// this part of code is from
+// https://www.w3schools.com/howto/howto_js_draggable.asp
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "header")) {

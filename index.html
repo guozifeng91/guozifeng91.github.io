@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>SOM</title>
+    <title>AN ARCHDAILY LEXICON</title>
     <style media="screen">
       *{
         margin: 0;
@@ -187,7 +187,6 @@
     <!-- js for initializing the som -->
     <script type="text/javascript">
       // initialization sequence
-
       // show title
       (function(word){
         const letters=word.split("");
@@ -396,6 +395,7 @@
               cell.appendChild(cell_img);
               cells.push(cell);
 
+              // cell mouseover behaviour
               cell.onmouseover = cell.onmouseout = function (event) {
                 let type = event.type;
                 if (type=="mouseover"){
@@ -407,40 +407,186 @@
                 }
               }
 
-              cell.onclick=function(){
-                const i = selected_cells.indexOf(index);
-                if (i > -1) {
-                  selected_cells.splice(i, 1);
-                  delete selected_cell_groups[i];
-                  cell.onwheel=null;
-                } else {
-                  selected_cells.push(index);
-                  selected_cell_groups[index]=0;
-
-                  cell.onwheel=function(e){
-                    e = e || window.event;
-                    e.preventDefault();
-                    selected_cell_groups[index] = (selected_cell_groups[index] + group_num_max + Math.sign(e.deltaY))%group_num_max;
-                    cell.style.border=`4px solid ${group_color[selected_cell_groups[index]]}`;
-
-                    display_content_selected_cells_groups();
-                    update_selected_group_info();
-                  }
-                }
-                // if(selected_cells.length>0){
-                //   show_details();
-                // }
-
-                apply_selection_style(cells, selected_cells);
-                display_content_selected_cells_groups();
-                update_selected_group_info();
-              }
+              // set onclick event for cell (deprecated as it is getting messy)
+              // cell.onclick=function(){
+              //   let last_pos=0;
+              //
+              //   const change_cell_group = function(sign){
+              //     selected_cell_groups[index] = (selected_cell_groups[index] + group_num_max + sign)%group_num_max;
+              //     cell.style.border=`4px solid ${group_color[selected_cell_groups[index]]}`;
+              //     display_content_selected_cells_groups();
+              //     update_selected_group_info();
+              //   };
+              //
+              //   const cell_onwheel_func=function(e){
+              //     e = e || window.event;
+              //     e.preventDefault();
+              //     change_cell_group(Math.sign(e.deltaY));
+              //   }
+              //
+              //   // select and de-select
+              //   const i = selected_cells.indexOf(index);
+              //   if (i > -1) {
+              //     // de-select
+              //     selected_cells.splice(i, 1);
+              //     delete selected_cell_groups[i];
+              //
+              //     // deregister mouse and touch events
+              //     cell.onwheel=null;
+              //     // cell.removeEventListener("touchstart",cell_touchmove_func);
+              //     // cell.removeEventListener("touchmove",cell_touchmove_func);
+              //   } else {
+              //     // select
+              //     selected_cells.push(index);
+              //     selected_cell_groups[index]=0;
+              //
+              //     // register onwheel function for cell
+              //     cell.onwheel=cell_onwheel_func;
+              //
+              //     // register touch event for cell
+              //     // cell.addEventListener("touchstart", cell_touchmove_func, {passive:false});
+              //     // cell.addEventListener("touchmove", cell_touchmove_func, {passive:false});
+              //   }
+              //
+              //   // update content list and styles after each click
+              //   apply_selection_style(cells, selected_cells);
+              //   display_content_selected_cells_groups();
+              //   update_selected_group_info();
+              // }
             }
           }
           return cells;
         })(cell_num,img_size);
+
+        // cell behaviour functions
+        class cell_behaviour{
+          constructor(cell,cell_index){
+            this.cell=cell;
+            this.index=cell_index;
+            this.last_touch_pos=0;
+            this.in_selection=false;
+          };
+
+          change_cell_group(sign){
+            const index=this.index;
+            const cell=this.cell;
+            selected_cell_groups[index] = (selected_cell_groups[index] + group_num_max + sign)%group_num_max;
+            cell.style.border=`4px solid ${group_color[selected_cell_groups[index]]}`;
+            display_content_selected_cells_groups();
+            update_selected_group_info();
+          };
+
+          cell_onclick(e){ // onclick behaviour
+            const index=this.index;
+            const i = selected_cells.indexOf(index);
+
+            if (i>-1){
+              // remove
+              selected_cells.splice(i, 1);
+              delete selected_cell_groups[i];
+              this.in_selection=false;
+            } else {
+              // add
+              selected_cells.push(index);
+              selected_cell_groups[index]=0;
+              this.in_selection=true;
+            }
+            // update content list and styles after each click
+            apply_selection_style(cells, selected_cells);
+            display_content_selected_cells_groups();
+            update_selected_group_info();
+          };
+
+          cell_onwheel(e){ // onwheel behaviour
+            if (this.in_selection){ // do nothing unless in selection
+              e = e || window.event;
+              e.preventDefault();
+              this.change_cell_group(Math.sign(e.deltaY));
+            }
+          }
+
+          cell_touchmove(e){ // touchmove behaviour
+            e = e || window.event;
+            if (this.in_selection && e.touches.length==1){ // do nothing unless in selection
+              if (e.type=="touchmove"){ // touch move
+                e.preventDefault();
+                let sign=e.touches[0].screenY-this.last_touch_pos;
+
+                if (Math.abs(sign)>10){ // use threshold to reduce sensitivity
+                  sign=Math.sign(sign);
+                  this.last_touch_pos=e.touches[0].screenY;
+                  this.change_cell_group(sign);
+                }
+              } else { // touch start
+                this.last_touch_pos=e.touches[0].screenY;
+              }
+            }
+          };
+        };
+
+        for (let index=0;index<cells.length;index++){
+          const bh = new cell_behaviour(cells[index], index);
+          const cell = cells[index];
+          cell.onclick=function(e){bh.cell_onclick(e);};
+          cell.onwheel=function(e){bh.cell_onwheel(e);};
+          const cell_touchmove_func=function(e){bh.cell_touchmove(e);};
+          cell.addEventListener("touchstart", cell_touchmove_func, {passive:false});
+          cell.addEventListener("touchmove", cell_touchmove_func, {passive:false});
+        }
+
         return cells;
       })(20,100); // 20x20 som, 100px x 100px images
+    </script>
+
+    <script type="text/javascript">
+      // touch functions
+      touchElement(list_div_obj.slots, function(){list_div_obj.update_bar_pos_by_slot()});
+      touchElement(list_div_obj.pos_bar, function(){list_div_obj.update_slot_pos_by_bar()});
+
+      // apply touch style changer
+      (function(){
+        function cell_style_update(e){
+          e = e || window.event;
+          if (e.touches.length==1){
+            if (e.type=="touchmove"){
+              e.preventDefault();
+            }
+            const loc = event.changedTouches[0];
+            let cell_img = document.elementFromPoint(loc.clientX, loc.clientY);
+            // console.log(cell_img.tagName);
+            if (cell_img.tagName.toLowerCase()=="img"){
+              let cell=cell_img.parentElement;
+              cell_img.style.transform="scale(1.5)";
+              cell.style.opacity="1.0"; // override opacity setting
+
+              for (let c of cells){
+                if (c!=cell){
+                  c.children[0].style.transform="scale(1.01)";
+                  c.style.removeProperty("opacity"); // override opacity setting
+                }
+              }// end for
+            }
+          } // end if
+        }; // end function
+
+        function cell_style_reset(){
+          for (let c of cells){
+              c.children[0].style.transform="scale(1.01)";
+              c.style.removeProperty("opacity"); // override opacity setting
+          }
+        };
+
+        const parent=document.getElementById("display_section");
+        parent.addEventListener("touchmove",function(e){
+          e = e || window.event;
+          cell_style_update(e);
+        },{passive: false});
+
+        parent.addEventListener("touchend",function(e){
+          cell_style_reset();
+        },{passive: false});
+
+      })();
     </script>
   </body>
 </html>
