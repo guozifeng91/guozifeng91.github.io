@@ -48,14 +48,14 @@ function touchElement(elmnt, func=null){
   function touchStart(e){
     e = e || window.event;
     // e.preventDefault();
-    if (e.touhes.length==1){
+    if (e.touches.length==1){
       pos1=e["touches"][0].screenY;
     }
   }
 
   function touchMove(e) {
     e = e || window.event;
-    if (e.touhes.length==1){
+    if (e.touches.length==1){
       e.preventDefault();
 
       pos0=pos1-e["touches"][0].screenY;
