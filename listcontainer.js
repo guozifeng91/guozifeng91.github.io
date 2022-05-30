@@ -50,11 +50,16 @@ class overflowlist{
   }
 
   sync_items(names, urls){
-    for (const n of Object.keys(this.list_items)){
-      if (!(n in names)){
-        this.remove_item(n);
-      }
-    }
+    // for (let n of Object.keys(this.list_items)){
+    //   if (!(n in names)){ // bug detected, in cannot be used for list elements
+    //     this.remove_item(n);
+    //   }
+    // }
+
+    // use remove_all_items instead as the input names and urls are sorted
+    // not a good one, but a lazy solution
+    this.remove_all_items();
+
     for(let i=0;i<names.length;i++){
       this.add_item(names[i],urls[i]);
     }
@@ -86,6 +91,15 @@ class overflowlist{
   remove_item(name){
     let list_items=this.list_items;
     if (name in list_items){
+      this.slots.removeChild(list_items[name]);
+      list_items[name].remove();
+      delete list_items[name];
+    }
+  }
+
+  remove_all_items(){
+    let list_items=this.list_items;
+    for (let name of Object.keys(list_items)){
       this.slots.removeChild(list_items[name]);
       list_items[name].remove();
       delete list_items[name];

@@ -151,7 +151,7 @@
 
     </style>
     <!-- read data from json (js) files  -->
-    <script type="text/javascript" src="data/som/20x20/cell_projects.js"></script>
+    <script type="text/javascript" src="data/som/20x20/cell_projects_sorted.js"></script>
     <script type="text/javascript" src="data/som/20x20/namelist.js"></script>
     <script type="text/javascript" src="data/som/20x20/urllist.js"></script>
     <script type="text/javascript" src="utils.js"></script>
@@ -179,7 +179,7 @@
     <div id="display_details" style="width:20%; left:0%">
       <div class="fill_parent column_container free_element">   <!-- column of header and body -->
         <div id="project_title" class="stretch_text big_header layout_element">
-          <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="auto" viewBox="0 0 277.592 173.9133">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 277.592 173.9133">
             <defs>
               <style>
               /* specify clearly that the logo needs Courier New */
@@ -232,21 +232,33 @@
       const display_content_selected_cells_groups=function () {
         let onehot_activated_group=0;
 
-        let counts={};
+        let counts={}; // in which group a project shows up
         let names=[];
         let urls=[];
+
+        let orders_dict={}; // the total order of a project shows up in all groups
+        let orders=[];
 
         // count how many times each project shows up
         for (let c of selected_cells){
           const current_group=selected_cell_groups[c];
           onehot_activated_group = onehot_activated_group | (1<<current_group);
 
+          let order_in_cell=0;
           for (let i of cell_projects[c]){
             if (i in counts){
               counts[i]= counts[i] | (1<<current_group);
             } else {
               counts[i]=(1<<current_group);
             }
+
+            // record order
+            if (i in orders_dict){
+              orders_dict[i]+=order_in_cell; // sum or min?
+            } else {
+              orders_dict[i]=order_in_cell;
+            }
+            order_in_cell++;
           }
         }
 
@@ -255,8 +267,21 @@
           if (counts[i]==onehot_activated_group){
             names.push(namelist[i]);
             urls.push(urllist[i]);
+            orders.push(orders_dict[i]); // record order
           }
         }
+
+        // argsort code taken from
+        // https://stackoverflow.com/questions/46622486/what-is-the-javascript-equivalent-of-numpy-argsort
+        // changed from arg2-arg1 to arg1-arg2, to inverse the sorting order
+        const dsu = (arr1, arr2) => arr1
+          .map((item, index) => [arr2[index], item]) // add the args to sort by
+          .sort(([arg1], [arg2]) => arg1 - arg2) // sort by the args
+          .map(([, item]) => item); // extract the sorted items
+
+        // sort the name and urlname
+        names=dsu(names, orders);
+        urls=dsu(urls, orders);
 
         list_div_obj.sync_items(names,urls);
       }
@@ -362,11 +387,13 @@
             c.style.border="0px";
           }
         } else {
+          // first reset all cells
           for (let c of cells){
             // c.style.opacity="0.3";
             c.className="cell has_opacity";
             c.style.border="0px";
           }
+          // then set selected cells
           for (let i of selected_cells){
             // cells[i].style.opacity="1.0";
             cells[i].className="cell";
@@ -485,7 +512,9 @@
           change_cell_group(sign){
             const index=this.index;
             const cell=this.cell;
+
             selected_cell_groups[index] = (selected_cell_groups[index] + group_num_max + sign)%group_num_max;
+
             cell.style.border=`4px solid ${group_color[selected_cell_groups[index]]}`;
             display_content_selected_cells_groups();
             update_selected_group_info();
@@ -493,12 +522,12 @@
 
           cell_onclick(e){ // onclick behaviour
             const index=this.index;
-            const i = selected_cells.indexOf(index);
+            const in_list = selected_cells.indexOf(index);
 
-            if (i>-1){
+            if (in_list>-1){
               // remove
-              selected_cells.splice(i, 1);
-              delete selected_cell_groups[i];
+              selected_cells.splice(in_list, 1);
+              delete selected_cell_groups[index]; // bug fix (confusion between in_list (which was i) and index)
               this.in_selection=false;
             } else {
               // add
@@ -513,6 +542,7 @@
           };
 
           cell_onwheel(e){ // onwheel behaviour
+            // console.log(this.index,this.in_selection);
             if (this.in_selection){ // do nothing unless in selection
               e = e || window.event;
               e.preventDefault();
