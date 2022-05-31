@@ -1,0 +1,144 @@
+*{
+  margin: 0;
+  padding: 0;
+  /* font-family: sans-serif; */
+  font-family: 'Courier New', monospace;
+}
+/* unvisited link */
+a:link {
+  color: gray;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: gray;
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+/* selected link */
+a:active {
+  color: gray;
+  text-decoration: none;
+}
+#display_section{
+  position:absolute;
+  overflow: visible;
+  /* width: 80%;
+  left: 20%; */
+  transition-property: left width;
+      transition-duration: 0.2s;
+      transition-timing-function: ease;
+      transition-delay: 0s;
+  z-index: 0;
+}
+#display_details{
+  position:fixed;
+  display: flex;
+  height:100vh;
+  top:0%;
+
+  transition-property: left;
+      transition-duration: 0.2s;
+      transition-timing-function: ease;
+      transition-delay: 0s;
+  z-index: 1;
+}
+#som{
+  position:relative;
+  display: grid;
+  line-height: 0;
+  box-sizing: border-box;
+  width:100%;
+}
+.placed_button{
+  /* position:absolute; */
+  color:#ffffff;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid #ffffff;
+  text-align: center;
+  cursor: pointer;
+}
+.stretch_text{
+  position: relative;
+  width: 96%;
+  max-width: 96%;
+  padding: 2%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.big_header{
+  font-size: 60px;
+}
+img.cell_img {
+  position:relative;
+  width:100%;
+  border: 0px;
+  transform: scale(1.05);
+  /* z-index:1; */
+  transition-property: transform;
+      transition-duration: 0.2s;
+      transition-timing-function: ease;
+      transition-delay: 0s;
+}
+.free_element{
+  position: absolute;
+}
+.layout_element{
+  position: relative;
+}
+.fill_parent{
+  left:0%;
+  top:0%;
+  height: 100%;
+  width: 100%;
+}
+.column_container{
+  display: flex;
+  flex-direction: column;
+}
+.row_column_container{
+  display:flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+.last_child{
+  flex-grow: 1;
+}
+.cell{
+  position:relative;
+  overflow: hidden;
+  border:0px;
+  transition-property: opacity;
+      transition-duration: 0.2s;
+      transition-timing-function: ease;
+      transition-delay: 0s;
+}
+.no_opacity{
+  opacity:1;
+}
+.has_opacity{
+  opacity:0.3;
+}
+.color_block::before{
+  margin-left: 10%;
+}
+.color_block{
+  width: 15px;
+  height: 15px;
+}
+.slot{
+  margin:2%;
+  color:gray;
+  text-align:justify;
+  word-break: break-all;
+  /* font-stretch: expanded; */
+}
