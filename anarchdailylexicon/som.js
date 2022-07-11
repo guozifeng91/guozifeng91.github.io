@@ -211,7 +211,7 @@ const create_som = function (parent, cell_num, img_size){
 
         let cell_img=document.createElement("img");
         cell_img.className="cell_img";
-        cell_img.src=`data/som/${cell_num}x${cell_num}/cells/${row}-${col}-${img_size}.jpg`;
+        cell_img.src=`anarchdailylexicon/data/som/${cell_num}x${cell_num}/cells/${row}-${col}-${img_size}.jpg`;
 
         cell.appendChild(cell_img);
         cells.push(cell);
