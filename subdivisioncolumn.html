@@ -93,7 +93,7 @@
       return param_list;
     };
 
-    const smooth_param = function(params, k=5) {
+    const smooth_param = function(params, k=3) {
       const len=params.length;
       let params_=[];
       for (let i = 0; i < len; i++){
@@ -135,7 +135,7 @@
     };
 
     const random_koch_column = function(no_indice=true, col_size=0.1, iter=4, layer_h=0.01, layers=100, step=6, step_min=2){
-      const params=smooth_param(smooth_param(random_param_with_scale(step,step_min,layers)));
+      const params=smooth_param(random_param_with_scale(step,step_min,layers));
 
       let v_num=-1;
       let vertices=[];
