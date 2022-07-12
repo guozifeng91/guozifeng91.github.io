@@ -10,8 +10,174 @@
       font-family: 'Courier New', monospace;
     }
   </style>
+  <script type="text/javascript">
+    const norm = function(a){
+      // cross product between a 2D vec and the unit Z
+      const [a1,a2]=a;
+      return [a2,-a1];
+    };
+
+    const koch_seg_2d = function(segment, param){
+      // subdivide a line segment with given parameters
+      // returns: new segments, sorted
+
+      const [[s1,s2],[e1,e2]] = segment;
+      const [a,b,c,d] = param;
+
+      // a: [0,1], determine the position of the bottom-left node of the triangle
+      // b: [0,1], determine the position of the bottom-right node of the triangle
+      // c: [0,1], determine the horizontal position of the top node of the triangle
+      // d: determine the vertical position of the top node of the triangle
+
+      const delta1=e1-s1;
+      const delta2=e2-s2;
+
+      const [norm1,norm2]=norm([delta1,delta2]);
+
+      const a1=s1+delta1*a;
+      const a2=s2+delta2*a;
+
+      const b1=a1+delta1*(1-a)*b;
+      const b2=a2+delta2*(1-a)*b;
+
+      const c1=a1+delta1*(1-a)*b*c + norm1*d;
+      const c2=a2+delta2*(1-a)*b*c + norm2*d;
+
+      return [[s1,s2],[a1,a2],[c1,c2],[b1,b2],[e1,e2]];
+    };
+
+    const koch_2d = function(polygon, param, iter=0){
+      // input: polygon (end point != start point) + parameters
+      // output: subdivided polygon
+
+      let poly_sub = [];
+      const len=polygon.length;
+      for (let i=0; i < len; i++){
+        let p = koch_seg_2d([polygon[i], polygon[(i+1)%len]], param);
+        p.pop();
+        poly_sub=poly_sub.concat(p);
+      }
+      // iterative process
+      if (iter>0){
+        return koch_2d(poly_sub, param, iter-1);
+      } else {
+        return poly_sub;
+      }
+    };
+
+    const inter_param_linear = function(key_param) {
+      // generate linear interpolations of parameters
+      // input: {key:param, key:param} where key are integers (key frames) between which interpoloations are generated
+      const keys = Object.keys(key_param).sort((a, b) => a - b);
+      const len=keys.length;
+
+      let param_list=[]
+      for (let i = 0; i < len-1; i++){
+        let k1=parseInt(keys[i]);
+        let k2=parseInt(keys[i+1]);
+        let param1 = key_param[keys[i]];
+        let param2 = key_param[keys[i+1]];
+
+        for (let k=k1; k<k2; k++){
+          let ratio=(k-k1) / (k2-k1);
+
+          let param_intp=[];
+          for (let j = 0; j < param1.length; j++){
+            param_intp.push(param1[j] + ratio * (param2[j] - param1[j]));
+          }
+          param_list.push(param_intp);
+        }
+      }
+
+      param_list.push(key_param[keys[len-1]]);
+      return param_list;
+    };
+
+    const smooth_param = function(params, k=5) {
+      const len=params.length;
+      let params_=[];
+      for (let i = 0; i < len; i++){
+        let param_intp=[];
+
+        for (let dim=0; dim<params[i].length; dim++){
+          let sum=0;
+          for (let j=-k;j<=k;j++) {
+            let id=Math.min(len-1, Math.max(0, i+j));
+            sum+=params[id][dim];
+          }
+          sum/=(k*2+1);
+          param_intp.push(sum);
+
+        }
+        params_.push(param_intp);
+      }
+      return params_;
+    };
+
+    const random_param_with_scale = function(step=30, step_min=5, max=100, func=inter_param_linear){
+      let params={};
+      let c=1;
+      while(c<max){
+        // scale, a, b, c, d
+        params[c]=[Math.random()*1.2+0.1,
+          Math.random()*0.3,
+          Math.random()*0.3 + 0.7,
+          Math.random(),
+          Math.random()-0.5];
+        c+=(step_min + Math.floor(Math.random()*step));
+      }
+      params[max]=[Math.random()*1.2+0.1,
+        Math.random()*0.3,
+        Math.random()*0.3 + 0.7,
+        Math.random(),
+        Math.random()-0.5];
+      return func(params);
+    };
+
+    const random_koch_column = function(no_indice=true, col_size=0.1, iter=4, layer_h=0.01, layers=100, step=6, step_min=2){
+      const params=smooth_param(smooth_param(random_param_with_scale(step,step_min,layers)));
+
+      let v_num=-1;
+      let vertices=[];
+      let indices=[];
+      for (let i = 0; i < layers;i++){
+        let [s,a,b,c,d]=params[i];
+        s = col_size*s;
+        const poly=[[-s,-s],[s,-s],[s,s],[-s,s]];
+
+        let koch=koch_2d(poly, [a,b,c,d], iter);
+        if (v_num<0){
+          v_num = koch.length;
+        }
+
+        for (let j=0;j<v_num;j++){
+          vertices.push(koch[j][0],(i-layers/2)*layer_h,koch[j][1]);
+
+          if (i>0){
+            const a = (i-1)*v_num + j;
+            const b = (i-1)*v_num + (j + 1)%v_num;
+            const c = i*v_num + (j + 1)%v_num;
+            const d = i*v_num + j;
+            indices.push(a,c,b);
+            indices.push(a,d,c);
+          }
+        }
+      }
+
+      if (no_indice){
+        let vertices3=[];
+        for (let i of indices){
+          vertices3.push(vertices[i*3+0],vertices[i*3+1],vertices[i*3+2]);
+        }
+        return vertices3;
+      }
+      return [vertices, indices];
+    };
+  </script>
 </head>
 <body>
+  <!-- Three.js 3D -->
+
   <script async="" src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
   <script type="importmap">
 			{
@@ -23,58 +189,107 @@
     <script type="module">
 
 			import * as THREE from 'three';
+      import { OrbitControls } from './subdivisioncolumn/threejs/OrbitControls.js';
+      import { GUI } from './subdivisioncolumn/threejs/lil-gui.module.min.js';
 
 			let camera, scene, renderer;
 			let mesh;
+      const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: true, side: THREE.DoubleSide } )
 
 			init();
 			animate();
 
-			function init() {
-
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-				camera.position.z = 400;
-
-				scene = new THREE.Scene();
-
-				const texture = new THREE.TextureLoader().load( './subdivisioncolumn/data/crate.gif' );
-
-				const geometry = new THREE.BoxGeometry( 200, 200, 200 );
-				const material = new THREE.MeshBasicMaterial( { map: texture } );
-        
-				mesh = new THREE.Mesh( geometry, material );
+      function new_mesh(){
+        const geometry = new THREE.BufferGeometry();
+        const no_indice=false;
+        let vts,ids;
+        if (no_indice){
+          vts = random_koch_column(no_indice);
+        } else{
+          [vts,ids] = random_koch_column(no_indice);
+          geometry.setIndex( ids );
+        }
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vts, 3 ) );
+        geometry.computeVertexNormals();
+        // const geometry = new THREE.TorusKnotGeometry( 0.4, 0.08, 95, 20 );
+				mesh = new THREE.Mesh(geometry, material);
+        // mesh.receiveShadow = true;
+        mesh.castShadow = true;
 				scene.add( mesh );
+      };
+
+			function init() {
+				scene = new THREE.Scene();
+        scene.background = new THREE.Color( 0xffffff );
+				// scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
+        scene.add( new THREE.AmbientLight( 0x808080 ) );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				dirLight.position.set( 2, 3, 3 );
+				dirLight.castShadow = true; // needed for shadow
+        dirLight.shadow.camera.top = 2;
+				dirLight.shadow.camera.bottom = - 2;
+				dirLight.shadow.camera.left = - 2;
+				dirLight.shadow.camera.right = 2;
+				dirLight.shadow.camera.near = 0.1;
+				dirLight.shadow.camera.far = 40;
+				scene.add( dirLight );
+
+        new_mesh();
+
+        const plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshPhongMaterial( { color: 0xffffff, depthWrite: false } ) );
+				plane.rotation.x = - Math.PI / 2;
+        plane.position.set(0,-0.5,0);
+				plane.receiveShadow = true;
+				scene.add( plane );
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.shadowMap.enabled = true; // needed for shadow
 				document.body.appendChild( renderer.domElement );
-
-				//
-
 				window.addEventListener( 'resize', onWindowResize );
 
+        camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 0.25, 16 );
+        const controls = new OrbitControls( camera, renderer.domElement );
+        controls.mouseButtons = {
+        	LEFT: THREE.MOUSE.ROTATE,
+        	MIDDLE: THREE.MOUSE.DOLLY,
+        	RIGHT: THREE.MOUSE.DOLLY // disable pan
+        }
+        camera.position.set( 0, 0, 3 );
+        //controls.update() must be called after any manual changes to the camera's transform
+        controls.update();
+
+        createPanel();
 			}
 
-			function onWindowResize() {
+      function createPanel() {
+    				const panel = new GUI( { width: 310 } );
+            panel.add( {"about":function(){window.open("./index.html", '_blank');}}, 'about' );
+    				panel.add( {'random':regenerate}, 'random' );
+    				panel.open();
+    			}
 
+      function regenerate(){
+        scene.remove(mesh);
+        mesh.geometry.dispose();
+
+        new_mesh();
+      }
+
+			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
 
 			function animate() {
-
 				requestAnimationFrame( animate );
-
 				// mesh.rotation.x += 0.005;
 				mesh.rotation.y += 0.01;
 				// mesh.rotation.z += 0.01;
-
 				renderer.render( scene, camera );
-
 			}
 
 		</script>
