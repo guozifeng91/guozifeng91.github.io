@@ -31,7 +31,8 @@ a:hover {
 .logo-wrap{
   position: relative;
   width: 100%;
-  height: 250px;
+  min-height: 250px;
+  height:25vh;
 }
 
 .logo-main-page-fixed{
