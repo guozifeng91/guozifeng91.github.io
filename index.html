@@ -102,9 +102,10 @@
         })();
 
         // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
-        if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
+
           // only triger when at the top of the page
           setTimeout(function() {
+
             let i = 1;                  //  set your counter to 1
 
             function myLoop() {         //  create a loop function
@@ -117,10 +118,11 @@
                 }                       //  delay: 3ms
               }, 3)
             }
-
-            myLoop();
+            if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
+              myLoop();
+            }
           }, 1000); // wait 1s
-        }
+
       </script>
       <!-- </main> -->
   </body>
