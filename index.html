@@ -1,9 +1,127 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
-    <meta charset="utf-8" http-equiv="refresh" content="0; url=anarchdailylexicon.html" />
-    <title></title>
+    <!-- <meta charset="utf-8" http-equiv="refresh" content="0; url=anarchdailylexicon.html" /> -->
+    <meta charset="utf-8"/>
+    <title>TOWARDS THE DIGITAL ARCHITECTONIC</title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+        /* font-family: sans-serif; */
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+    <script type="text/javascript">
+      const list_of_pages={
+        "An Archdaily Lexicon":"./anarchdailylexicon_intro.html",
+        "Subdivision Columns":"./subdivisioncolumn_intro.html",
+        "From Simulation to Synthesis":"./template.html",
+        "Encoding the Village":"./template.html",
+        "Friends of Urban Plots":"./template.html",
+        "Bubble Diagrams":"./template.html",
+        "CAAD-Parxis: Map & Models":"./template.html",
+        "Digital Fabrications":"./template.html",
+      };
+      const list_of_links={
+        "Chair of Digital Architectonics":"https://www.caad.arch.ethz.ch/",
+        "SHARE Lab":"https://www.ai-share-lab.com/",
+        "Lab AAA":"https://labaaa.org/"
+      };
+    </script>
+    <link rel="stylesheet" href="./stylesheet.css">
   </head>
   <body>
+    <!-- https://css-tricks.com/scroll-fix-content/ -->
+      <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+          <div class="logo-wrap-main-page" data-hover-hint="logo">
+                <div class="logo-main-page">
+                  <a href="./index.html">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><title>logo</title><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                      <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+                  </a>
+                </div>
+          </div>
+      </header>
+      <script type="text/javascript">
+        (function(){
+          let warp = document.getElementsByClassName("logo-wrap-main-page")[0];
+          let logo = document.getElementsByClassName("logo-main-page")[0];
+          window.onscroll = function(e) {
+            const h = window.innerHeight * 0.3;
+            if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
+              logo.className ="logo-main-page-fixed";
+            } else {
+              logo.className ="logo-main-page";
+            }
+          }
+        })();
+      </script>
+      <!-- <main> -->
+      <div class="project-container-wrapper">
+        <div id="project-container" class="project-container">
+          <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
+            <div class="project-cover">
+              <a href="./about.html">About</a>
+            </div>
+          <!-- </section> -->
+        </div>
+      </div>
+
+      <script type="text/javascript">
+        (function(){
+          const add_section=function(k, v=null, target=null){
+            const container = document.getElementById("project-container");
+            const cover = document.createElement("div");
+            cover.className="project-cover";
+
+            if (v!=null){
+              const link = document.createElement("a");
+              link.href=v;
+              link.innerHTML=k;
+              if (target!=null){
+                link.target=target;
+              }
+              cover.appendChild(link);
+            } else {
+              cover.innerHTML=k;
+            }
+            container.appendChild(cover);
+          };
+
+          for (let k in list_of_pages){
+            add_section(k,list_of_pages[k]);
+          }
+          add_section("");
+          add_section("");
+          add_section("-");
+          for (let k in list_of_links){
+            add_section(k,list_of_links[k],"_blank");
+          }
+          add_section("-");
+        })();
+
+        // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
+        if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
+          // only triger when at the top of the page
+          setTimeout(function() {
+            let i = 1;                  //  set your counter to 1
+
+            function myLoop() {         //  create a loop function
+              setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+                // scroll following sine curve
+                window.scrollBy(0, Math.sin(i*3.14159265359/75-1.57079632679)*2+2);   //  your code here
+                i++;                    //  increment the counter
+                if (i < 150) {           //  150 iterations
+                  myLoop();
+                }                       //  delay: 3ms
+              }, 3)
+            }
+
+            myLoop();
+          }, 1000); // wait 1s
+        }
+      </script>
+      <!-- </main> -->
   </body>
 </html>

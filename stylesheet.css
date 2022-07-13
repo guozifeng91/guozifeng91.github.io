@@ -1,0 +1,124 @@
+*{
+  margin: 0;
+  padding: 0;
+  /* font-family: sans-serif; */
+  font-family: 'Courier New', monospace;
+}
+/* unvisited link */
+a:link {
+  color: gray;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: gray;
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.logo-wrap-main-page{
+  position: relative;
+  width: 100%;
+  height:100vh;
+}
+
+.logo-wrap{
+  position: relative;
+  width: 100%;
+  height: 250px;
+}
+
+.logo-main-page-fixed{
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  -ms-transform: translate(-50%, -10%);
+  transform: translate(-50%, -10%);
+  background-color: #ffffff;
+  z-index:2;
+}
+
+.logo-main-page{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  background-color: none;
+}
+
+.logo{
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  -ms-transform: translate(-50%, -10%);
+  transform: translate(-50%, -10%);
+}
+
+.project-container-wrapper{
+  position: relative;
+  width: 100%;
+  min-height:35vh;
+  /* background-color: #ffa0a0; */
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 720px;
+}
+
+.project-container{
+  position: relative;
+  /* float: none; */
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  /* padding-top: 10%; */
+  height: 100%;
+  width: 100%;
+}
+
+.project-cover{
+  float: none;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 18px;
+  /* margin: auto; */
+  padding-bottom: 15px;
+  /* padding-left: 10%;
+  padding-right: 10%; */
+  padding-top: 15px;
+  text-align: center;
+  /* text-transform: none; */
+  width: auto;
+  /* max-width: 50%; */
+}
+
+.project-text{
+  float: none;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 18px;
+  padding-bottom: 24px;
+  padding-top: 24px;
+  text-align: center;
+  width: auto;
+}
+
+.project-title{
+  float: none;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 24px;
+  padding-bottom: 36px;
+  padding-top: 36px;
+  text-align: center;
+  width: auto;
+}

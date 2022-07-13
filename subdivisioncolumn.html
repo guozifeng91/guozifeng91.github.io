@@ -265,8 +265,8 @@
 			}
 
       function createPanel() {
-    				const panel = new GUI( { width: 310 } );
-            panel.add( {"about":function(){window.open("./index.html", '_blank');}}, 'about' );
+    				const panel = new GUI( { width: 120, title:'generate'} );
+            // panel.add( {"about":function(){window.open("./index.html", '_blank');}}, 'about' );
     				panel.add( {'random':regenerate}, 'random' );
     				panel.open();
     			}
