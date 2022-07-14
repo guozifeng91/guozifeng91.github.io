@@ -134,7 +134,7 @@ a:hover {
     width: 100%;
   }
 
-  .project-text-centered{
+  .project-text-centered, .project-text-centered-phone{
     position: relative;
     /* float: none; */
     font-size: 36px;
@@ -146,12 +146,19 @@ a:hover {
     text-align: center;
     width: 100%;
   }
+
+  .project-text-centered-pc{
+    position: relative;
+    max-height: 1px;
+    visibility: hidden;
+  }
+
   .project-text>p{
     padding-left: 48px;
     padding-right: 48px;
   }
 
-  .project-text-centered>p{
+  .project-text-centered>p, .project-text-centered-phone>p{
     padding-left: 48px;
     padding-right: 48px;
   }
@@ -166,6 +173,18 @@ a:hover {
     padding-top: 32px;
     text-align: center;
     width: 100%;
+  }
+
+  .row-column-container{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    overflow: visible;
+  }
+
+  .row-column-gapper{
+    height: 5%;
   }
 }
 
@@ -204,7 +223,7 @@ a:hover {
     width: 100%;
   }
 
-  .project-text-centered{
+  .project-text-centered, .project-text-centered-pc{
     position: relative;
     font-size: 18px;
     font-style: normal;
@@ -216,6 +235,11 @@ a:hover {
     width: 100%;
   }
 
+ .project-text-centered-phone{
+   position: relative;
+   max-height: 1px;
+   visibility: hidden;
+ }
   .project-title{
     position: relative;
     font-size: 24px;
@@ -226,5 +250,15 @@ a:hover {
     padding-top: 16px;
     text-align: center;
     width: 100%;
+  }
+  .row-column-container{
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex: none;
+    overflow: visible;
+  }
+  .row-column-gapper{
+    width: 5%;
   }
 }
