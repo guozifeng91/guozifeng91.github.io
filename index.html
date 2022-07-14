@@ -122,8 +122,9 @@
         // only triger when at the top of the page
         setTimeout(function() {
           // scroll down to precicely 50vh
-          const imax=150;
+          const imax=50;
           const ihalf=imax/2;
+          const delay=5;
 
           // get the steps
           const h=window.innerHeight/2;
@@ -138,6 +139,7 @@
           for (let n=0;n<imax;n++){
             steps[n]/=total;
             steps[n]*=h;
+            steps[n]=Math.ceil(steps[n]);
           }
 
           let i = 1;
@@ -149,7 +151,7 @@
               if (i < imax) {           //  150 iterations
                 myLoop();
               }                       //  delay: 3ms
-            }, 3)
+            }, delay)
           }
           if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
             myLoop();
