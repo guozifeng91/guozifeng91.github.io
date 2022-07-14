@@ -51,8 +51,35 @@ a:hover {
   left: 50%;
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
-  background-color: none;
 }
+
+/* .logo-main-page-fixed{
+  position: fixed;
+  height:33.5%;
+  width: 100%;
+  text-align: center;
+}
+.logo-main-page{
+  position: absolute;
+  height:100%;
+  width: 100%;
+  text-align: center;
+}
+.logo-v-align{
+  position: absolute;
+  width:100%;
+  top:50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+} */
+/* .logo-center-align{
+  position: absolute;
+  top:50%;
+  left: 50%;
+  -ms-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
+  background-color: none;
+} */
 
 .logo{
   position: absolute;
@@ -62,64 +89,142 @@ a:hover {
   transform: translate(-50%, -10%);
 }
 
-.project-container-wrapper{
-  position: relative;
-  width: 100%;
-  min-height:35vh;
-  /* background-color: #ffa0a0; */
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 720px;
-}
-
 .project-container{
   position: relative;
-  /* float: none; */
-  display: flex;
+  /* display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
-  /* padding-top: 10%; */
+  flex-direction: column; */
   height: 100%;
   width: 100%;
 }
 
-.project-cover{
-  float: none;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 300;
-  line-height: 18px;
-  /* margin: auto; */
-  padding-bottom: 15px;
-  /* padding-left: 10%;
-  padding-right: 10%; */
-  padding-top: 15px;
-  text-align: center;
-  /* text-transform: none; */
-  width: auto;
-  /* max-width: 50%; */
+/* For Mobile */
+@media screen and (max-width: 980px) {
+  .project-container-wrapper{
+    position: relative;
+    width: 100%;
+    min-height:35vh;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 980px;
+  }
+
+  .project-cover{
+    float: none;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 36px;
+    padding-bottom: 24px;
+    padding-top: 24px;
+    text-align: center;
+    width: auto;
+  }
+
+  .project-text{
+    position: relative;
+    /* float: none; */
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 60px;
+    padding-bottom: 32px;
+    padding-top: 32px;
+    text-align: justify;
+    width: 100%;
+  }
+
+  .project-text-centered{
+    position: relative;
+    /* float: none; */
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 60px;
+    padding-bottom: 32px;
+    padding-top: 32px;
+    text-align: center;
+    width: 100%;
+  }
+  .project-text>p{
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .project-text-centered>p{
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .project-title{
+    float: none;
+    font-size: 42px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 60px;
+    padding-bottom: 32px;
+    padding-top: 32px;
+    text-align: center;
+    width: 100%;
+  }
 }
 
-.project-text{
-  float: none;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 300;
-  line-height: 18px;
-  padding-bottom: 24px;
-  padding-top: 24px;
-  text-align: center;
-  width: auto;
-}
+/* For PC */
+@media screen and (min-width: 981px) {
+  .project-container-wrapper{
+    position: relative;
+    width: 100%;
+    min-height:35vh;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 720px;
+  }
 
-.project-title{
-  float: none;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 300;
-  line-height: 24px;
-  padding-bottom: 36px;
-  padding-top: 36px;
-  text-align: center;
-  width: auto;
+  .project-cover{
+    float: none;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 24px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+    text-align: center;
+    width: auto;
+  }
+
+  .project-text{
+    position: relative;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 24px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+    text-align: justify;
+    width: 100%;
+  }
+
+  .project-text-centered{
+    position: relative;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 24px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .project-title{
+    position: relative;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 32px;
+    padding-bottom: 16px;
+    padding-top: 16px;
+    text-align: center;
+    width: 100%;
+  }
 }

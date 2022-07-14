@@ -35,103 +35,128 @@
   </head>
   <body>
     <!-- https://css-tricks.com/scroll-fix-content/ -->
-      <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
-          <div class="logo-wrap-main-page" data-hover-hint="logo">
-                <div class="logo-main-page">
-                  <a href="./index.html">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
-                      <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
-                  </a>
-                </div>
+    <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+        <div class="logo-wrap-main-page" data-hover-hint="logo">
+            <div class="logo-main-page">
+              <!-- <div class="logo-v-align"> -->
+              <a href="./index.html">
+              <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                  <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+              </a>
+            <!-- </div> -->
           </div>
-      </header>
-      <script type="text/javascript">
-        (function(){
-          let warp = document.getElementsByClassName("logo-wrap-main-page")[0];
-          let logo = document.getElementsByClassName("logo-main-page")[0];
-          window.onscroll = function(e) {
-            const h = window.innerHeight * 0.3;
-            if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
-              logo.className ="logo-main-page-fixed";
-            } else {
-              logo.className ="logo-main-page";
-            }
-          }
-        })();
-      </script>
-      <!-- <main> -->
-      <div class="project-container-wrapper">
-        <div id="project-container" class="project-container">
-          <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
-            <div class="project-cover">
-              <a href="./about.html">About</a>
-            </div>
-            <div class="project-cover">
-              <a href="./cv.html">CV</a>
-            </div>
-            <div class="project-cover"></div>
-            <div class="project-cover">-</div>
-            <div class="project-cover"></div>
-          <!-- </section> -->
         </div>
+    </header>
+    <script type="text/javascript">
+      (function(){
+        let warp = document.getElementsByClassName("logo-wrap-main-page")[0];
+        let logo = document.getElementsByClassName("logo-main-page")[0];
+        window.onscroll = function(e) {
+          const h = window.innerHeight * 0.3;
+          // console.log(document.body.scrollTop, document.documentElement.scrollTop, h);
+          if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
+            logo.className ="logo-main-page-fixed";
+          } else {
+            logo.className ="logo-main-page";
+          }
+        }
+      })();
+    </script>
+    <!-- <main> -->
+    <div class="project-container-wrapper">
+      <div id="project-container" class="project-container">
+        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
+          <div class="project-cover">
+            <a href="./about.html">About</a>
+          </div>
+          <div class="project-cover">
+            <a href="./cv.html">CV</a>
+          </div>
+          <div class="project-cover"></div>
+          <div class="project-cover">-</div>
+          <div class="project-cover"></div>
+        <!-- </section> -->
       </div>
+    </div>
 
-      <script type="text/javascript">
-        (function(){
-          const add_section=function(k, v=null, target=null){
-            const container = document.getElementById("project-container");
-            const cover = document.createElement("div");
-            cover.className="project-cover";
+    <script type="text/javascript">
+      (function(){
+        const add_section=function(k, v=null, target=null){
+          const container = document.getElementById("project-container");
+          const cover = document.createElement("div");
+          cover.className="project-cover";
 
-            if (v!=null){
-              const link = document.createElement("a");
-              link.href=v;
-              link.innerHTML=k;
-              if (target!=null){
-                link.target=target;
-              }
-              cover.appendChild(link);
-            } else {
-              cover.innerHTML=k;
+          if (v!=null){
+            const link = document.createElement("a");
+            link.href=v;
+            link.innerHTML=k;
+            if (target!=null){
+              link.target=target;
             }
-            container.appendChild(cover);
-          };
-
-          for (let k in list_of_pages){
-            add_section(k,list_of_pages[k]);
+            cover.appendChild(link);
+          } else {
+            cover.innerHTML=k;
           }
-          add_section("");
-          add_section("-");
-          add_section("");
-          for (let k in list_of_links){
-            add_section(k,list_of_links[k],"_blank");
-          }
-          add_section("-");
-        })();
+          container.appendChild(cover);
+        };
 
+        for (let k in list_of_pages){
+          add_section(k,list_of_pages[k]);
+        }
+        add_section("");
+        add_section("-");
+        add_section("");
+        for (let k in list_of_links){
+          add_section(k,list_of_links[k],"_blank");
+        }
+        add_section("-");
+      })();
+
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      if (urlParams.get('position')>0) {
+        // scroll down by 100hv (return from other pages)
+        window.scrollBy(0, window.innerHeight/2);
+      } else {
         // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
+        // only triger when at the top of the page
+        setTimeout(function() {
+          // scroll down to precicely 50vh
+          const imax=150;
+          const ihalf=imax/2;
 
-          // only triger when at the top of the page
-          setTimeout(function() {
+          // get the steps
+          const h=window.innerHeight/2;
+          let steps=[];
+          let total=0;
+          for (let n=0;n<imax;n++){
+            const v=Math.sin(n*3.14159265359/ihalf-1.57079632679)+1;
+            steps.push(v);
+            total+=v;
+          }
 
-            let i = 1;                  //  set your counter to 1
+          for (let n=0;n<imax;n++){
+            steps[n]/=total;
+            steps[n]*=h;
+          }
 
-            function myLoop() {         //  create a loop function
-              setTimeout(function() {   //  call a 3s setTimeout when the loop is called
-                // scroll following sine curve
-                window.scrollBy(0, Math.sin(i*3.14159265359/75-1.57079632679)*5+5);   //  your code here
-                i++;                    //  increment the counter
-                if (i < 150) {           //  150 iterations
-                  myLoop();
-                }                       //  delay: 3ms
-              }, 3)
-            }
-            if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
-              myLoop();
-            }
-          }, 1000); // wait 1s
-
-      </script>
-      <!-- </main> -->
+          let i = 1;
+          function myLoop() {         //  create a loop function
+            setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+              // scroll following sine curve
+              window.scrollBy(0, steps[i]);   //  your code here
+              i++;                    //  increment the counter
+              if (i < imax) {           //  150 iterations
+                myLoop();
+              }                       //  delay: 3ms
+            }, 3)
+          }
+          if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
+            myLoop();
+          }
+        }, 1000); // wait 1s
+      }
+    </script>
+    <!-- </main> -->
   </body>
 </html>
