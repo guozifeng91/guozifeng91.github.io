@@ -12,6 +12,51 @@
       }
     </style>
     <link rel="stylesheet" href="./stylesheet.css">
+    <link rel="stylesheet" href="./style-amended.css">
+
+    <style>
+      .section-title{
+        margin-left: 2em;
+        text-indent: -2em;
+        padding-top:1em;
+        padding-bottom:1em;
+        font-weight: bold;
+      }
+      .section-content{
+        /* margin-left: 2em;
+        text-indent: 0em; */
+        font-size:80%;
+        line-height:100%;
+        padding-bottom:1em;
+      }
+      .section-publications{
+        margin-left: 2em;
+        text-indent: -2em;
+        font-size:80%;
+        line-height:100%;
+        padding-bottom:1em;
+      }
+      .datetime{
+        float:right;
+        font-size:80%;
+      }
+      @media screen and (max-width: 980px) {
+        .pc{
+          max-width: 1px;
+          line-height: 1px;
+          font-size: 0.1px;
+          visibility: hidden;
+        }
+      }
+      @media screen and (min-width: 981px) {
+        .phone{
+          max-width: 1px;
+          line-height: 1px;
+          font-size: 0.1px;
+          visibility: hidden;
+        }
+      }
+    </style>
   </head>
   <body>
     <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
@@ -30,11 +75,153 @@
         <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
           <div class="project-title">
             ZIFENG GUO
+            <p class="section-content">Dr. sc. ETH Zürich</p>
           </div>
-          <div class="project-text-centered">
-            Dr. sc. ETH Zürich
+          <div class="project-text-centered">-</div>
+          <div class="project-title">
+           Education
+          </div>
+          <div class="project-text">
+            <p class="section-title">Doctor of Science, <a href="https://www.ethz.ch/" target="_blank">ETH Zürich</a><span class="datetime">2017 - 2022</span></p>
+            <p class="section-content">Supervisor: Prof. Hovestadt, L., Dr. Leitao, J. P., Prof. Li, B.</p>
+            <p class="section-content">Rapid (< 3s) urban-scale flood simulation using machine learning</p>
+            <p class="section-content">Search engine of > 30K architecture projects</p>
+            <p class="section-content">Detecting & modeling typical urban traffic patterns</p>
+
+            <p class="section-title">Master of Architecture, <a href="https://www.seu.edu.cn/" target="_blank"><span class="pc">Southeast University</span><span class="phone">SEU</span></a><span class="datetime">2014 - 2017</span></p>
+            <p class="section-content">Supervisor: Prof. Li, B.</p>
+            <p class="section-content">Automatic generation of 3-D building layouts using evolutionary algorithms</p>
+            <p class="section-content">Performance-driven optimization of building blocks</p>
+
+            <p class="section-title">Bachelor of Architecture, <a href="https://www.seu.edu.cn/" target="_blank"><span class="pc">Southeast University</span><span class="phone">SEU</span></a><span class="datetime">2009 - 2014</span></p>
+            <p class="section-content">Rule-based generation of traditional Chinese villages</p>
           </div>
 
+          <div class="project-title">
+           Work Experiences
+          </div>
+          <div class="project-text">
+            <p class="section-title">Technical Consultant, <a href="https://www.kke.co.jp/en/" target="_blank"><span class="pc">Kozo Keikaku Engineering</span><span class="phone">KKE Japan</span></a><span class="datetime">2020</span></p>
+            <p class="section-content">Part-time position during doctoral study (worked remotely)</p>
+            <p class="section-content">Develop algorithms for optimizing comercial building layouts</p>
+
+            <p class="section-title">Computational Designer, <a href="http://adri.seu.edu.cn/#/" target="_blank">AESEU</a><span class="datetime">2014 - 2017</span></p>
+            <p class="section-content">Part-time position during bachelor’s and master’s studies</p>
+            <p class="section-content">Parametric design and digital fabrication of the building envelope of Nanjing Youth Olympic reception center</p>
+            <p class="section-content">Parametric design and digital fabrication of two landscape installations</p>
+          </div>
+
+          <div class="project-title">
+           Academic Experiences
+          </div>
+          <div class="project-text">
+            <p class="section-title">Postdoc Researcher, <a href="https://www.ufl.edu/" target="_blank"><span class="pc">Univeristy of Florida</span><span class="phone">UF</span></a><span class="datetime">2022 - present</span></p>
+            <p class="section-content">Full-time position</p>
+            <p class="section-content">3d structural forms generation from semantic text inputs using machine learning</p>
+
+            <p class="section-title">Teaching Assistant, <a href="https://www.ethz.ch/" target="_blank">ETH Zürich</a><span class="datetime">2018 - 2020</span></p>
+            <p class="section-content">Part-time position during doctoral study</p>
+            <p class="section-content">Undergraduate elective cource of 2 credits (3 semesters)</p>
+          </div>
+
+          <div class="project-title">
+           Teaching
+          </div>
+          <div class="project-text">
+            <p class="section-title"><a href="https://www.ai-share-lab.com/teaching" target="_blank">Playing Models</a>, <span class="pc">Univeristy of Florida</span><span class="phone">UF</span><span class="datetime">2022</span></p>
+            <p class="section-content">School of Architecture (with Prof. Saldaña Ochoa, K., Prof. Huang. L., and Dr. Bokhari, A.)</p>
+            <p class="section-content">Research seminar on implementing AI and game engine in a design curriculum</p>
+
+            <p class="section-title"><a href="https://www.caad.arch.ethz.ch/teaching" target="_blank">Map & Models</a>, ETH Zürich<span class="datetime">2018 - 2020</span></p>
+            <p class="section-content">Department of Architecture (with Dr. Saldaña Ochoa, K.)</p>
+            <p class="section-content">Theoretical and practical course on coding, artificial intelligence, and architecture for architecture undergraduate students</p>
+
+            <p class="section-title">Chengdu: Slow & Fast, ETH Zürich<span class="datetime">2019</span></p>
+            <p class="section-content">Seminar week, Department of Architecture (die Seminarwochen des D-ARCH)</p>
+            <p class="section-content">Field trip on architecture and public spaces in the local urban and rural areas in Chengdu, China</p>
+
+          </div>
+
+          <div class="project-title">
+           Awards
+          </div>
+          <div class="project-text">
+            <p class="section-title">UFII SEED Award Grant, <span class="pc">Univeristy of Florida</span><span class="phone">UF</span><span class="datetime">2022</span></p>
+            <p class="section-content">with Prof. Saldaña Ochoa, K., Prof. Mejia Puig, L., and Prof. D’Acunto, P.</p>
+            <p class="section-content">Name: From texts to 3D structural forms</p>
+
+            <p class="section-title">2nd Price, <a href="https://eventornado.com/event/polyhack-2020#home" target="_blank"><span class="pc">the Polyhack 2020 Online Hackathon</span><span class="phone">Polyhack 2020</span></a>, ETH Zürich<span class="datetime">2020</span></p>
+            <p class="section-content">with Dr. Alvarez-Marin, D., Prof. Saldaña Ochoa, K. and Thorsteinsen, B.</p>
+            <p class="section-content">Name: <a href="https://www.ai-share-lab.com/quantum-rails" target="_blank">Quantum rails</a></p>
+
+            <p class="section-title">Patent, <a href="https://pss-system.cponline.cnipa.gov.cn/conventionalSearch" target="_blank"><span class="pc">China National Intellectual Property Administration</span><span class="phone">CNIPA</span></a><span class="datetime">2019</span></p>
+            <p class="section-content">with Prof. Li, B. and Li, H.</p>
+            <p class="section-content">Name: A Method for Automatic Planning of Workpiece Layout</p>
+            <p class="section-content">Reg.: CN201910467496.6</p>
+
+            <p class="section-title">2nd Price, <a href="https://blog.werobotics.org/2018/05/16/announcing-winners-open-ai-challenge/" target="_blank"><span class="pc">the Open AI Challenge: Aerial Imagery, WeRobotics</span><span class="phone">WeRobotics</span></a><span class="datetime">2018</span></p>
+            <p class="section-content">with Dr. Saldaña Ochoa</p>
+            <p class="section-content">Detecting and localizing trees from aerial imagery</p>
+
+            <p class="section-title">China Scholarship Council Award<span class="datetime">2017</span></p>
+            <p class="section-content">Award num. 201706090254</p>
+
+            <p class="section-title">Outstanding Master Thesis Honor, SEU<span class="datetime">2017</span></p>
+            <p class="section-content">Thesis title: Generative Approach for Architectural Layout Design Constrained by Topological Relationships (written in Chinese)</p>
+            <p class="section-content">Southeast University, China</p>
+
+            <p class="section-title">National Scholarship for Graduates<span class="datetime">2016</span></p>
+            <p class="section-content">Awarded for the academic years of both 2015 and 2016</p>
+            <p class="section-content">Southeast University, China (for top 1% students)</p>
+
+          </div>
+
+          <div class="project-title">
+           Invited & Public Talks
+          </div>
+          <div class="project-text">
+            <p class="section-title"><a href="https://dcp.ufl.edu/?events=resilience-in-the-built-environment-conference" target="_blank">Resilience in Built Environment</a><span class="datetime">2022</span></p>
+            <p class="section-content">Topic: From Simulation to Synthesis, Data-driven rapid urban flood prediction and flood-driven design with machine learning</p>
+            <p class="section-content">University of Cuenca, Ecuador</p>
+
+            <p class="section-title"><a href="https://www.ai-share-lab.com/playing-models" target="_blank">Playing Models<span class="pc">, AI, Architecture and Story Telling</span></a><span class="datetime">2022</span></p>
+            <p class="section-content">Topic: An archdaily lexicon: context-based encoding of architectural images</p>
+            <p class="section-content">University of Florida, USA</p>
+
+            <p class="section-title"><a href="https://mp.weixin.qq.com/s/ceUsjqb-oOrbTePzG3e1AQ" target="_blank">2021 ETH-SEU PhD Workshop and Forum</a><span class="datetime">2021</span></p>
+            <p class="section-content">Topic: Digital Architecture and Artificial Intelligence: A Paradigm Shift</p>
+            <p class="section-content">Southeast University, China (online presentation)</p>
+
+            <p class="section-title"><a href="http://www.vectorarchitects.com/en/" target="_blank">Vector Archtiects</a><span class="datetime">2020</span></p>
+            <p class="section-content">Topic: On Computational Models in Architecture</p>
+            <p class="section-content">Vector Architects, Beijing, China (online presentation)</p>
+
+            <p class="section-title"><a href="https://mp.weixin.qq.com/s/L6xZrmUhX23Ut-Ij18RnTg" target="_blank">China Southwest Architecture</a><span class="datetime">2019</span></p>
+            <p class="section-content">Topic: From Simulation to Synthesis: Modeling and Synthesizing Architectural Simulations with Data-driven Computational Machines</p>
+            <p class="section-content">China Southwest Architecture, Chengdu, China</p>
+
+            <p class="section-title"><a href="https://arch.seu.edu.cn/jz_en/2019/0509/c26077a293988/page.htm" target="_blank">2019 ETH-SEU PhD Workshop and Forum</a><span class="datetime">2019</span></p>
+            <p class="section-content">Topic: Data-Driven Synthesized Environmental Analysis of Architecture</p>
+            <p class="section-content">Southeast University, China</p>
+
+            <p class="section-title"><a href="https://arch.seu.edu.cn/2018/0905/c9122a237922/pagem.htm" target="_blank">The AAA Conference</span></a><span class="datetime">2016</span></p>
+            <p class="section-content">Topic: The Encoding of the JiCun Village (work exhibition)</p>
+            <p class="section-content">Event full name: The International Conference & Exhibition on Architectural Algorithms & Applications</p>
+            <p class="section-content">Southeast University, China</p>
+          </div>
+
+          <div class="project-title">
+           Publications
+          </div>
+          <div class="project-text">
+            <p class="section-publications">Guo, Z., Saldaña Ochoa, K. & D‘Acunto, P. (2022). Enhancing structural form-finding through a text-based AI engine coupled with computational graphic statics. The symposium of the International Association for Shell and Spatial Structures (IASS2022), under review.</p>
+            <p class="section-publications">Guo, Z., Moosavi, V. & Leitao, J. P. (2022). Data-driven rapid flood prediction mapping with catchment generalizability. Journal of Hydrology, 609, 127726. <a href="https://doi.org/10.1016/j.jhydrol.2022.127726" target="_blank">DOI: 10.1016/j.jhydrol.2022.127726</a></p>
+            <p class="section-publications">Guo, Z., Li, B., & Hovestadt, L. (2021). Urban traffic modeling and pattern detection using online map vendors and self-organizing maps, Frontiers of Architectural Research, 10(4), 715-728. <a href="https://doi.org/10.1016/j.foar.2021.06.002" target="_blank">DOI: 10.1016/j.foar.2021.06.002</a></p>
+            <p class="section-publications">Cai, C., Guo, Z., Zhang, B., Wang, X., Li, B., & Tang, P. (2021). Urban morphological feature extraction and Multi-dimensional similarity analysis based on deep learning approaches. Sustainability, 13(12), 6859. <a href="https://doi.org/10.3390/su13126859" target="_blank">DOI: 10.3390/su13126859</a></p>
+            <p class="section-publications">Guo, Z., Leitao, J. P., Simões, N. E., & Moosavi, V. (2021). Data‐driven flood emulation: Speeding up urban flood predictions by deep convolutional neural networks. Journal of Flood Risk Management, 14(1), e12684. <a href="https://doi.org/10.1111/jfr3.12684" target="_blank">DOI: 10.1111/jfr3.12684</a></p>
+            <p class="section-publications">Saldaña Ochoa, K. & Guo, Z. (2018). A framework for the management of agricultural resources with automated aerial imagery detection, Computers and Electronics in Agriculture, 162, 53-69. <a href="https://doi.org/10.1016/j.compag.2019.03.028" target="_blank">DOI: 10.1016/j.compag.2019.03.028</a></p>
+            <p class="section-publications">Guo, Z. & Li, B., (2017), Evolutionary approach for spatial architecture layout design enhanced by an agnet-based topology finding system, Frontiers of Architectural Research, 6(1), 53-62. <a href="https://doi.org/10.1016/j.foar.2016.11.003" target="_blank">DOI: 10.1016/j.foar.2016.11.003</a></p>
+          </div>
           <div class="project-text-centered">-</div>
         <!-- </section> -->
       </div>
