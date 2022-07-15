@@ -265,10 +265,25 @@
 			}
 
       function createPanel() {
-    				const panel = new GUI( { width: 120, title:'generate'} );
-            // panel.add( {"about":function(){window.open("./index.html", '_blank');}}, 'about' );
+    				let panel = new GUI( { width: 120} );
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            if (urlParams.get('home')>0) {
+              // add button to home
+              panel.add( {"home":function(){window.open("./index.html?position=1", '_self');}}, 'home' );
+              panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html", '_self');}}, 'about' );
+
+              panel.domElement.classList.add( 'force-touch-styles' );
+              panel.domElement.style="font-size:28px;--widget-height: 48px;";
+            }
     				panel.add( {'random':regenerate}, 'random' );
-    				panel.open();
+
+            if (urlParams.get('home')>0) {
+              for (let c of panel.domElement.getElementsByClassName("name")){
+                c.style="font-size:28px";
+              }
+            }
+            panel.open();
     			}
 
       function regenerate(){

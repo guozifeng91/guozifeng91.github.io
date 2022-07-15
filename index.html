@@ -13,23 +13,51 @@
       }
     </style>
     <script type="text/javascript">
-      const list_of_pages={
-        "An Archdaily Lexicon":"./anarchdailylexicon_intro.html",
-        "An Archdaily Lexicon - Web Demo":"./anarchdailylexicon.html",
-        "Subdivision Columns":"./subdivisioncolumn_intro.html",
-        "From Simulation to Synthesis":"./fromsimulationtosynthesis.html",
-        "Encoding the Village":"./encodingthevillage.html",
-        "Friends of Urban Plots":"./urbanplots.html",
-        "Voxel Architecture":"./voxelarch.html",
-        "Bubble Diagrams":"./bubble.html",
-        "CAAD-Parxis: Map & Models":"./mapandmodels.html",
-        "Digital Fabrications":"./dfab.html",
-      };
-      const list_of_links={
-        "Chair of Digital Architectonics":"https://www.caad.arch.ethz.ch/",
-        "SHARE Lab":"https://www.ai-share-lab.com/",
-        "Lab AAA":"https://labaaa.org/"
-      };
+      const list_of_pages=[
+        ["-",null],
+        ["",null],
+        ["About","./about.html"],
+        ["CV","./cv.html"],
+
+        ["",null],
+        ["- plays -",null],
+        ["",null],
+        ["An Archdaily Lexicon - Web Demo","./anarchdailylexicon.html"],
+        ["Subdivision Columns - Web Demo","./subdivisioncolumn.html?home=1"],
+
+        ["",null],
+        ["- experiments -",null],
+        ["",null],
+        ["An Archdaily Lexicon","./anarchdailylexicon_intro.html"],
+        ["Subdivision Columns","./subdivisioncolumn_intro.html"],
+        ["From Simulation to Synthesis","./fromsimulationtosynthesis.html"],
+        ["Encoding the Village","./encodingthevillage.html"],
+        ["Friends of Urban Plots","./urbanplots.html"],
+        ["Voxel Architecture","./voxelarch.html"],
+        ["Bubble Diagrams","./bubble.html"],
+
+        ["",null],
+        ["- projects -",null],
+        ["",null],
+        ["Digital Fabrications","./dfab.html"],
+
+        ["",null],
+        ["- teaching -",null],
+        ["",null],
+        ["CAAD-Parxis, Map & Models","./mapandmodels.html"],
+
+        ["",null],
+        ["- connect -",null],
+        ["",null],
+        ["Chair of Digital Architectonics","https://www.caad.arch.ethz.ch/"],
+        ["SHARE Lab","https://www.ai-share-lab.com/"],
+        ["Lab AAA","https://labaaa.org/"]
+      ];
+      // const list_of_links={
+      //   "Chair of Digital Architectonics":"https://www.caad.arch.ethz.ch/",
+      //   "SHARE Lab":"https://www.ai-share-lab.com/",
+      //   "Lab AAA":"https://labaaa.org/"
+      // };
     </script>
     <link rel="stylesheet" href="./stylesheet.css">
   </head>
@@ -66,7 +94,7 @@
     <div class="project-container-wrapper">
       <div id="project-container" class="project-container">
         <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
-          <div class="project-cover">
+          <!-- <div class="project-cover">
             <a href="./about.html">About</a>
           </div>
           <div class="project-cover">
@@ -74,7 +102,7 @@
           </div>
           <div class="project-cover"></div>
           <div class="project-cover">-</div>
-          <div class="project-cover"></div>
+          <div class="project-cover"></div> -->
         <!-- </section> -->
       </div>
     </div>
@@ -100,14 +128,9 @@
           container.appendChild(cover);
         };
 
-        for (let k in list_of_pages){
-          add_section(k,list_of_pages[k]);
-        }
-        add_section("");
-        add_section("-");
-        add_section("");
-        for (let k in list_of_links){
-          add_section(k,list_of_links[k],"_blank");
+        for (let elem of list_of_pages){
+          const [k,v] = elem;
+          add_section(k,v);
         }
         add_section("-");
       })();
