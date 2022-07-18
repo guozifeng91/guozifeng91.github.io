@@ -1,0 +1,1 @@
+the tensorflow js and the mobilenet model are taken "as is" from their corresponding sources: https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js and https://keras.io/api/applications/mobilenet/
