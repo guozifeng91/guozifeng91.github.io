@@ -53,34 +53,6 @@ a:hover {
   transform: translate(-50%, -50%);
 }
 
-/* .logo-main-page-fixed{
-  position: fixed;
-  height:33.5%;
-  width: 100%;
-  text-align: center;
-}
-.logo-main-page{
-  position: absolute;
-  height:100%;
-  width: 100%;
-  text-align: center;
-}
-.logo-v-align{
-  position: absolute;
-  width:100%;
-  top:50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-} */
-/* .logo-center-align{
-  position: absolute;
-  top:50%;
-  left: 50%;
-  -ms-transform: translate(-50%,-50%);
-  transform: translate(-50%,-50%);
-  background-color: none;
-} */
-
 .logo{
   position: absolute;
   top: 10vh;
@@ -96,6 +68,17 @@ a:hover {
   flex-direction: column; */
   height: 100%;
   width: 100%;
+}
+
+.project-container-gallery{
+  position: relative;
+  display: grid;
+  flex-wrap: wrap;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
 }
 
 /* For Mobile */
@@ -119,6 +102,17 @@ a:hover {
     padding-top: 24px;
     text-align: center;
     width: auto;
+  }
+
+  .project-cover-gallery{
+    line-height: 0;
+    /* float: none;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 36px;
+    text-align: center;
+    width: auto; */
   }
 
   .project-text{
@@ -209,6 +203,17 @@ a:hover {
     padding-top: 12px;
     text-align: center;
     width: auto;
+  }
+
+  .project-cover-gallery{
+    line-height: 0;
+    /* float: none;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 24px;
+    text-align: center;
+    width: auto; */
   }
 
   .project-text{

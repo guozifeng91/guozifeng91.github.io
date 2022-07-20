@@ -270,8 +270,14 @@
             const urlParams = new URLSearchParams(queryString);
             if (urlParams.get('home')>0) {
               // add button to home
-              panel.add( {"home":function(){window.open("./index.html?position=1", '_self');}}, 'home' );
-              panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html", '_self');}}, 'about' );
+
+              if (urlParams.get('gallery')>0) {
+                panel.add( {"home":function(){window.open("./gallery.html?position=1", '_self');}}, 'home' );
+                panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html?gallery=1", '_self');}}, 'about' );
+              } else {
+                panel.add( {"home":function(){window.open("./index.html?position=1", '_self');}}, 'home' );
+                panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html", '_self');}}, 'about' );
+              }
 
               panel.domElement.classList.add( 'force-touch-styles' );
               panel.domElement.style="font-size:28px;--widget-height: 48px;";

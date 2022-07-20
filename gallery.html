@@ -14,53 +14,25 @@
     </style>
     <script type="text/javascript">
       const list_of_pages=[
-        ["-",null],
-        ["",null],
         ["About","./about.html"],
-        ["CV","./cv.html"],
-        ["Gallery","./gallery.html"],
 
-        ["",null],
-        ["- plays -",null],
-        ["",null],
-        ["An Archdaily Lexicon - Web Demo","./anarchdailylexicon.html"],
-        ["Subdivision Columns - Web Demo","./subdivisioncolumn.html?home=1"],
+        ["An Archdaily Lexicon - Web Demo","./anarchdailylexicon.html?gallery=1"],
+        ["Subdivision Columns - Web Demo","./subdivisioncolumn.html?home=1&gallery=1"],
+        ["An Archdaily Lexicon","./anarchdailylexicon_intro.html?gallery=1"],
+        ["Subdivision Columns","./subdivisioncolumn_intro.html?gallery=1"],
+        ["From Simulation to Synthesis","./fromsimulationtosynthesis.html?gallery=1"],
+        ["Encoding the Village","./encodingthevillage.html?gallery=1"],
+        ["Friends of Urban Plots","./urbanplots.html?gallery=1"],
+        ["Voxel Architecture","./voxelarch.html?gallery=1"],
+        ["Bubble Diagrams","./bubble.html?gallery=1"],
+        ["Digital Fabrications","./dfab.html?gallery=1"],
+        ["CAAD-Parxis, Map & Models","./mapandmodels.html?gallery=1"],
 
-        ["",null],
-        ["- experiments -",null],
-        ["",null],
-        ["An Archdaily Lexicon","./anarchdailylexicon_intro.html"],
-        ["Subdivision Columns","./subdivisioncolumn_intro.html"],
-        ["From Simulation to Synthesis","./fromsimulationtosynthesis.html"],
-        ["Encoding the Village","./encodingthevillage.html"],
-        ["Friends of Urban Plots","./urbanplots.html"],
-        ["Voxel Architecture","./voxelarch.html"],
-        ["Bubble Diagrams","./bubble.html"],
-
-        ["",null],
-        ["- projects -",null],
-        ["",null],
-        ["Digital Fabrications","./dfab.html"],
-
-        ["",null],
-        ["- teaching -",null],
-        ["",null],
-        ["CAAD-Parxis, Map & Models","./mapandmodels.html"],
-
-        ["",null],
-        ["- connect -",null],
-        ["",null],
-        ["Chair of Digital Architectonics","https://www.caad.arch.ethz.ch/","_blank"],
-        ["SHARE Lab","https://www.ai-share-lab.com/","_blank"],
-        ["Lab AAA","https://labaaa.org/","_blank"],
-        ["&nbsp;","./experiment.html"],
-        ["-",null],
+        ["Chair of Digital Architectonics","https://www.caad.arch.ethz.ch/", "./gallery/thumbs/caad.gif", "_blank"],
+        ["SHARE Lab","https://www.ai-share-lab.com/", "./gallery/thumbs/sharelab.gif", "_blank"],
+        ["Lab AAA","https://labaaa.org/", "./gallery/thumbs/labaaa.gif", "_blank"],
       ];
-      // const list_of_links={
-      //   "Chair of Digital Architectonics":"https://www.caad.arch.ethz.ch/",
-      //   "SHARE Lab":"https://www.ai-share-lab.com/",
-      //   "Lab AAA":"https://labaaa.org/"
-      // };
+
     </script>
     <link rel="stylesheet" href="./stylesheet.css">
   </head>
@@ -70,7 +42,7 @@
         <div class="logo-wrap-main-page" data-hover-hint="logo">
             <div class="logo-main-page">
               <!-- <div class="logo-v-align"> -->
-              <a href="./gallery.html">
+              <a href="./index.html">
               <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
                   <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
               </a>
@@ -79,54 +51,63 @@
         </div>
     </header>
     <script type="text/javascript">
-      (function(){
-        let warp = document.getElementsByClassName("logo-wrap-main-page")[0];
-        let logo = document.getElementsByClassName("logo-main-page")[0];
-        window.onscroll = function(e) {
-          const h = window.innerHeight * 0.3;
-          // console.log(document.body.scrollTop, document.documentElement.scrollTop, h);
-          if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
-            logo.className ="logo-main-page-fixed";
-          } else {
-            logo.className ="logo-main-page";
-          }
-        }
-      })();
+      // (function(){
+      //   let warp = document.getElementsByClassName("logo-wrap-main-page")[0];
+      //   let logo = document.getElementsByClassName("logo-main-page")[0];
+      //   window.onscroll = function(e) {
+      //     const h = window.innerHeight * 0.3;
+      //     // console.log(document.body.scrollTop, document.documentElement.scrollTop, h);
+      //     if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
+      //       logo.className ="logo-main-page-fixed";
+      //     } else {
+      //       logo.className ="logo-main-page";
+      //     }
+      //   }
+      // })();
     </script>
     <!-- <main> -->
     <div class="project-container-wrapper">
       <div id="project-container" class="project-container">
-        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
-          <!-- <div class="project-cover">
-            <a href="./about.html">About</a>
-          </div>
-          <div class="project-cover">
-            <a href="./cv.html">CV</a>
-          </div>
-          <div class="project-cover"></div>
-          <div class="project-cover">-</div>
-          <div class="project-cover"></div> -->
-        <!-- </section> -->
+        <div id="project-container-gallery" class="project-container-gallery">
+        </div>
+        <!-- <div class="project-cover">-</div>
+        <div class="project-cover"></div>
+        <div class="project-cover">
+          <a href="./index.html">Library</a>
+        </div> -->
+        <div class="project-cover"></div>
+        <div class="project-cover">-</div>
       </div>
     </div>
 
     <script type="text/javascript">
+      // add project entries
       (function(){
-        const add_section=function(k, v=null, target=null){
-          const container = document.getElementById("project-container");
+        const add_section=function(k, v=null, v2=null, target=null){
+          const container = document.getElementById("project-container-gallery");
           const cover = document.createElement("div");
-          cover.className="project-cover";
+          cover.className="project-cover-gallery";
+          // console.log(v2);
 
           if (v!=null){
             const link = document.createElement("a");
             link.href=v;
-            link.innerHTML=k;
+
+            const img = document.createElement("img");
+
+            if (v2==null){
+              img.src="./gallery/thumbs/"+v.split("/")[1].split('.')[0] + ".gif";
+            } else {
+              img.src=v2;
+            }
+
+            img.style.width="100%";
+
             if (target!=null){
               link.target=target;
             }
             cover.appendChild(link);
-          } else {
-            cover.innerHTML=k;
+            link.appendChild(img);
           }
           container.appendChild(cover);
         };
@@ -134,18 +115,23 @@
         for (let elem of list_of_pages){
           const k=elem[0];
           let v=null;
+          let v2=null;
           let t=null;
           if (elem.length>=2){
             v=elem[1];
           }
           if (elem.length>=3) {
-            t=elem[2];
+            v2=elem[2];
           }
-          add_section(k,v,t);
+          if (elem.length>=4) {
+            t=elem[3];
+          }
+          add_section(k,v,v2,t);
         }
         // add_section("-");
       })();
 
+      // scroll down
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
       if (urlParams.get('position')>0) {
