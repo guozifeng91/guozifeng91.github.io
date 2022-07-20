@@ -14,7 +14,9 @@
     </style>
     <script type="text/javascript">
       const list_of_pages=[
-        ["About","./about.html"],
+        ["Library","./index.html", "./gallery/thumbs/library.gif"],
+        ["About","./about.html?gallery=1"],
+        ["CV","./cv.html?gallery=1"],
 
         ["An Archdaily Lexicon - Web Demo","./anarchdailylexicon.html?gallery=1"],
         ["Subdivision Columns - Web Demo","./subdivisioncolumn.html?home=1&gallery=1"],
@@ -26,6 +28,7 @@
         ["Voxel Architecture","./voxelarch.html?gallery=1"],
         ["Bubble Diagrams","./bubble.html?gallery=1"],
         ["Digital Fabrications","./dfab.html?gallery=1"],
+        ["Empty"],
         ["CAAD-Parxis, Map & Models","./mapandmodels.html?gallery=1"],
 
         ["Chair of Digital Architectonics","https://www.caad.arch.ethz.ch/", "./gallery/thumbs/caad.gif", "_blank"],
@@ -108,6 +111,16 @@
             }
             cover.appendChild(link);
             link.appendChild(img);
+
+            // cell mouseover behaviour
+            cover.onmouseover = cover.onmouseout = function (event) {
+              let type = event.type;
+              if (type=="mouseover"){
+                img.style.transform="scale(1.1)";
+              }else{
+                img.style.transform="scale(1.0)";
+              }
+            }
           }
           container.appendChild(cover);
         };

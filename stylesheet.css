@@ -81,6 +81,17 @@ a:hover {
   gap: 5px;
 }
 
+.project-cover-gallery{
+  line-height: 0;
+  overflow: hidden;
+}
+.project-cover-gallery>a>img{
+  transition-property: transform;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+  transition-delay: 0s;
+}
+
 /* For Mobile */
 @media screen and (max-width: 980px) {
   .project-container-wrapper{
@@ -102,17 +113,6 @@ a:hover {
     padding-top: 24px;
     text-align: center;
     width: auto;
-  }
-
-  .project-cover-gallery{
-    line-height: 0;
-    /* float: none;
-    font-size: 36px;
-    font-style: normal;
-    font-weight: 300;
-    line-height: 36px;
-    text-align: center;
-    width: auto; */
   }
 
   .project-text{
@@ -203,17 +203,6 @@ a:hover {
     padding-top: 12px;
     text-align: center;
     width: auto;
-  }
-
-  .project-cover-gallery{
-    line-height: 0;
-    /* float: none;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 300;
-    line-height: 24px;
-    text-align: center;
-    width: auto; */
   }
 
   .project-text{

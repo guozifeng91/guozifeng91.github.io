@@ -17,12 +17,15 @@
   <body>
     <div class="logo-wrap" data-hover-hint="logo">
           <div class="logo">
-            <a href="./index.html?position=1">
+            <a id="home-link" href="./index.html?position=1">
             <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
                 <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
             </a>
           </div>
     </div>
+
+    <script type="text/javascript" src="./checkhomeaddress.js"></script>
+
     <div class="project-container-wrapper">
       <div id="project-container" class="project-container">
         <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
@@ -42,7 +45,7 @@
           </div>
           <div class="project-text">
             <p>
-              <a href="https://www.linkedin.com/in/zifeng-guo-b45b82237/" target="_blank">Dr. Zifeng Guo</a> holds a doctoral degree from ETH Zürich, Switzerland. Previously, he was trained as an architect and computational designer from the Southeast University, China, and was working part-time as a technical consultant at the Kozo Keikaku Engineering Inc. in Tokyo, Japan on developing optimization algorithms for commercial building programs and layouts, and at AESEU in Nanjing, China as a computational designer on rule-based design and digital fabrications. He is currently a researcher at the SHARE lab, University of Florida.
+              <a is_internal_link="1" href="./cv.html">Dr. Zifeng Guo</a> holds a doctoral degree from ETH Zürich, Switzerland. Previously, he was trained as an architect and computational designer from the Southeast University, China, and was working part-time as a technical consultant at the Kozo Keikaku Engineering Inc. in Tokyo, Japan on developing optimization algorithms for commercial building programs and layouts, and at AESEU in Nanjing, China as a computational designer on rule-based design and digital fabrications. He is currently a researcher at the SHARE lab, University of Florida.
             </p>
           </div>
           <div class="project-text">
@@ -54,5 +57,17 @@
         <!-- </section> -->
       </div>
     </div>
+    <script type="text/javascript">
+      (function(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.get('gallery')>0) {
+          let elements = document.querySelectorAll("[is_internal_link]");
+          console.log(elements);
+          for (var i = 0; i < elements.length; i++)
+              elements[i].href=elements[i].href + "?gallery=1";
+        }
+      })();
+    </script>
   </body>
 </html>
