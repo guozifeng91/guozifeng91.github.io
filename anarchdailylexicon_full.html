@@ -140,6 +140,8 @@
 
     <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
     <script type="module">
+      const div_indicator=document.getElementById("indicator");
+
       // =============================== encoder ===================================
       // weights
       let codebook; // codebook
@@ -171,6 +173,8 @@
       // read saved weight file (from npy binary)
       import npyjs from "npyjs";
       let n = new npyjs();
+
+      div_indicator.innerHTML="Loading Codebook...";
 
       console.log('loading codebook file');
       await n.load(codebook_path).then((res) => {
@@ -207,6 +211,8 @@
       // load the mobilenet model exported from keras to get the same model behavior in python
       // const model = await tf.loadLayersModel('https://storage.googleapis.com/zfguo_pretrained_models/mobilenet/model.json');
       console.log('loading mobilenet');
+      div_indicator.innerHTML="Loading Mobilenet...";
+
       const model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
 
       function get_window_box(img, n){
@@ -271,8 +277,6 @@
       console.log('loading finished');
 
       // =============================== run everything ===================================
-      const div_indicator=document.getElementById("indicator");
-
       function run_img(k=10){
         const context=document.getElementById("div_search_results");
         while (context.firstChild) {
