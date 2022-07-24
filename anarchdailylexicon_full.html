@@ -12,8 +12,46 @@
       }
     </style>
     <link rel="stylesheet" href="./stylesheet.css">
-    <link rel="stylesheet" href="./style-amended.css">
+    <!-- <link rel="stylesheet" href="./style-amended.css"> -->
 
+    <!-- amended style for this page -->
+    <style media="screen">
+      .name_and_cover_container{
+        display:flex;
+        flex-direction:column;
+        line-height:normal;
+        text-align: center;
+      }
+      .name_tag_fix_height{
+        min-height: 6em;
+        max-height: 6em;
+      }
+
+      .sticky-search-box{
+        position: sticky;
+        position: -webkit-sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #ffffffa0;
+      }
+      /* unvisited link */
+      .class_a:link {
+        color: #c00000;
+        text-decoration: none;
+      }
+
+      /* visited link */
+      .class_a:visited {
+        color: #c00000;
+        text-decoration: none;
+      }
+
+      /* mouse over link */
+      .class_a:hover {
+        color: black;
+        text-decoration: none;
+      }
+    </style>
     <!-- constants -->
     <script type="text/javascript" src="anarchdailylexicon/data/namelist.js"></script>
     <script type="text/javascript" src="anarchdailylexicon/data/urllist.js"></script>
@@ -40,7 +78,8 @@
           </div>
 
           <div class="project-text-centered">
-            <p>An image search engine majoring in architecture<br><br></p>
+            <p>An image search engine majoring in architecture</p>
+            <p>Please <a href='https://cors-anywhere.herokuapp.com/', target="_blank" class="class_a">enable CORS access</a> first!<br><br></p>
           </div>
 
           <!-- <div class="project-text-centered">
@@ -49,12 +88,12 @@
           <div class="project-text-centered">
             <!-- crossorigin attribute is essential -->
             <!-- <img id="img" crossorigin='anonymous' src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" width="100%"></img> -->
-            <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" width="50%"></img>
+            <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" width="40%"></img>
             <!-- <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/62c8/3a5c/4cfd/3b5f/a26c/6773/slideshow/henrietta-house-moreysmith_7.jpg?1657289425" width="100%"></img> -->
           </div>
 
-          <div class="project-text-centered">
-            <p>Copypaste URL here to use a different image:</p>
+          <div id="search-box" class="project-text-centered sticky-search-box">
+            <p>Paste a URL here to change image:</p>
             <div style="">
               <br>
               <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
@@ -73,8 +112,8 @@
             <p>-</p>
           </div>
 
-          <div id="div_search_results" class="project-text">
-
+          <div id="div_search_results" class="project-container-gallery" style="gap: 10px;">
+            <!-- search output here  -->
           </div>
 
           <div class="project-text-centered">-</div>
@@ -82,6 +121,65 @@
       </div>
     </div>
 
+    <script type="text/javascript">
+      let results_index=[];
+      let load_batch=50;
+      let load_offset=0;
+      let disable_scroll_loading=false;
+
+      const remove_all_entries = function(){
+        const container = document.getElementById("div_search_results");
+        while (container.firstChild) {
+          const c = container.lastChild
+          container.removeChild(c);
+          c.remove();
+        }
+        load_offset=0;
+      };
+
+
+      const add_entry=function(name, url_target, url_img='./gallery/thumbs/agentlamp.gif', target='_blank'){
+        const container = document.getElementById("div_search_results");
+        const ele_cover = document.createElement("div");
+        ele_cover.className="project-cover-gallery";
+        // console.log(v2);
+        const ele_link = document.createElement("a");
+        ele_link.href=url_target;
+
+        const ele_wrapper=document.createElement('div');
+        ele_wrapper.className="name_and_cover_container";
+
+        const ele_img = document.createElement("img");
+        const ele_name = document.createElement("p");
+        ele_name.innerHTML=name;
+        ele_name.className="name_tag_fix_height";
+
+        ele_img.src=url_img;
+        ele_img.style.width="100%";
+
+        if (target!=null){
+          ele_link.target=target;
+        }
+
+        ele_cover.appendChild(ele_link);
+        ele_link.appendChild(ele_wrapper);
+        ele_wrapper.appendChild(ele_img);
+        ele_wrapper.appendChild(ele_name);
+
+
+        // // cell mouseover behaviour
+        // ele_cover.onmouseover = ele_cover.onmouseout = function (event) {
+        //   let type = event.type;
+        //   if (type=="mouseover"){
+        //     ele_img.style.transform="scale(1.1)";
+        //   }else{
+        //     ele_img.style.transform="scale(1.0)";
+        //   }
+        // }
+
+        container.appendChild(ele_cover);
+      };
+    </script>
     <!-- load tensorflow js (put js in the window) -->
     <script src="./anarchdailylexicon_full/data/tfjs/tf.min.js"></script>
     <!-- cross fetch package (put fetch in the window) -->
@@ -97,6 +195,7 @@
     </script>
 
     <script type="text/javascript">
+      // define compoutations
       // argsort in JS:
       // https://stackoverflow.com/questions/46622486/what-is-the-javascript-equivalent-of-numpy-argsort
       const dsu = (arr1, arr2) => arr1
@@ -141,6 +240,9 @@
 
     <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
     <script type="module">
+      console.log("module starts");
+      // read saved weight file (from npy binary)
+      import npyjs from "npyjs";
       const div_indicator=document.getElementById("indicator");
 
       // =============================== encoder ===================================
@@ -156,7 +258,7 @@
       // using clusters, faster, but less quality
 
       const use_clusters=true;
-      const k_use = 5;
+      const k_use = 50; // 50 clusters max
       const library_dim=30000; // 304260;
       const library_path="./anarchdailylexicon_full/data/k-library.npy";
 
@@ -164,7 +266,7 @@
       // loading files from google cloud storage
       // (CORS config is needed for the google clound storage, see https://cloud.google.com/storage/docs/configuring-cors)
 
-      // const k_use =50;
+      // const k_use =500;
       // const use_clusters=false;
       // const library_dim = 304260;
       // const library_path="./experiment/library.npy";
@@ -174,22 +276,24 @@
       div_indicator.innerHTML="Loading Codebook...";
 
       // read saved weight file (from npy binary)
-      import npyjs from "npyjs";
-      let n = new npyjs();
+      // import npyjs from "npyjs";
+      // (function(){
+        let n = new npyjs();
 
-      console.log('loading codebook file');
-      await n.load(codebook_path).then((res) => {
-          // res has { data, shape, dtype } members.
-          console.log('codebook shape', res.shape);
-          codebook = tf.tensor(res.data).reshape(res.shape).transpose();
-      });
+        console.log('loading codebook file');
+        await n.load(codebook_path).then((res) => {
+            // res has { data, shape, dtype } members.
+            console.log('codebook shape', res.shape);
+            codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+        });
 
-      console.log('loading library file');
-      await n.load(library_path).then((res) => {
-          // res has { data, shape, dtype } members.
-          console.log('library shape', res.shape);
-          library = tf.tensor(res.data).reshape(res.shape).transpose();
-      });
+        console.log('loading library file');
+        await n.load(library_path).then((res) => {
+            // res has { data, shape, dtype } members.
+            console.log('library shape', res.shape);
+            library = tf.tensor(res.data).reshape(res.shape).transpose();
+        });
+      // })();
 
       // get archdaily friends
       function get_friends_from_encoding(x) {
@@ -278,39 +382,58 @@
       console.log('loading finished');
 
       // =============================== run everything ===================================
-      function run_img(k=10){
-        const context=document.getElementById("div_search_results");
-        while (context.firstChild) {
-          context.removeChild(context.lastChild);
-        }
-
-        window.setTimeout(function(){
-          // check https://github.com/tensorflow/tfjs-models/blob/master/mobilenet/src/index.ts function infer() on how to convert img to tf.Tensor
-          const img = document.getElementById('img');
-          const [result, result_real_id] = get_friends(img, k);
-
-          let result_urls=[];
-          let result_names=[];
-          for (let i of result_real_id){
-            result_urls.push(urllist[indexlist[i]]);
-            result_names.push(namelist[indexlist[i]]);
-          }
-
-          // create user interface
-          for (let i=0; i < result_names.length; i++){
-            const elem_a=document.createElement("a");
-            elem_a.href=result_urls[i];
-            elem_a.target="_blank";
-            const elem_p=document.createElement("p");
-            elem_p.innerHTML=(i+1) + ": " + result_names[i].replaceAll('-', ' ');
-
-            elem_a.appendChild(elem_p);
-            context.appendChild(elem_a);
-          }
-
-          div_indicator.innerHTML="Finished.";
-        }, 100); // small timmer for the div change be applied
+      function run_img_search(k=10){
+        const img = document.getElementById('img');
+        const [result, result_real_id] = get_friends(img, k);
+        results_index = result_real_id; // update id
+        load_offset=0; // reset offset
       }
+
+      function load_results_next_batch(){
+        // remove_all_entries();
+        for (let i=0;i<load_batch; i++){
+          if (load_offset<results_index.length){
+            const r_index=results_index[load_offset];
+            const r_name=namelist[indexlist[r_index]].replaceAll('-',' ');
+            const r_url=urllist[indexlist[r_index]];
+
+            add_entry(r_name, r_url);
+            load_offset+=1;
+          } else {
+            break;
+          }
+        }
+        console.log('load_offset', load_offset);
+      }
+
+      // loading-while-scrolling
+      window.onscroll = function(e) {
+        // check search-box position
+        const search_box=document.getElementById("search-box");
+        // const box_top = search_box.getBoundingClientRect().top
+        // console.log(box_top);
+        // // const compensate_height = 0.5 * search_box.scrollHeight;
+
+
+        const viewHeight = window.innerHeight;
+        const scrollHeight=document.body.scrollHeight; // total height
+        const scrollTop=Math.max(document.body.scrollTop, document.documentElement.scrollTop); // current top
+
+        // this is optional, if not working, take it out
+        // if (box_top<0){
+        //   search_box.style.transform="translateY(" + scrollTop + "px)";
+        //   search_box.style.zIndex ="2";
+        //   search_box.style.backgroundColor ="#ffffffa0";
+        // } else {
+        //   search_box.style.transform="";
+        // }
+
+        // check loading process
+        if (scrollHeight - (scrollTop + viewHeight) <= 10 && !disable_scroll_loading){
+          console.log('load next batch');
+          load_results_next_batch();
+        }
+      };
 
       // execute search while clicking button
       document.getElementById("button_submit").onclick= function(){
@@ -322,9 +445,20 @@
         } catch (_) {
           div_indicator.innerHTML="Seems not a URL?"
         }
-      }
+      };
 
-      document.getElementById("button_process").onclick=function(){div_indicator.innerHTML="Searching...";run_img(k_use);}
+      document.getElementById("button_process").onclick=function(){
+        div_indicator.innerHTML="Searching...";
+        disable_scroll_loading=true;
+        remove_all_entries();
+
+        window.setTimeout(function(){
+          run_img_search(k_use); // k_use determines the max-num of results
+          load_results_next_batch();
+          div_indicator.innerHTML="Finished!";
+          disable_scroll_loading=false;
+        }, 300);
+      };
 
       div_indicator.innerHTML="Ready!"
     </script>
