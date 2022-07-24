@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>AN ARCHDAILY LEXICON - DEMO</title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+        /* font-family: sans-serif; */
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+    <link rel="stylesheet" href="./stylesheet.css">
+    <link rel="stylesheet" href="./style-amended.css">
+
+    <!-- constants -->
+    <script type="text/javascript" src="anarchdailylexicon/data/namelist.js"></script>
+    <script type="text/javascript" src="anarchdailylexicon/data/urllist.js"></script>
+    <script type="text/javascript" src="anarchdailylexicon_full/data/indexlist.js"></script>
+  </head>
+  <body>
+    <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+        <div class="logo-wrap" data-hover-hint="logo">
+              <div class="logo">
+                <a id="home-link" href="./index.html?position=1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                    <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+                </a>
+              </div>
+        </div>
+    </header>
+    <script type="text/javascript" src="./checkhomeaddress.js"></script>
+
+    <div class="project-container-wrapper">
+      <div id="project-container" class="project-container">
+        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
+          <div class="project-title">
+            Archdaily + Image Search
+          </div>
+
+          <div class="project-text-centered">
+            <p>Current Image</p>
+          </div>
+          <div class="project-text-centered">
+            <!-- crossorigin attribute is essential -->
+            <!-- <img id="img" crossorigin='anonymous' src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" width="100%"></img> -->
+            <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/51a3/c8b0/b3fc/4b10/be00/015b/large_jpg/IMG_3155.jpg?1389817518" width="50%"></img>
+            <!-- <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/62c8/3a5c/4cfd/3b5f/a26c/6773/slideshow/henrietta-house-moreysmith_7.jpg?1657289425" width="100%"></img> -->
+          </div>
+
+          <div class="project-text-centered">
+            <p id="indicator">Initializing, please wait...</p>
+            <p><br><br>Copypaste URL here to use a different image:</p>
+            <div style="">
+              <br>
+              <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
+              <br>
+              <br>
+              <!-- use https://cors-anywhere.herokuapp.com/ as a temporary solution for CORS -->
+              <input type="button" id="button_submit" value="Load New Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+
+              <input type="button" id="button_process" value="Search for Friends"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+            </div>
+          </div>
+
+          <div class="project-text-centered">
+            <p>-</p>
+          </div>
+
+          <div id="div_search_results" class="project-text">
+
+          </div>
+
+          <div class="project-text-centered">-</div>
+        <!-- </section> -->
+      </div>
+    </div>
+
+    <!-- load tensorflow js (put js in the window) -->
+    <script src="./anarchdailylexicon_full/data/tfjs/tf.min.js"></script>
+    <!-- cross fetch package (put fetch in the window) -->
+    <!-- <script src="https://unpkg.com/cross-fetch/dist/cross-fetch.js"></script> -->
+    <script src="./anarchdailylexicon_full/data/cross-fetch/cross-fetch.js"></script>
+    <!-- npyjs -->
+    <script type="importmap">
+      {
+        "imports": {
+          "npyjs":"./anarchdailylexicon_full/data/npyjs/index.js"
+        }
+      }
+    </script>
+
+    <script type="text/javascript">
+      // argsort in JS:
+      // https://stackoverflow.com/questions/46622486/what-is-the-javascript-equivalent-of-numpy-argsort
+      const dsu = (arr1, arr2) => arr1
+        .map((item, index) => [arr2[index], item]) // add the args to sort by
+        .sort(([arg1], [arg2]) => arg1 - arg2) // sort by the args (ascending order)
+        .map(([, item]) => item); // extract the sorted items
+
+      // arange in JS:
+      // https://stackoverflow.com/questions/3895478/does-javascript-have-a-method-like-range-to-generate-a-range-within-the-supp
+      const arange = (dim) => Array.from({length: dim}, (x, i) => i);
+
+      // define tfjs operations
+      function dist_matrix(X,Y){
+        // sqrt(max(0, x^2 + y^2 - 2dot(x,y)))
+        const D = tf.sqrt(
+            tf.maximum(0.,
+                tf.sum(tf.pow(X, 2), axis=-1, keepDims =true).add(tf.sum(tf.pow(Y, 2), axis=-2, keepDims =true)).sub(tf.matMul(X, Y).mul(2))
+            )
+        );
+        return D;
+      }
+
+      function dist_matrix2(X,Y){
+        // x^2 + y^2 - 2dot(x,y)
+        const D = tf.sum(tf.pow(X, 2), axis=-1, keepDims =true).add(tf.sum(tf.pow(Y, 2), axis=-2, keepDims =true)).sub(tf.matMul(X, Y).mul(2))
+        return D;
+      }
+
+      function minmax_rescale (X, p) {
+        // (x-min) / (max-min)
+        const t_min = tf.min(X, axis=-1, keepDims =true);
+        const t_max = tf.max(X, axis=-1, keepDims =true);
+        const t_mid_level= tf.pow(X.sub(t_min).div(t_max.sub(t_min)), p);
+        return tf.mean(t_mid_level, axis=0, keepDims =true);
+      }
+
+      function inverse(X){
+        // 1/x
+        return tf.pow(X,-1);
+      }
+    </script>
+
+    <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
+    <script type="module">
+      // =============================== encoder ===================================
+      // weights
+      let codebook; // codebook
+      let library; // archdaily library
+
+      // the core API approach
+      const encoding_dim=1024;
+      const codebook_dim=64;
+      const codebook_path="./anarchdailylexicon_full/data/codebook.npy";
+
+      // using clusters, faster, but less quality
+
+      const use_clusters=true;
+      const k_use = 5;
+      const library_dim=30000; // 304260;
+      const library_path="./anarchdailylexicon_full/data/k-library.npy";
+
+      // using raw library, much slower to load, but better quality
+      // loading files from google cloud storage
+      // (CORS config is needed for the google clound storage, see https://cloud.google.com/storage/docs/configuring-cors)
+
+      // const k_use =50;
+      // const use_clusters=false;
+      // const library_dim = 304260;
+      // const library_path="./experiment/library.npy";
+
+      const IMAGE_SIZE=224;
+
+      // read saved weight file (from npy binary)
+      import npyjs from "npyjs";
+      let n = new npyjs();
+
+      console.log('loading codebook file');
+      await n.load(codebook_path).then((res) => {
+          // res has { data, shape, dtype } members.
+          console.log('codebook shape', res.shape);
+          codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+      });
+
+      console.log('loading library file');
+      await n.load(library_path).then((res) => {
+          // res has { data, shape, dtype } members.
+          console.log('library shape', res.shape);
+          library = tf.tensor(res.data).reshape(res.shape).transpose();
+      });
+
+      // get archdaily friends
+      function get_friends_from_encoding(x) {
+        return dist_matrix2(minmax_rescale(inverse(dist_matrix(x, codebook)),8), library);
+      }
+
+      // // for debug, load a sample from npy file
+      // let sample; // to be replaced by machine learning output
+      // await n.load("./experiment/sample3345.npy").then((res) => {
+      //     // res has { data, shape, dtype } members.
+      //     sample = tf.tensor(res.data).reshape(res.shape);
+      // });
+      //
+      // let result = dsu(arange(library_dim), get_friends_from_encoding(sample).dataSync());
+      // // console.log(model);
+      // console.log('run model', result);
+
+      // =============================== mobilenet ===================================
+
+      // load the mobilenet model exported from keras to get the same model behavior in python
+      // const model = await tf.loadLayersModel('https://storage.googleapis.com/zfguo_pretrained_models/mobilenet/model.json');
+      console.log('loading mobilenet');
+      const model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
+
+      function get_window_box(img, n){
+        const row = img.shape[0];
+        const col = img.shape[1];
+
+        const patch_size = Math.floor(Math.min(row,col) / n);
+        const row_num = Math.ceil(row / patch_size);
+        const col_num = Math.ceil(col / patch_size);
+
+        let row_start = tf.floor(tf.linspace(0, row - patch_size - 1, row_num)).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
+        let col_start = tf.floor(tf.linspace(0, col - patch_size - 1, col_num)).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+
+        let row_end = row_start.add(patch_size);
+        let col_end = col_start.add(patch_size);
+
+        // normalize the bounding box
+        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
+        row_start=row_start.div(row);
+        row_end=row_end.div(row);
+
+        col_start=col_start.div(col);
+        col_end=col_end.div(col);
+
+        // list of [ymin, xmin, ymax, xmax]
+        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      }
+
+      function get_friends(img, k=10){
+        // load the image and perform normalization
+        // see corresponding model in keras for data preprocessing
+        console.log('making image patches');
+        const t_img = tf.browser.fromPixels(img).div(127).sub(2);
+
+        // get image patches
+        // something is wrong with patch-making
+        const t_box = tf.concat([get_window_box(t_img, 2), get_window_box(t_img, 3)], 0);
+        const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+        const t_img_batch = t_img.reshape([1, t_img.shape[0], t_img.shape[1], t_img.shape[2]]);
+
+        // t_box: normalized box!
+        const t_patch = tf.image.cropAndResize(t_img_batch, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE])
+
+        console.log('low-lv-coding');
+        const low_lv_encoding = model.predict(t_patch);
+
+        console.log('high-lv-coding');
+        let result = dsu(arange(library_dim), get_friends_from_encoding(low_lv_encoding).dataSync()).slice(0,k);
+
+        let result_real_id=[];
+
+        // obtain the original index
+        if (use_clusters){
+          for (let r of result){
+            result_real_id = result_real_id.concat(cluster2index[r]);
+          }
+        }else{
+          result_real_id=result;
+        }
+        return [result, result_real_id];
+      }
+      console.log('loading finished');
+
+      // =============================== run everything ===================================
+
+      function run_img(k=10){
+        const context=document.getElementById("div_search_results");
+        while (context.firstChild) {
+          context.removeChild(context.lastChild);
+        }
+
+        window.setTimeout(function(){
+          // check https://github.com/tensorflow/tfjs-models/blob/master/mobilenet/src/index.ts function infer() on how to convert img to tf.Tensor
+          const img = document.getElementById('img');
+          const [result, result_real_id] = get_friends(img, k);
+
+
+          let result_urls=[];
+          let result_names=[];
+          for (let i of result_real_id){
+            result_urls.push(urllist[indexlist[i]]);
+            result_names.push(namelist[indexlist[i]]);
+          }
+
+          // create user interface
+          for (let i=0; i < result_names.length; i++){
+            const elem_a=document.createElement("a");
+            elem_a.href=result_urls[i];
+            elem_a.target="_blank";
+            const elem_p=document.createElement("p");
+            elem_p.innerHTML=(i+1) + ": " + result_names[i].replaceAll('-', ' ');
+
+            elem_a.appendChild(elem_p);
+            context.appendChild(elem_a);
+          }
+        }, 100); // small timmer for the div change be applied
+      }
+
+
+      // execute search while clicking button
+      document.getElementById("button_submit").onclick= function(){
+        const img_src = document.getElementById('input_image_url');
+        try {
+          new URL(document.getElementById('input_image_url').value);
+          document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + document.getElementById('input_image_url').value;
+          document.getElementById("indicator").innerHTML="Image loaded!"
+        } catch (_) {
+          document.getElementById("indicator").innerHTML="Seems not a URL?"
+        }
+      }
+
+      document.getElementById("button_process").onclick=function(){run_img(k_use);}
+
+      document.getElementById("indicator").innerHTML="Ready!"
+    </script>
+  </body>
+</html>
