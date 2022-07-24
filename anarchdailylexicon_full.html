@@ -79,7 +79,6 @@
 
           <div class="project-text-centered">
             <p>An image search engine majoring in architecture</p>
-            <p>Please <a href='https://cors-anywhere.herokuapp.com/', target="_blank" class="class_a">enable CORS access</a> first!<br><br></p>
           </div>
 
           <!-- <div class="project-text-centered">
@@ -93,7 +92,7 @@
           </div>
 
           <div id="search-box" class="project-text-centered sticky-search-box">
-            <p>Paste a URL here to change image:</p>
+            <p>To change the current image (above), <a href='https://cors-anywhere.herokuapp.com/', target="_blank" class="class_a">enable CORS access</a> (do it only once) and then paste a new URL here:</p>
             <div style="">
               <br>
               <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
@@ -102,7 +101,7 @@
               <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
               <br>
               <!-- use https://cors-anywhere.herokuapp.com/ as a temporary solution for CORS -->
-              <input type="button" id="button_submit" value="Load New Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+              <input type="button" id="button_submit" value="Change Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
 
               <input type="button" id="button_process" value="Search for Friends"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
             </div>
@@ -114,6 +113,26 @@
 
           <div id="div_search_results" class="project-container-gallery" style="gap: 10px;">
             <!-- search output here  -->
+          </div>
+
+          <div class="project-text">
+            <p>This Web Demo encodes an image and compares the result with a pre-computed library to search for best-matching images.</p>
+          </div>
+
+          <div class="project-text">
+            <p>The Wed Demo depends on the proxy service of <a href="https://cors-anywhere.herokuapp.com/" target="_blank" class="class_a">cors-anywhere.herokuapp.com</a> to bypass <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank" class="class_a">CORS restrictions</a> and load images from arbitrary URLs.</p>
+          </div>
+
+          <div class="project-text">
+            <p>The encoding method depends on the <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet" target="_blank" class="class_a">Mobilenet</a> pre-trained model of <a href="https://www.tensorflow.org/js/tutorials" target="_blank" class="class_a">Tensorflow.js</a>.</p>
+          </div>
+
+          <div class="project-text">
+            <p>The Web Demo also depends on <a href="https://www.npmjs.com/package/cross-fetch" target="_blank" class="class_a">cross-fetch</a>, <a href="https://github.com/aplbrain/npyjs" target="_blank" class="class_a">npyjs</a> to load the pre-computed library.</p>
+          </div>
+
+          <div class="project-text">
+            <p>Currently the Web Demo has been tested only on PCs. All computations are executed on the client's device.</p>
           </div>
 
           <div class="project-text-centered">-</div>
@@ -439,8 +458,8 @@
       document.getElementById("button_submit").onclick= function(){
         const img_src = document.getElementById('input_image_url');
         try {
-          new URL(document.getElementById('input_image_url').value);
-          document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + document.getElementById('input_image_url').value;
+          new URL(img_src.value);
+          document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
           div_indicator.innerHTML="Image loaded!"
         } catch (_) {
           div_indicator.innerHTML="Seems not a URL?"
