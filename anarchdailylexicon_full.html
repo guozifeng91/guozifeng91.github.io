@@ -40,18 +40,22 @@
           </div>
 
           <div class="project-text-centered">
-            <p>Current Image</p>
+            <p>An image search engine majoring in architecture<br><br></p>
+            <p id="indicator">Initializing, please wait...</p>
           </div>
+
+          <!-- <div class="project-text-centered">
+            <p>Current Image</p>
+          </div> -->
           <div class="project-text-centered">
             <!-- crossorigin attribute is essential -->
             <!-- <img id="img" crossorigin='anonymous' src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Cat03.jpg" width="100%"></img> -->
-            <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/51a3/c8b0/b3fc/4b10/be00/015b/large_jpg/IMG_3155.jpg?1389817518" width="50%"></img>
+            <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" width="50%"></img>
             <!-- <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/62c8/3a5c/4cfd/3b5f/a26c/6773/slideshow/henrietta-house-moreysmith_7.jpg?1657289425" width="100%"></img> -->
           </div>
 
           <div class="project-text-centered">
-            <p id="indicator">Initializing, please wait...</p>
-            <p><br><br>Copypaste URL here to use a different image:</p>
+            <p>Copypaste URL here to use a different image:</p>
             <div style="">
               <br>
               <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
@@ -267,6 +271,7 @@
       console.log('loading finished');
 
       // =============================== run everything ===================================
+      const div_indicator=document.getElementById("indicator");
 
       function run_img(k=10){
         const context=document.getElementById("div_search_results");
@@ -278,7 +283,6 @@
           // check https://github.com/tensorflow/tfjs-models/blob/master/mobilenet/src/index.ts function infer() on how to convert img to tf.Tensor
           const img = document.getElementById('img');
           const [result, result_real_id] = get_friends(img, k);
-
 
           let result_urls=[];
           let result_names=[];
@@ -298,9 +302,10 @@
             elem_a.appendChild(elem_p);
             context.appendChild(elem_a);
           }
+
+          div_indicator.innerHTML="Finished.";
         }, 100); // small timmer for the div change be applied
       }
-
 
       // execute search while clicking button
       document.getElementById("button_submit").onclick= function(){
@@ -308,15 +313,15 @@
         try {
           new URL(document.getElementById('input_image_url').value);
           document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + document.getElementById('input_image_url').value;
-          document.getElementById("indicator").innerHTML="Image loaded!"
+          div_indicator.innerHTML="Image loaded!"
         } catch (_) {
-          document.getElementById("indicator").innerHTML="Seems not a URL?"
+          div_indicator.innerHTML="Seems not a URL?"
         }
       }
 
-      document.getElementById("button_process").onclick=function(){run_img(k_use);}
+      document.getElementById("button_process").onclick=function(){div_indicator.innerHTML="Searching...";run_img(k_use);}
 
-      document.getElementById("indicator").innerHTML="Ready!"
+      div_indicator.innerHTML="Ready!"
     </script>
   </body>
 </html>
