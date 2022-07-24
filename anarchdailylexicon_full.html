@@ -41,7 +41,6 @@
 
           <div class="project-text-centered">
             <p>An image search engine majoring in architecture<br><br></p>
-            <p id="indicator">Initializing, please wait...</p>
           </div>
 
           <!-- <div class="project-text-centered">
@@ -60,6 +59,8 @@
               <br>
               <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
               <br>
+              <br>
+              <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
               <br>
               <!-- use https://cors-anywhere.herokuapp.com/ as a temporary solution for CORS -->
               <input type="button" id="button_submit" value="Load New Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
@@ -170,11 +171,11 @@
 
       const IMAGE_SIZE=224;
 
+      div_indicator.innerHTML="Loading Codebook...";
+
       // read saved weight file (from npy binary)
       import npyjs from "npyjs";
       let n = new npyjs();
-
-      div_indicator.innerHTML="Loading Codebook...";
 
       console.log('loading codebook file');
       await n.load(codebook_path).then((res) => {
