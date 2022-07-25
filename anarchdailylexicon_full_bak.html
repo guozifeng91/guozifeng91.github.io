@@ -296,7 +296,6 @@
       const codebook_path="./anarchdailylexicon_full/data/codebook.npy";
 
       // using clusters, faster, but less quality
-      // based on the test,as long as the images are well patched, clusters are good enough
 
       const use_clusters=true;
       const k_use = 50; // 50 clusters max
@@ -361,14 +360,7 @@
 
       const model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
 
-      // current problem: memory leak
-      // next step: use fixed patch-sampling numbers (e.g, 3 x 3 or 4 x 4)
-      // and make a model for the whole pipeline
-      // do not call tensor-building function everytime running a prediction
-      // hopefully this solves the problem
-
       function get_window_box(img, n){
-        // deprecated
         const row = img.shape[0];
         const col = img.shape[1];
 
