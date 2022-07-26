@@ -102,7 +102,7 @@
 
             <!-- this is the actual img element from which image data are read -->
             <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" hidden="hidden"></img>
-            <!-- <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/526d/de93/e8e4/4ee8/e100/05ca/large_jpg/ILeite_PDC_040.jpg?1382932068" hidden="hidden"></img> -->
+            <canvas id="img_canvas" hidden="hidden"></canvas>
           </div>
 
           <div id="search-box" class="project-text-centered sticky-search-box">
@@ -235,6 +235,82 @@
     </script>
 
     <script type="text/javascript">
+      // image-patching without TF operations
+      const IMAGE_SIZE=224; // the patch size used by the mobilenet model
+
+      function get_window_box (rows, cols, n){
+        const patch_size = Math.max(Math.floor(Math.min(rows,cols) / n),100);
+        const row_num = Math.ceil(rows / patch_size);
+        const col_num = Math.ceil(cols / patch_size);
+
+        let boxes = [];
+
+        for (let i=0; i<row_num; i++){
+          const r_start = (i / (row_num-1)) * (rows - patch_size -1);
+          for (let j=0; j<col_num; j++) {
+            const c_start = (j / (col_num-1)) * (cols - patch_size -1);
+            boxes.push([c_start,r_start,patch_size,patch_size]);
+          }
+        }
+        return boxes;
+      }
+
+      function createArray(length) {
+        // code for creating nd-array, taken from
+        // https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
+        var arr = new Array(length || 0),
+            i = length;
+
+        if (arguments.length > 1) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            while(i--) arr[length-1 - i] = createArray.apply(this, args);
+        }
+        return arr;
+      }
+
+      // the hidden image and canvas elements (for obtaining raw image data)
+      const img_ele = document.getElementById("img");
+      const canv_ele = document.getElementById("img_canvas");
+
+      function update_patch_data(given_length=null) {
+        // obtain patch data as nested arrays
+        const drawsize=IMAGE_SIZE;
+        const p_locs=get_window_box(img_ele.height,img_ele.width,2).concat(get_window_box(img_ele.height,img_ele.width,3));
+
+        canv_ele.width=drawsize*p_locs.length;
+        canv_ele.height=drawsize;
+
+        let ctx = canv_ele.getContext("2d");
+        for (let i=0;i<p_locs.length;i++){
+          const [x,y,w,h] = p_locs[i];
+          ctx.drawImage(img_ele, x, y, w, h, i*drawsize, 0, drawsize, drawsize);
+        }
+
+        let patch_num = given_length;
+        if (patch_num==null){ patch_num=p_locs.length;}
+
+        const patches =Array(patch_num);
+
+        for (let idx=0;idx<patch_num;idx++){
+          const i = idx%p_locs.length // index of p_locs
+          const patch = createArray(drawsize, drawsize, 3);
+          const patch_rgbs = ctx.getImageData(i*drawsize, 0, drawsize, drawsize).data;
+          // the speed of for loop in JS is OK-ish
+          for (let r=0;r<drawsize;r++){
+            for (let c=0; c<drawsize; c++){
+              const indice=(c + r*drawsize)*4;
+              patch[r][c][0]=patch_rgbs[indice]/127.5-1;
+              patch[r][c][1]=patch_rgbs[indice + 1]/127.5-1;
+              patch[r][c][2]=patch_rgbs[indice + 2]/127.5-1;
+            }
+          }
+          patches[idx]=patch;
+        }
+        return patches;
+      };
+    </script>
+
+    <script type="text/javascript">
       // define compoutations
       // argsort in JS:
       // https://stackoverflow.com/questions/46622486/what-is-the-javascript-equivalent-of-numpy-argsort
@@ -277,93 +353,47 @@
       }
 
       // this is a numpy-liked function
-      function get_hardcoded_window_box(row_num=3, col_num=3){
-        // now we hardcode the patch info
-        const row_size = 1 / row_num
-        const col_size = 1 / col_num
+      // function get_hardcoded_window_box(row_num=3, col_num=3){
+      //   // now we hardcode the patch info
+      //   const row_size = 1 / row_num
+      //   const col_size = 1 / col_num
+      //
+      //   // normalized bbox
+      //   // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
+      //   let row_start = tf.linspace(0, 1-row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
+      //   let col_start = tf.linspace(0, 1-col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+      //
+      //   let row_end = row_start.add(row_size);
+      //   let col_end = col_start.add(col_size);
+      //
+      //   // list of [ymin, xmin, ymax, xmax]
+      //   return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      // }
 
-        // normalized bbox
-        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
-        let row_start = tf.linspace(0, 1-row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
-        let col_start = tf.linspace(0, 1-col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+      // function get_dynamic_window_box(row, col, n){
+      //   // this function causes memory leak
+      //   // why???
+      //   const patch_size = Math.max(Math.floor(Math.min(row,col) / n),100);
+      //   const row_num = Math.ceil(row / patch_size);
+      //   const col_num = Math.ceil(col / patch_size);
+      //
+      //   // normalize the bounding box
+      //   // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
+      //
+      //   const row_size = patch_size / row;
+      //   const col_size = patch_size / col;
+      //
+      //   let row_start = tf.linspace(0, 1 - row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
+      //   let col_start = tf.linspace(0, 1 - col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+      //
+      //   let row_end = row_start.add(row_size);
+      //   let col_end = col_start.add(col_size);
+      //
+      //   // list of [ymin, xmin, ymax, xmax]
+      //   return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      // }
 
-        let row_end = row_start.add(row_size);
-        let col_end = col_start.add(col_size);
-
-        // list of [ymin, xmin, ymax, xmax]
-        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
-      }
-
-      function get_dynamic_window_box(row, col, n){
-        // this function causes memory leak
-        // why???
-        const patch_size = Math.max(Math.floor(Math.min(row,col) / n),100);
-        const row_num = Math.ceil(row / patch_size);
-        const col_num = Math.ceil(col / patch_size);
-
-        // normalize the bounding box
-        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
-
-        const row_size = patch_size / row;
-        const col_size = patch_size / col;
-
-        let row_start = tf.linspace(0, 1 - row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
-        let col_start = tf.linspace(0, 1 - col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
-
-        let row_end = row_start.add(row_size);
-        let col_end = col_start.add(col_size);
-
-        // list of [ymin, xmin, ymax, xmax]
-        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
-      }
-
-
-      // ============================= make layers to prevent memory leak??? ==================================
-      class CropAndResizeLayer extends tf.layers.Layer{
-        constructor(n, targetSize=224){
-          super({});
-          this.n=n;
-          this.targetSize=targetSize;
-        }
-
-        computeOutputShape(inputShape) {
-          const rows=inputShape[0].shape[1];
-          const cols=inputShape[0].shape[2];
-
-          const patch_size = Math.max(Math.floor(Math.min(rows,cols) / this.n),100);
-          const row_num = Math.ceil(row / patch_size);
-          const col_num = Math.ceil(col / patch_size);
-
-          // patch_size, h, w, rgb
-          return [row_num*col_num, this.targetSize, this.targetSize, 3];
-        }
-
-        call(input, kwargs) {
-          const [x, rows, cols] = input;
-
-          const patch_size = tf.maximum(tf.floor(tf.minimum(rows,cols).div(this.n)),100);
-          const row_num = tf.ceil(row.div(patch_size));
-          const col_num = tf.ceil(col.div(patch_size));
-
-          const row_size = patch_size.div(rows);
-          const col_size = patch_size.div(cols);
-          const patch_num = row_num.mul(col_num);
-
-          let row_start = tf.linspace(0, row_size.add(-1.0), row_num).expandDims(0).tile([col_num, 1]).reshape(patch_num);
-          let col_start = tf.linspace(0, col_size.add(-1.0), col_num).expandDims(1).tile([1, row_num]).reshape(patch_num);
-
-          let row_end = row_start.add(row_size);
-          let col_end = col_start.add(col_size);
-
-          const t_box=tf.stack([row_start, col_start, row_end, col_end]).transpose();
-          const t_inds=tf.zeros([patch_num], 'int32');
-
-          const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [this.targetSize,this.targetSize]).div(127.5).sub(1);
-          return t_patch;
-        }
-
-        getClassName() { return 'CropAndResizeLayer'; }
-      }
+      // =============================== implement frind-matching process as layers ===================================
 
       // minmaxrescale(inv(x)), pow=8 is hardcoded in the layer
       class MinMaxRescaleLayer extends tf.layers.Layer {
@@ -458,7 +488,6 @@
 
         return tf.model({inputs: input_encoding, outputs: dist2});
       }
-
     </script>
 
     <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
@@ -468,7 +497,7 @@
       import npyjs from "npyjs";
       const div_indicator=document.getElementById("indicator");
 
-      // =============================== encoder ===================================
+      // =============================== encoder and library ===================================
       // weights
       let codebook; // codebook
       let library; // archdaily library
@@ -498,8 +527,6 @@
       div_indicator.innerHTML="Loading Codebook...";
 
       // read saved weight file (from npy binary)
-      // import npyjs from "npyjs";
-      // (function(){
       let NPYJS = new npyjs();
 
       console.log('loading codebook file');
@@ -515,7 +542,6 @@
           console.log('library shape', res.shape);
           library = tf.tensor(res.data).reshape(res.shape).transpose();
       });
-      // })();
 
       // the friend_matching process, packed as a model
       const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
@@ -527,25 +553,23 @@
         return t_friends;
       }
 
-      const IMAGE_SIZE=224;
-      function image_patching(t_input_image){
-        const t_box= tf.concat([get_hardcoded_window_box(3,3), get_hardcoded_window_box(4,4)], 0);
-        const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-        const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
-        return t_patch;
-      }
-
-      function image_patching_dynamic(t_input_image){
-        // memory leak???
-        const t_patch = tf.tidy(()=>{
-          const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
-          const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
-          const t_box= tf.concat([t_box1,t_box2], 0);
-          const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-          return tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
-        });
-        return t_patch;
-      }
+      // function image_patching(t_input_image){
+      //   const t_box= tf.concat([get_hardcoded_window_box(3,3), get_hardcoded_window_box(4,4)], 0);
+      //   const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+      //   const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+      //   return t_patch;
+      // }
+      //
+      // function image_patching_dynamic(t_input_image){
+      //   const t_patch = tf.tidy(()=>{
+      //     const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
+      //     const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
+      //     const t_box= tf.concat([t_box1,t_box2], 0);
+      //     const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+      //     return tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+      //   });
+      //   return t_patch;
+      // }
 
       // =============================== mobilenet ===================================
 
@@ -555,33 +579,42 @@
       div_indicator.innerHTML="Loading Mobilenet...";
       const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
 
-      function run_full_model(){
-        // this function should be wrapped by tf.tidy()
-        const img = document.getElementById('img');
-        const t_inputs = tf.browser.fromPixels(img).expandDims(0);
-        const t_patches = image_patching_dynamic(t_inputs);
+      function run_full_model(given_patch_num=25){
+        // note on given_patch_num:
+
+        // it is observed that tensorflow has a serious memory leak when changing the input batch size
+        // this memory leak appears to be with WebGL and cannot be fixed by tf.tidy() or tf.dispose().
+        // more specifially, everytime the input batch size changes (i.e., feed a new input to model.predict()),
+        // a significant memory usage increase can be seen from the task manager, and meanwhile, tf.memory() returns wrong results which says the memory usage is stable.
+
+        // sadly, it seems this memory leak cannot be fixed by tf.tidy() or tf.dispose(),
+        // dispite the many attempts (e.g., implement patch-sampling process with / without tf framework) and research that have been made.
+
+        // currently, a temporary solution of this problem is to fix the input batch size that is fed to the mobilenet model.
+        // this solution does not alter the patch-sampling algorithm, it simply repeats the sampled patches if they are not enough to fill the batch,
+        // or discard patches that exceeds the batch size limit.
+
+        const t_patches=tf.tensor(update_patch_data(given_patch_num));
         const t_encoding = patch_encoding_model.predict(t_patches);
         const t_outputs = friend_matching_model.predict(t_encoding); //friend_matching(t_encoding);
         const output_data = t_outputs.dataSync();
-        tf.dispose([t_inputs,t_patches, t_encoding, t_outputs]);
+        tf.dispose([t_patches, t_encoding, t_outputs]);
         return output_data;
       }
 
-      // const model = get_full_model();
+      console.log('loading finished');
 
-      function get_friends(img, k=10){
-        // load the image
-        // console.log("memory start");
-        // console.table( tf.memory() );
+      // =============================== high-level functions ===================================
+      function run_img_search(k){
+        // k: use the first-k returned results
+        // this value corresponds to the actual image number, when use_clusters=false
+        // or the cluster number, when use_clusters=true
+        // in the latter case, the actual image num is the sum of images of each cluster
         const result_encoding = tf.tidy(()=>{
           return run_full_model();
         });
-        // console.log("memory end");
-        // console.table( tf.memory() );
         let result = dsu(arange(library_dim), result_encoding).slice(0,k);
-
         let result_real_id=[];
-
         // obtain the original index
         if (use_clusters){
           for (let r of result){
@@ -590,20 +623,14 @@
         }else{
           result_real_id=result;
         }
-        return [result, result_real_id];
-      }
-      console.log('loading finished');
 
-      // =============================== run everything ===================================
-      function run_img_search(k=10){
-        const img = document.getElementById('img');
-        const [result, result_real_id] = get_friends(img, k);
+        // set index data for the user interface
         results_index = result_real_id; // update id
         load_offset=0; // reset offset
       }
 
       function load_results_next_batch(){
-        // remove_all_entries();
+        // load the next batch to the result list area
         for (let i=0;i<load_batch; i++){
           if (load_offset<results_index.length){
             const r_index=results_index[load_offset];
@@ -619,6 +646,8 @@
         }
         console.log('load_offset', load_offset);
       }
+
+      // =============================== user-interface functions ===================================
 
       // loading-while-scrolling
       window.onscroll = function(e) {

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>TEMPLATE</title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+        /* font-family: sans-serif; */
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+    <link rel="stylesheet" href="./stylesheet.css">
+    <link rel="stylesheet" href="./style-amended.css">
+  </head>
+  <body>
+    <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+        <div class="logo-wrap" data-hover-hint="logo">
+              <div class="logo">
+                <a id="home-link" href="./index.html?position=1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                    <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+                </a>
+              </div>
+        </div>
+    </header>
+    <script type="text/javascript" src="./checkhomeaddress.js"></script>
+
+    <img id="myImage" crossorigin='anonymous' src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg">
+    <canvas id="myCanvas" style="border:1px solid #d3d3d3;">
+
+    <script type="text/javascript">
+      function get_window_box (rows, cols, n){
+        const patch_size = Math.max(Math.floor(Math.min(rows,cols) / n),100);
+        const row_num = Math.ceil(rows / patch_size);
+        const col_num = Math.ceil(cols / patch_size);
+
+        let boxes = [];
+
+        for (let i=0; i<row_num; i++){
+          const r_start = (i / row_num) * (rows - patch_size -1);
+          for (let j=0; j<col_num; j++) {
+            const c_start = (j / col_num) * (cols - patch_size -1);
+            boxes.push([c_start,r_start,patch_size,patch_size]);
+          }
+        }
+        return boxes;
+      }
+
+      function createArray(length) {
+        // code for creating nd-array, taken from
+        // https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
+        var arr = new Array(length || 0),
+            i = length;
+
+        if (arguments.length > 1) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            while(i--) arr[length-1 - i] = createArray.apply(this, args);
+        }
+
+        return arr;
+      }
+
+      const img_ele = document.getElementById("myImage");
+      const canv_ele = document.getElementById("myCanvas");
+
+      function update_patch_data() {
+        // obtain patch data as nested arrays
+        const drawsize=224;
+        const p_locs=get_window_box(img_ele.height,img_ele.width,2).concat(get_window_box(img_ele.height,img_ele.width,3));
+
+        canv_ele.width=drawsize*p_locs.length;
+        canv_ele.height=drawsize;
+
+        let ctx = canv_ele.getContext("2d");
+        for (let i=0;i<p_locs.length;i++){
+          const [x,y,w,h] = p_locs[i];
+          ctx.drawImage(img_ele, x, y, w, h, i*drawsize, 0, drawsize, drawsize);
+        }
+
+        let patches=Array(p_locs.length);
+        for (let i=0;i<p_locs.length;i++){
+          const patch = createArray(drawsize, drawsize, 3);
+          const patch_rgbs = ctx.getImageData(i*drawsize, 0, drawsize, drawsize).data;
+
+          for (let r=0;r<224;r++){
+            for (let c=0; c<224; c++){
+              const indice=(c + r*drawsize)*4;
+              patch[r][c][0]=patch_rgbs[indice];
+              patch[r][c][1]=patch_rgbs[indice + 1];
+              patch[r][c][2]=patch_rgbs[indice + 2];
+            }
+          }
+
+          patches[i]=patch;
+        }
+
+        console.log(patches[0]);
+
+        // var imgData = ctx.getImageData(0, 0, canv_ele.width, canv_ele.height);
+        // var i;
+        // for (i = 0; i < imgData.data.length; i += 4) {
+        //   imgData.data[i] = 255 - imgData.data[i];
+        //   imgData.data[i+1] = 255 - imgData.data[i+1];
+        //   imgData.data[i+2] = 255 - imgData.data[i+2];
+        //   imgData.data[i+3] = 255;
+        // }
+        // ctx.putImageData(imgData, 0, 0);
+        // console.log(imgData);
+      };
+
+      img_ele.onload = update_patch_data();
+    </script>
+
+    <div class="project-container-wrapper">
+      <div id="project-container" class="project-container">
+        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
+          <div class="project-title">
+            Experiment
+          </div>
+
+          <div class="project-text">
+            <p>This is a placeholder.</p>
+          </div>
+
+          <div class="project-text-centered">-</div>
+        <!-- </section> -->
+      </div>
+    </div>
+  </body>
+</html>
