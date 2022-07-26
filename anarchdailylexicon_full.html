@@ -160,6 +160,11 @@
   let load_offset=0;
   let disable_scroll_loading=false;
 
+  const unload_results = function(){
+    results_index=[];
+    load_offset=;
+  };
+
   const remove_all_entries = function(){
     const container = document.getElementById("div_search_results");
     while (container.firstChild) {
@@ -659,6 +664,7 @@
       document.getElementById('img_thumb').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
       div_indicator.innerHTML="Image loaded!";
       remove_all_entries();
+      unload_results();
     } catch (_) {
       div_indicator.innerHTML="Seems not a URL?";
     }
@@ -668,7 +674,8 @@
     div_indicator.innerHTML="Searching...";
     disable_scroll_loading=true;
     remove_all_entries();
-
+    unload_results();
+    
     window.setTimeout(function(){
       run_img_search(k_use); // k_use determines the max-num of results
       load_results_next_batch();
