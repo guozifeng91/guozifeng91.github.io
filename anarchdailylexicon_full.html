@@ -162,7 +162,7 @@
 
   const unload_results = function(){
     results_index=[];
-    load_offset=;
+    load_offset=0;
   };
 
   const remove_all_entries = function(){
@@ -675,7 +675,7 @@
     disable_scroll_loading=true;
     remove_all_entries();
     unload_results();
-    
+
     window.setTimeout(function(){
       run_img_search(k_use); // k_use determines the max-num of results
       load_results_next_batch();
