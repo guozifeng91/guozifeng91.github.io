@@ -164,7 +164,7 @@
       const remove_all_entries = function(){
         const container = document.getElementById("div_search_results");
         while (container.firstChild) {
-          const c = container.lastChild
+          const c = container.lastChild;
           container.removeChild(c);
           c.remove();
         }
@@ -673,9 +673,10 @@
           // update both the data and the thumb
           document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
           document.getElementById('img_thumb').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
-          div_indicator.innerHTML="Image loaded!"
+          div_indicator.innerHTML="Image loaded!";
+          remove_all_entries();
         } catch (_) {
-          div_indicator.innerHTML="Seems not a URL?"
+          div_indicator.innerHTML="Seems not a URL?";
         }
       };
 
@@ -692,7 +693,7 @@
         }, 300);
       };
 
-      div_indicator.innerHTML="Ready!"
+      div_indicator.innerHTML="Ready!";
     </script>
   </body>
 </html>
