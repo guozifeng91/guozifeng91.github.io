@@ -276,6 +276,46 @@
         // 1/x
         return tf.pow(X,-1);
       }
+
+      function get_hardcoded_window_box(row_num=3, col_num=3){
+        // now we hardcode the patch info
+        const row_size = 1 / row_num
+        const col_size = 1 / col_num
+
+        // normalized bbox
+        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
+        let row_start = tf.linspace(0, 1-row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
+        let col_start = tf.linspace(0, 1-col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+
+        let row_end = row_start.add(row_size);
+        let col_end = col_start.add(col_size);
+
+        // list of [ymin, xmin, ymax, xmax]
+        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      }
+
+      function get_dynamic_window_box(row, col, n){
+        // this function causes memory leak
+        // why???
+        const patch_size = Math.max(Math.floor(Math.min(row,col) / n),100);
+        const row_num = Math.ceil(row / patch_size);
+        const col_num = Math.ceil(col / patch_size);
+
+        // normalize the bounding box
+        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
+
+        const row_size = patch_size / row;
+        const col_size = patch_size / col;
+
+        let row_start = tf.linspace(0, 1 - row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
+        let col_start = tf.linspace(0, 1 - col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
+
+        let row_end = row_start.add(row_size);
+        let col_end = col_start.add(col_size);
+
+        // list of [ymin, xmin, ymax, xmax]
+        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      }
     </script>
 
     <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
@@ -312,45 +352,54 @@
       // const library_dim = 304260;
       // const library_path="https://storage.googleapis.com/zfguo_pretrained_models/archdaily_lexicon/library.npy";
 
-      const IMAGE_SIZE=224;
-
       div_indicator.innerHTML="Loading Codebook...";
 
       // read saved weight file (from npy binary)
       // import npyjs from "npyjs";
       // (function(){
-      let n = new npyjs();
+      let NPYJS = new npyjs();
 
       console.log('loading codebook file');
-      await n.load(codebook_path).then((res) => {
+      await NPYJS.load(codebook_path).then((res) => {
           // res has { data, shape, dtype } members.
           console.log('codebook shape', res.shape);
           codebook = tf.tensor(res.data).reshape(res.shape).transpose();
       });
 
       console.log('loading library file');
-      await n.load(library_path).then((res) => {
+      await NPYJS.load(library_path).then((res) => {
           // res has { data, shape, dtype } members.
           console.log('library shape', res.shape);
           library = tf.tensor(res.data).reshape(res.shape).transpose();
       });
       // })();
 
-      // get archdaily friends
-      function get_friends_from_encoding(x) {
-        return dist_matrix2(minmax_rescale(inverse(dist_matrix(x, codebook)),8), library);
+      // get tf tensor graph of friend-matching
+      function friend_matching(t_patch_encoding, pow=8){
+        // const t_patch_encoding=tf.input({shape:[1024]}); // patch_num x 1024
+        const t_friends = dist_matrix2(minmax_rescale(inverse(dist_matrix(t_patch_encoding, codebook)),pow), library);
+        return t_friends;
       }
 
-      // // for debug, load a sample from npy file
-      // let sample; // to be replaced by machine learning output
-      // await n.load("./experiment/sample3345.npy").then((res) => {
-      //     // res has { data, shape, dtype } members.
-      //     sample = tf.tensor(res.data).reshape(res.shape);
-      // });
-      //
-      // let result = dsu(arange(library_dim), get_friends_from_encoding(sample).dataSync());
-      // // console.log(model);
-      // console.log('run model', result);
+      const IMAGE_SIZE=224;
+      function image_patching(t_input_image){
+        const t_box= tf.concat([get_hardcoded_window_box(3,3), get_hardcoded_window_box(4,4)], 0);
+        const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+        const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+        return t_patch;
+      }
+
+      function image_patching_dynamic(t_input_image){
+        // memory leak
+        const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
+        const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
+        const t_box= tf.concat([t_box1,t_box2], 0);
+        t_box1.dispose();
+        t_box2.dispose();
+        const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+        const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+        return t_patch;
+      }
 
       // =============================== mobilenet ===================================
 
@@ -358,72 +407,28 @@
       // const model = await tf.loadLayersModel('https://storage.googleapis.com/zfguo_pretrained_models/mobilenet/model.json');
       console.log('loading mobilenet');
       div_indicator.innerHTML="Loading Mobilenet...";
+      const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
 
-      const model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
-
-      // current problem: memory leak
-      // next step: use fixed patch-sampling numbers (e.g, 3 x 3 or 4 x 4)
-      // and make a model for the whole pipeline
-      // do not call tensor-building function everytime running a prediction
-      // hopefully this solves the problem
-
-      function get_window_box(img, n){
-        // deprecated
-        const row = img.shape[0];
-        const col = img.shape[1];
-
-        const patch_size = Math.max(Math.floor(Math.min(row,col) / n),100);
-        const row_num = Math.ceil(row / patch_size);
-        const col_num = Math.ceil(col / patch_size);
-
-        console.log(row_num, col_num);
-
-        let row_start = tf.floor(tf.linspace(0, row - patch_size - 1, row_num)).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
-        let col_start = tf.floor(tf.linspace(0, col - patch_size - 1, col_num)).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
-
-        let row_end = row_start.add(patch_size);
-        let col_end = col_start.add(patch_size);
-
-        // normalize the bounding box
-        // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
-        row_start=row_start.div(row);
-        row_end=row_end.div(row);
-
-        col_start=col_start.div(col);
-        col_end=col_end.div(col);
-
-        // list of [ymin, xmin, ymax, xmax]
-        return tf.stack([row_start, col_start, row_end, col_end]).transpose();
+      function run_full_model(){
+        // this function should be wrapped by tf.tidy()
+        const img = document.getElementById('img');
+        const t_inputs = tf.browser.fromPixels(img).expandDims(0);
+        const t_patches = image_patching(t_inputs);
+        const t_encoding = patch_encoding_model.predict(t_patches);
+        const t_outputs = friend_matching(t_encoding);
+        tf.dispose([t_inputs,t_patches, t_encoding]);
+        return t_outputs;
       }
+
+      // const model = get_full_model();
 
       function get_friends(img, k=10){
         // load the image
         const result_encoding = tf.tidy(()=>{
-
-          console.log('making image patches');
-          const t_img = tf.browser.fromPixels(img);
-
-          // get image patches
-          // something is wrong with patch-making
-          const t_box = tf.concat([get_window_box(t_img, 2), get_window_box(t_img, 3)], 0);
-          const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-          const t_img_batch = t_img.reshape([1, t_img.shape[0], t_img.shape[1], t_img.shape[2]]);
-
-          // t_box: normalized box!
-          // perform normalization x/127.5 - 1
-          // see corresponding model in keras for data preprocessing
-          const t_patch = tf.image.cropAndResize(t_img_batch, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
-
-          console.log('low-lv-coding');
-          const low_lv_encoding = model.predict(t_patch);
-
-          console.log('high-lv-coding');
-
-          return get_friends_from_encoding(low_lv_encoding).dataSync();
-
+          return run_full_model().dataSync();
         });
 
-        console.log('numTensors (outside tidy): ' + tf.memory().numTensors);
+        console.table( tf.memory() );
         let result = dsu(arange(library_dim), result_encoding).slice(0,k);
 
         let result_real_id=[];
@@ -470,23 +475,10 @@
       window.onscroll = function(e) {
         // check search-box position
         const search_box=document.getElementById("search-box");
-        // const box_top = search_box.getBoundingClientRect().top
-        // console.log(box_top);
-        // // const compensate_height = 0.5 * search_box.scrollHeight;
-
 
         const viewHeight = window.innerHeight;
         const scrollHeight=document.body.scrollHeight; // total height
         const scrollTop=Math.max(document.body.scrollTop, document.documentElement.scrollTop); // current top
-
-        // this is optional, if not working, take it out
-        // if (box_top<0){
-        //   search_box.style.transform="translateY(" + scrollTop + "px)";
-        //   search_box.style.zIndex ="2";
-        //   search_box.style.backgroundColor ="#ffffffa0";
-        // } else {
-        //   search_box.style.transform="";
-        // }
 
         // check loading process
         if (scrollHeight - (scrollTop + viewHeight) <= 10 && !disable_scroll_loading){
