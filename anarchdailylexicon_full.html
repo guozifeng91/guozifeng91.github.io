@@ -273,10 +273,10 @@
       }
 
       function inverse(X){
-        // 1/x
         return tf.pow(X,-1);
       }
 
+      // this is a numpy-liked function
       function get_hardcoded_window_box(row_num=3, col_num=3){
         // now we hardcode the patch info
         const row_size = 1 / row_num
@@ -316,6 +316,149 @@
         // list of [ymin, xmin, ymax, xmax]
         return tf.stack([row_start, col_start, row_end, col_end]).transpose();
       }
+
+
+      // ============================= make layers to prevent memory leak??? ==================================
+      class CropAndResizeLayer extends tf.layers.Layer{
+        constructor(n, targetSize=224){
+          super({});
+          this.n=n;
+          this.targetSize=targetSize;
+        }
+
+        computeOutputShape(inputShape) {
+          const rows=inputShape[0].shape[1];
+          const cols=inputShape[0].shape[2];
+
+          const patch_size = Math.max(Math.floor(Math.min(rows,cols) / this.n),100);
+          const row_num = Math.ceil(row / patch_size);
+          const col_num = Math.ceil(col / patch_size);
+
+          // patch_size, h, w, rgb
+          return [row_num*col_num, this.targetSize, this.targetSize, 3];
+        }
+
+        call(input, kwargs) {
+          const [x, rows, cols] = input;
+
+          const patch_size = tf.maximum(tf.floor(tf.minimum(rows,cols).div(this.n)),100);
+          const row_num = tf.ceil(row.div(patch_size));
+          const col_num = tf.ceil(col.div(patch_size));
+
+          const row_size = patch_size.div(rows);
+          const col_size = patch_size.div(cols);
+          const patch_num = row_num.mul(col_num);
+
+          let row_start = tf.linspace(0, row_size.add(-1.0), row_num).expandDims(0).tile([col_num, 1]).reshape(patch_num);
+          let col_start = tf.linspace(0, col_size.add(-1.0), col_num).expandDims(1).tile([1, row_num]).reshape(patch_num);
+
+          let row_end = row_start.add(row_size);
+          let col_end = col_start.add(col_size);
+
+          const t_box=tf.stack([row_start, col_start, row_end, col_end]).transpose();
+          const t_inds=tf.zeros([patch_num], 'int32');
+
+          const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [this.targetSize,this.targetSize]).div(127.5).sub(1);
+          return t_patch;
+        }
+
+        getClassName() { return 'CropAndResizeLayer'; }
+      }
+
+      // minmaxrescale(inv(x)), pow=8 is hardcoded in the layer
+      class MinMaxRescaleLayer extends tf.layers.Layer {
+       constructor(p) {
+         super({});
+         this.p=p;
+       }
+       // In this case, the output is a scalar.
+       computeOutputShape(inputShape) {
+         return inputShape;
+       }
+
+       // call() is where we do the computation.
+       call(input, kwargs) {
+         const x = input[0].pow(-1); // inverse
+         const output = tf.tidy(()=>{
+           const t_min = x.min(1, true); // axis, keepDims
+           const t_max = x.max(1, true); // axis, keepDims
+           const t_mid_level= x.sub(t_min).div(t_max.sub(t_min)).pow(this.p);
+           return t_mid_level.mean(0, true); // axis, keepDims
+         });
+         return output;
+       }
+       // Every layer needs a unique name.
+       getClassName() { return 'MinMaxRescaleLayer'; }
+      }
+
+      // dist matrix
+      class DistMatrixLayer extends tf.layers.Layer {
+       constructor(y) {
+         // y: the 2d array with which dist matrix will be computed
+         super({});
+         this.y=y;
+       }
+
+       // In this case, the output is a scalar.
+       computeOutputShape(inputShape) {
+         return [inputShape[0], this.y.shape[1]];
+       }
+
+       // call() is where we do the computation.
+       call(input, kwargs) {
+         // const [x,y] = input;
+         const x=input[0];
+         const y=this.y;
+         const output = tf.tidy(()=>{
+           const x2 = x.pow(2).sum(1, true); // axis, keepDims
+           const y2 = y.pow(2).sum(0, true); // axis, keepDims
+           const xy = x.matMul(y).mul(2);
+           return tf.maximum(x2.add(y2).sub(xy),0).sqrt();
+         });
+         return output;
+       }
+       // Every layer needs a unique name.
+       getClassName() { return 'DistMatrixLayer'; }
+      }
+
+      class DistMatrix2Layer extends tf.layers.Layer {
+       constructor(y) {
+         // y: the 2d array with which dist matrix will be computed
+         super({});
+         this.y=y;
+       }
+
+       // In this case, the output is a scalar.
+       computeOutputShape(inputShape) {
+         return [inputShape[0], this.y.shape[1]];
+       }
+
+       // call() is where we do the computation.
+       call(input, kwargs) {
+         const x = input[0];
+         const y = this.y;
+         const output = tf.tidy(()=>{
+           const x2 = x.pow(2).sum(1,true);
+           const y2 = y.pow(2).sum(0,true);
+           const xy = x.matMul(y).mul(2);
+           return x2.add(y2).sub(xy);
+         });
+         return output;
+       }
+       // Every layer needs a unique name.
+       getClassName() { return 'DistMatrix2Layer'; }
+      }
+
+      function get_friend_matching_model(library, codebook, encoding_dim=1024, pow=8){
+        const input_encoding = tf.input({shape: [encoding_dim]});
+
+        const dist1 = new DistMatrixLayer(codebook).apply(input_encoding);
+        const dist_res = new MinMaxRescaleLayer(pow).apply(dist1);
+        const dist2 = new DistMatrix2Layer(library).apply(dist_res);
+
+        return tf.model({inputs: input_encoding, outputs: dist2});
+      }
+
     </script>
 
     <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
@@ -374,7 +517,10 @@
       });
       // })();
 
-      // get tf tensor graph of friend-matching
+      // the friend_matching process, packed as a model
+      const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+
+      // the friend_matching process, as a numpy-liked function
       function friend_matching(t_patch_encoding, pow=8){
         // const t_patch_encoding=tf.input({shape:[1024]}); // patch_num x 1024
         const t_friends = dist_matrix2(minmax_rescale(inverse(dist_matrix(t_patch_encoding, codebook)),pow), library);
@@ -390,14 +536,14 @@
       }
 
       function image_patching_dynamic(t_input_image){
-        // memory leak
-        const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
-        const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
-        const t_box= tf.concat([t_box1,t_box2], 0);
-        t_box1.dispose();
-        t_box2.dispose();
-        const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-        const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+        // memory leak???
+        const t_patch = tf.tidy(()=>{
+          const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
+          const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
+          const t_box= tf.concat([t_box1,t_box2], 0);
+          const t_inds=tf.zeros([t_box.shape[0]], 'int32');
+          return tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
+        });
         return t_patch;
       }
 
@@ -413,22 +559,25 @@
         // this function should be wrapped by tf.tidy()
         const img = document.getElementById('img');
         const t_inputs = tf.browser.fromPixels(img).expandDims(0);
-        const t_patches = image_patching(t_inputs);
+        const t_patches = image_patching_dynamic(t_inputs);
         const t_encoding = patch_encoding_model.predict(t_patches);
-        const t_outputs = friend_matching(t_encoding);
-        tf.dispose([t_inputs,t_patches, t_encoding]);
-        return t_outputs;
+        const t_outputs = friend_matching_model.predict(t_encoding); //friend_matching(t_encoding);
+        const output_data = t_outputs.dataSync();
+        tf.dispose([t_inputs,t_patches, t_encoding, t_outputs]);
+        return output_data;
       }
 
       // const model = get_full_model();
 
       function get_friends(img, k=10){
         // load the image
+        // console.log("memory start");
+        // console.table( tf.memory() );
         const result_encoding = tf.tidy(()=>{
-          return run_full_model().dataSync();
+          return run_full_model();
         });
-
-        console.table( tf.memory() );
+        // console.log("memory end");
+        // console.table( tf.memory() );
         let result = dsu(arange(library_dim), result_encoding).slice(0,k);
 
         let result_real_id=[];
