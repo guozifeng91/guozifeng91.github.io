@@ -443,7 +443,9 @@
 
   <script type="text/javascript">console.log('debug: 6'); </script>
 
-  <script type="module"> console.log('debug module 6-7'); </script>
+  <script type="module">
+    console.log('debug module 6-7');
+  </script>
 
   <script type="module">
     console.log("module starts");
@@ -580,7 +582,6 @@
           break;
         }
       }
-      console.log('load_offset', load_offset);
     }
 
     // =============================== user-interface functions ===================================
@@ -612,7 +613,7 @@
         div_indicator.innerHTML="Image loaded!";
         remove_all_entries();
         unload_results();
-      } catch (_) {
+      } catch (error) {
         div_indicator.innerHTML="Seems not a URL?";
       }
     };
