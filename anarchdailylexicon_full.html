@@ -455,9 +455,10 @@
   </script>
   <script type="module">
     console.log("module debug");
-
+    const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
+    console.log("mobilenet");
     import npyjs from "npyjs";
-
+    console.log("import");
     const friend_matching_model = await (async function(){
       // read saved weight file (from npy binary)
       let NPYJS = new npyjs();
@@ -480,7 +481,6 @@
       const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
       return friend_matching_model;
     })();
-
     console.log('codebook done');
   </script>
   <script type="module">
