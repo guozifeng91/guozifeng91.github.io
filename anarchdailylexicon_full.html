@@ -453,73 +453,46 @@
 
     const div_indicator=document.getElementById("indicator");
   </script>
+
   <script type="module">
-    console.log("module debug");
-    const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
-    console.log("mobilenet");
-    import npyjs from "npyjs";
-    console.log("import");
-    const friend_matching_model = await (async function(){
-      // read saved weight file (from npy binary)
-      let NPYJS = new npyjs();
-      // weights
-      let codebook; // codebook
-      let library; // archdaily library
-
-      console.log('loading codebook file');
-      await NPYJS.load(codebook_path).then((res) => {
-        codebook = tf.tensor(res.data).reshape(res.shape).transpose();
-      });
-
-      console.log('loading library file');
-      await NPYJS.load(library_path).then((res) => {
-        console.log('library shape', res.shape);
-        library = tf.tensor(res.data).reshape(res.shape).transpose();
-      });
-
-      // the friend_matching process, packed as a model
-      const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
-      return friend_matching_model;
-    })();
-    console.log('codebook done');
-  </script>
-  <script type="module">
+    // for mobile device: this module requires IOS 15+
     console.log("module starts");
 
     // read saved weight file (from npy binary)
     import npyjs from "npyjs";
 
-    div_indicator.innerHTML="Loading Codebook...";
+    let friend_matching_model=null;
+    let patch_encoding_model=null;
 
-    const friend_matching_model = await (async function(){
-      // read saved weight file (from npy binary)
+    // try to avoid await in the code
+    (function() {
+      console.log('loading mobilenet');
+      div_indicator.innerHTML="Loading Codebook...";
+
       let NPYJS = new npyjs();
-      // weights
-      let codebook; // codebook
-      let library; // archdaily library
 
-      console.log('loading codebook file');
-      await NPYJS.load(codebook_path).then((res) => {
-        codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+      NPYJS.load(codebook_path).then((res) => {
+        // first load codebook
+        let codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+        NPYJS.load(library_path).then((res) => {
+          // then load library
+          let library = tf.tensor(res.data).reshape(res.shape).transpose();
+          // build friend-matching-model
+          friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+
+          div_indicator.innerHTML="Loading Mobilenet...";
+          // then load mobilenet
+          tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
+            patch_encoding_model=res;
+            // maybe put onclick here?
+            div_indicator.innerHTML="Ready!";
+          });
+        });
       });
-
-      console.log('loading library file');
-      await NPYJS.load(library_path).then((res) => {
-        console.log('library shape', res.shape);
-        library = tf.tensor(res.data).reshape(res.shape).transpose();
-      });
-
-      // the friend_matching process, packed as a model
-      const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
-      return friend_matching_model;
     })();
 
     // =============================== mobilenet ===================================
     // load the mobilenet model exported from keras to get the same model behavior in python
-    console.log('loading mobilenet');
-    div_indicator.innerHTML="Loading Mobilenet...";
-    const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
-
     function run_full_model(given_patch_num=25){
       // note on given_patch_num:
 
@@ -542,8 +515,6 @@
       tf.dispose([t_patches, t_encoding, t_outputs]);
       return output_data;
     }
-
-    console.log('loading finished');
 
     // =============================== high-level functions ===================================
     function run_img_search(k){
@@ -634,8 +605,6 @@
         disable_scroll_loading=false;
       }, 300);
     };
-
-    div_indicator.innerHTML="Ready!";
   </script>
 </body>
 </html>
