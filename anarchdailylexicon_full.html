@@ -155,7 +155,7 @@
   <script type="importmap">
     {
       "imports": {
-        "npyjs":"./anarchdailylexicon_full/data/npyjs/index.js"
+        "npyjs":"./anarchdailylexicon_full/data/npyjs/index_no_await.js"
       }
     }
   </script>
@@ -466,7 +466,7 @@
 
     // try to avoid await in the code
     (function() {
-      console.log('loading mobilenet');
+      console.log('loading codebook');
       div_indicator.innerHTML="Loading Codebook...";
 
       let NPYJS = new npyjs();
@@ -474,6 +474,7 @@
       NPYJS.load(codebook_path).then((res) => {
         // first load codebook
         let codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+        console.log('loading library');
         NPYJS.load(library_path).then((res) => {
           // then load library
           let library = tf.tensor(res.data).reshape(res.shape).transpose();
@@ -481,6 +482,7 @@
           friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
 
           div_indicator.innerHTML="Loading Mobilenet...";
+          console.log('loading mobilenet');
           // then load mobilenet
           tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
             patch_encoding_model=res;
