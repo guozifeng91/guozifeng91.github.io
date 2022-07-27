@@ -81,7 +81,6 @@
 
   <div class="project-container-wrapper">
     <div id="project-container" class="project-container">
-      <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
       <div class="project-title">
         Archdaily + Image Search
       </div>
@@ -90,126 +89,124 @@
         <p>An image search engine majoring in architecture</p>
       </div>
 
-      <!-- <div class="project-text-centered">
-      <p>Current Image</p>
-    </div> -->
-    <div class="project-text-centered">
-      <!-- crossorigin attribute is essential -->
-      <!-- image size (i.e., width) matters! small image will get wrong image data for tensorflow -->
+      <div class="project-text-centered">
+        <!-- crossorigin attribute is essential -->
+        <!-- image size (i.e., width) matters! small image will get wrong image data for tensorflow -->
 
-      <!-- this is a dunny image element for user to see -->
-      <img id="img_thumb" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" width="40%"></img>
+        <!-- this is a dunny image element for user to see -->
+        <img id="img_thumb" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" width="40%"></img>
 
-      <!-- this is the actual img element from which image data are read -->
-      <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" hidden="hidden"></img>
-      <canvas id="img_canvas" hidden="hidden"></canvas>
-    </div>
-
-    <div id="search-box" class="project-text-centered sticky-search-box">
-      <p>To change the current image (above), <a href='https://cors-anywhere.herokuapp.com/', target="_blank" class="class_a">enable CORS access</a> (once only) and then paste a new URL here:</p>
-      <div style="">
-        <br>
-        <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
-        <br>
-        <br>
-        <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
-        <br>
-        <!-- use https://cors-anywhere.herokuapp.com/ as a temporary solution for CORS -->
-        <input type="button" id="button_submit" value="Change Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
-
-        <input type="button" id="button_process" value="Search for Friends"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+        <!-- this is the actual img element from which image data are read -->
+        <img id="img" crossorigin='anonymous' src="https://images.adsttc.com/media/images/5552/c7fd/e58e/ce8a/2600/00c6/slideshow/portada_FH03HuftonCrow.jpg?1431488470" hidden="hidden"></img>
+        <canvas id="img_canvas" hidden="hidden"></canvas>
       </div>
+
+      <div id="search-box" class="project-text-centered sticky-search-box">
+        <p>To change the current image (above), <a href='https://cors-anywhere.herokuapp.com/', target="_blank" class="class_a">enable CORS access</a> (once only) and then paste a new URL here:</p>
+        <div style="">
+          <br>
+          <input type="text" id="input_image_url" placeholder="Image URL here", class="project-text" style="width:90%; padding-top:0.2em;padding-bottom:0.2em;">
+          <br>
+          <br>
+          <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
+          <br>
+          <!-- use https://cors-anywhere.herokuapp.com/ as a temporary solution for CORS -->
+          <input type="button" id="button_submit" value="Change Image"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+
+          <input type="button" id="button_process" value="Search for Friends"  class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+        </div>
+      </div>
+
+      <div id="div_search_results" class="project-container-gallery" style="gap: 10px;">
+        <!-- search output here  -->
+      </div>
+
+      <div class="project-text-centered">
+        <p>-</p>
+      </div>
+
+      <div class="project-text">
+        <p>This Web Demo encodes an image and compares the result with a pre-computed library to search for best-matching images.</p>
+      </div>
+
+      <div class="project-text">
+        <p>The Wed Demo depends on the proxy service of <a href="https://cors-anywhere.herokuapp.com/" target="_blank" class="class_a">cors-anywhere.herokuapp.com</a> to bypass <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank" class="class_a">CORS restrictions</a> and load images from arbitrary URLs.</p>
+      </div>
+
+      <div class="project-text">
+        <p>The encoding method depends on the <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet" target="_blank" class="class_a">Mobilenet</a> pre-trained model of <a href="https://www.tensorflow.org/js/tutorials" target="_blank" class="class_a">Tensorflow.js</a>.</p>
+      </div>
+
+      <div class="project-text">
+        <p>The Web Demo also depends on <a href="https://www.npmjs.com/package/cross-fetch" target="_blank" class="class_a">cross-fetch</a>, <a href="https://github.com/aplbrain/npyjs" target="_blank" class="class_a">npyjs</a> to load the pre-computed library.</p>
+      </div>
+
+      <div class="project-text">
+        <p>Currently the Web Demo has been tested only on PCs. All computations are executed on the client's device.</p>
+      </div>
+
+      <div class="project-text-centered">-</div>
+      <!-- </section> -->
     </div>
-
-
-    <div id="div_search_results" class="project-container-gallery" style="gap: 10px;">
-      <!-- search output here  -->
-    </div>
-
-    <div class="project-text-centered">
-      <p>-</p>
-    </div>
-
-    <div class="project-text">
-      <p>This Web Demo encodes an image and compares the result with a pre-computed library to search for best-matching images.</p>
-    </div>
-
-    <div class="project-text">
-      <p>The Wed Demo depends on the proxy service of <a href="https://cors-anywhere.herokuapp.com/" target="_blank" class="class_a">cors-anywhere.herokuapp.com</a> to bypass <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank" class="class_a">CORS restrictions</a> and load images from arbitrary URLs.</p>
-    </div>
-
-    <div class="project-text">
-      <p>The encoding method depends on the <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet" target="_blank" class="class_a">Mobilenet</a> pre-trained model of <a href="https://www.tensorflow.org/js/tutorials" target="_blank" class="class_a">Tensorflow.js</a>.</p>
-    </div>
-
-    <div class="project-text">
-      <p>The Web Demo also depends on <a href="https://www.npmjs.com/package/cross-fetch" target="_blank" class="class_a">cross-fetch</a>, <a href="https://github.com/aplbrain/npyjs" target="_blank" class="class_a">npyjs</a> to load the pre-computed library.</p>
-    </div>
-
-    <div class="project-text">
-      <p>Currently the Web Demo has been tested only on PCs. All computations are executed on the client's device.</p>
-    </div>
-
-    <div class="project-text-centered">-</div>
-    <!-- </section> -->
   </div>
-
+  <script type="text/javascript">console.log('debug: 1'); </script>
   <script type="text/javascript">
-  let results_index=[];
-  let load_batch=50;
-  let load_offset=0;
-  let disable_scroll_loading=false;
+    let results_index=[];
+    let load_batch=50;
+    let load_offset=0;
+    let disable_scroll_loading=false;
 
-  const unload_results = function(){
-    results_index=[];
-    load_offset=0;
-  };
+    const unload_results = function(){
+      results_index=[];
+      load_offset=0;
+    };
 
-  const remove_all_entries = function(){
-    const container = document.getElementById("div_search_results");
-    while (container.firstChild) {
-      const c = container.lastChild;
-      container.removeChild(c);
-      c.remove();
-    }
-    load_offset=0;
-  };
+    const remove_all_entries = function(){
+      const container = document.getElementById("div_search_results");
+      while (container.firstChild) {
+        const c = container.lastChild;
+        container.removeChild(c);
+        c.remove();
+      }
+      load_offset=0;
+    };
 
-  const add_entry = function(name, url_target, url_img='./gallery/thumbs/agentlamp.gif', target='_blank'){
-    const container = document.getElementById("div_search_results");
-    const ele_cover = document.createElement("div");
-    ele_cover.className="project-cover-gallery";
-    // console.log(v2);
-    const ele_link = document.createElement("a");
-    ele_link.href=url_target;
+    const add_entry = function(name, url_target, url_img='./gallery/thumbs/agentlamp.gif', target='_blank'){
+      const container = document.getElementById("div_search_results");
+      const ele_cover = document.createElement("div");
+      ele_cover.className="project-cover-gallery";
+      // console.log(v2);
+      const ele_link = document.createElement("a");
+      ele_link.href=url_target;
 
-    const ele_wrapper=document.createElement('div');
-    ele_wrapper.className="name_and_cover_container";
-    const ele_wrapper_img=document.createElement('div');
-    ele_wrapper_img.className="square_image_container";
-    // ele_wrapper_img.style.display="block";
-    // ele_wrapper_img.style="position:relative; width:100%; padding-bottom:100%; overflow:hidden;";
+      const ele_wrapper=document.createElement('div');
+      ele_wrapper.className="name_and_cover_container";
+      const ele_wrapper_img=document.createElement('div');
+      ele_wrapper_img.className="square_image_container";
+      // ele_wrapper_img.style.display="block";
+      // ele_wrapper_img.style="position:relative; width:100%; padding-bottom:100%; overflow:hidden;";
 
-    const ele_img = document.createElement("img");
-    const ele_name = document.createElement("p");
-    ele_name.innerHTML=name;
-    ele_name.className="name_tag_fix_height";
+      const ele_img = document.createElement("img");
+      const ele_name = document.createElement("p");
+      ele_name.innerHTML=name;
+      ele_name.className="name_tag_fix_height";
 
-    ele_img.src=url_img;
-    ele_img.className="square_image_content";
-    // ele_img.style="position:absolute; height:100%; width:100%; left:0; top:0; object-fit: cover;";
+      ele_img.src=url_img;
+      ele_img.className="square_image_content";
+      // ele_img.style="position:absolute; height:100%; width:100%; left:0; top:0; object-fit: cover;";
 
-    if (target!=null){ ele_link.target=target;}
+      if (target!=null){ ele_link.target=target;}
 
-    ele_cover.appendChild(ele_link);
-    ele_link.appendChild(ele_wrapper);
-    ele_wrapper.appendChild(ele_wrapper_img);
-    ele_wrapper.appendChild(ele_name);
-    ele_wrapper_img.appendChild(ele_img);
+      ele_cover.appendChild(ele_link);
+      ele_link.appendChild(ele_wrapper);
+      ele_wrapper.appendChild(ele_wrapper_img);
+      ele_wrapper.appendChild(ele_name);
+      ele_wrapper_img.appendChild(ele_img);
 
-    container.appendChild(ele_cover);
-  };
+      container.appendChild(ele_cover);
+    };
   </script>
+  <script type="text/javascript">console.log('debug: 2'); </script>
   <!-- load tensorflow js (put js in the window) -->
   <script src="./anarchdailylexicon_full/data/tfjs/tf.min.js"></script>
   <!-- cross fetch package (put fetch in the window) -->
@@ -217,12 +214,13 @@
   <script src="./anarchdailylexicon_full/data/cross-fetch/cross-fetch.js"></script>
   <!-- npyjs -->
   <script type="importmap">
-  {
-    "imports": {
-      "npyjs":"./anarchdailylexicon_full/data/npyjs/index.js"
+    {
+      "imports": {
+        "npyjs":"./anarchdailylexicon_full/data/npyjs/index.js"
+      }
     }
-  }
   </script>
+  <script type="text/javascript">console.log('debug: 3'); </script>
 
   <script type="text/javascript">
   // image-patching without TF operations
@@ -299,6 +297,8 @@
   };
   </script>
 
+  <script type="text/javascript">console.log('debug: 4'); </script>
+
   <script type="text/javascript">
   // define compoutations
   // argsort in JS:
@@ -340,47 +340,6 @@
   function inverse(X){
     return tf.pow(X,-1);
   }
-
-  // this is a numpy-liked function
-  // function get_hardcoded_window_box(row_num=3, col_num=3){
-  //   // now we hardcode the patch info
-  //   const row_size = 1 / row_num
-  //   const col_size = 1 / col_num
-  //
-  //   // normalized bbox
-  //   // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
-  //   let row_start = tf.linspace(0, 1-row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
-  //   let col_start = tf.linspace(0, 1-col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
-  //
-  //   let row_end = row_start.add(row_size);
-  //   let col_end = col_start.add(col_size);
-  //
-  //   // list of [ymin, xmin, ymax, xmax]
-  //   return tf.stack([row_start, col_start, row_end, col_end]).transpose();
-  // }
-
-  // function get_dynamic_window_box(row, col, n){
-  //   // this function causes memory leak
-  //   // why???
-  //   const patch_size = Math.max(Math.floor(Math.min(row,col) / n),100);
-  //   const row_num = Math.ceil(row / patch_size);
-  //   const col_num = Math.ceil(col / patch_size);
-  //
-  //   // normalize the bounding box
-  //   // see https://js.tensorflow.org/api/2.0.0/#image.cropAndResize
-  //
-  //   const row_size = patch_size / row;
-  //   const col_size = patch_size / col;
-  //
-  //   let row_start = tf.linspace(0, 1 - row_size, row_num).expandDims(0).tile([col_num, 1]).reshape([row_num*col_num]);
-  //   let col_start = tf.linspace(0, 1 - col_size, col_num).expandDims(1).tile([1, row_num]).reshape([row_num*col_num]);
-  //
-  //   let row_end = row_start.add(row_size);
-  //   let col_end = col_start.add(col_size);
-  //
-  //   // list of [ymin, xmin, ymax, xmax]
-  //   return tf.stack([row_start, col_start, row_end, col_end]).transpose();
-  // }
 
   // =============================== implement frind-matching process as layers ===================================
 
@@ -478,6 +437,7 @@
     return tf.model({inputs: input_encoding, outputs: dist2});
   }
   </script>
+  <script type="text/javascript">console.log('debug: 5'); </script>
 
   <script type="text/javascript" src="anarchdailylexicon_full/data/cluster2index.js"></script>
   <script type="module">
@@ -541,24 +501,6 @@
     const t_friends = dist_matrix2(minmax_rescale(inverse(dist_matrix(t_patch_encoding, codebook)),pow), library);
     return t_friends;
   }
-
-  // function image_patching(t_input_image){
-  //   const t_box= tf.concat([get_hardcoded_window_box(3,3), get_hardcoded_window_box(4,4)], 0);
-  //   const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-  //   const t_patch = tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
-  //   return t_patch;
-  // }
-  //
-  // function image_patching_dynamic(t_input_image){
-  //   const t_patch = tf.tidy(()=>{
-  //     const t_box1=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],2);
-  //     const t_box2=get_dynamic_window_box(t_input_image.shape[1], t_input_image.shape[2],3);
-  //     const t_box= tf.concat([t_box1,t_box2], 0);
-  //     const t_inds=tf.zeros([t_box.shape[0]], 'int32');
-  //     return tf.image.cropAndResize(t_input_image, t_box, t_inds , [IMAGE_SIZE,IMAGE_SIZE]).div(127.5).sub(1);
-  //   });
-  //   return t_patch;
-  // }
 
   // =============================== mobilenet ===================================
 
