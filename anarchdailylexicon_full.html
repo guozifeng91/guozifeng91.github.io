@@ -453,7 +453,36 @@
 
     const div_indicator=document.getElementById("indicator");
   </script>
+  <script type="module">
+    console.log("module debug");
 
+    import npyjs from "npyjs";
+
+    const friend_matching_model = await (async function(){
+      // read saved weight file (from npy binary)
+      let NPYJS = new npyjs();
+      // weights
+      let codebook; // codebook
+      let library; // archdaily library
+
+      console.log('loading codebook file');
+      await NPYJS.load(codebook_path).then((res) => {
+        codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+      });
+
+      console.log('loading library file');
+      await NPYJS.load(library_path).then((res) => {
+        console.log('library shape', res.shape);
+        library = tf.tensor(res.data).reshape(res.shape).transpose();
+      });
+
+      // the friend_matching process, packed as a model
+      const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+      return friend_matching_model;
+    })();
+
+    console.log('codebook done');
+  </script>
   <script type="module">
     console.log("module starts");
 
