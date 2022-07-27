@@ -448,6 +448,23 @@
 
     import npyjs from "npyjs";
 
+    const div_indicator=document.getElementById("indicator");
+
+    // =============================== encoder and library ===================================
+    // the core API approach
+    const encoding_dim=1024;
+    const codebook_dim=64;
+    const codebook_path="./anarchdailylexicon_full/data/codebook.npy";
+
+    // using clusters, faster, but less quality
+    // based on the test,as long as the images are well patched, clusters are good enough
+
+    const use_clusters=true;
+    const k_use = 50; // 50 clusters max
+    const library_dim=30000; // 304260;
+    const library_path="./anarchdailylexicon_full/data/k-library.npy";
+
+    div_indicator.innerHTML="Loading Codebook...";
   </script>
 
   <script type="module">
