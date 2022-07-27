@@ -445,19 +445,19 @@
 
   <script type="module">
     console.log('debug module 6-7');
+
+
+
   </script>
 
   <script type="module">
     console.log("module starts");
+
     // read saved weight file (from npy binary)
     import npyjs from "npyjs";
     const div_indicator=document.getElementById("indicator");
 
     // =============================== encoder and library ===================================
-    // weights
-    let codebook; // codebook
-    let library; // archdaily library
-
     // the core API approach
     const encoding_dim=1024;
     const codebook_dim=64;
@@ -471,6 +471,8 @@
     const library_dim=30000; // 304260;
     const library_path="./anarchdailylexicon_full/data/k-library.npy";
 
+    div_indicator.innerHTML="Loading Codebook...";
+
     // using raw library, much slower to load, but better quality
     // loading files from google cloud storage
     // (CORS config is needed for the google clound storage, see https://cloud.google.com/storage/docs/configuring-cors)
@@ -480,159 +482,152 @@
     // const library_dim = 304260;
     // const library_path="https://storage.googleapis.com/zfguo_pretrained_models/archdaily_lexicon/library.npy";
 
-    div_indicator.innerHTML="Loading Codebook...";
-
-    // read saved weight file (from npy binary)
-    let NPYJS = new npyjs();
-
-    console.log('loading codebook file');
-    await NPYJS.load(codebook_path).then((res) => {
-      // res has { data, shape, dtype } members.
-      console.log('codebook shape', res.shape);
-      codebook = tf.tensor(res.data).reshape(res.shape).transpose();
-    });
-
-    console.log('loading library file');
-    await NPYJS.load(library_path).then((res) => {
-      // res has { data, shape, dtype } members.
-      console.log('library shape', res.shape);
-      library = tf.tensor(res.data).reshape(res.shape).transpose();
-    });
-
-    // the friend_matching process, packed as a model
-    const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
-
-    // the friend_matching process, as a numpy-liked function
-    function friend_matching(t_patch_encoding, pow=8){
-      // const t_patch_encoding=tf.input({shape:[1024]}); // patch_num x 1024
-      const t_friends = dist_matrix2(minmax_rescale(inverse(dist_matrix(t_patch_encoding, codebook)),pow), library);
-      return t_friends;
-    }
-
-    // =============================== mobilenet ===================================
-
-    // load the mobilenet model exported from keras to get the same model behavior in python
-    // const model = await tf.loadLayersModel('https://storage.googleapis.com/zfguo_pretrained_models/mobilenet/model.json');
-    console.log('loading mobilenet');
-    div_indicator.innerHTML="Loading Mobilenet...";
-    const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
-
-    function run_full_model(given_patch_num=25){
-      // note on given_patch_num:
-
-      // it is observed that tensorflow has a serious memory leak when changing the input batch size
-      // this memory leak appears to be with WebGL and cannot be fixed by tf.tidy() or tf.dispose().
-      // more specifially, everytime the input batch size changes (i.e., feed a new input to model.predict()),
-      // a significant memory usage increase can be seen from the task manager, and meanwhile, tf.memory() returns wrong results which says the memory usage is stable.
-
-      // sadly, it seems this memory leak cannot be fixed by tf.tidy() or tf.dispose(),
-      // dispite the many attempts (e.g., implement patch-sampling process with / without tf framework) and research that have been made.
-
-      // currently, a temporary solution of this problem is to fix the input batch size that is fed to the mobilenet model.
-      // this solution does not alter the patch-sampling algorithm, it simply repeats the sampled patches if they are not enough to fill the batch,
-      // or discard patches that exceeds the batch size limit.
-
-      const t_patches=tf.tensor(update_patch_data(given_patch_num));
-      const t_encoding = patch_encoding_model.predict(t_patches);
-      const t_outputs = friend_matching_model.predict(t_encoding); //friend_matching(t_encoding);
-      const output_data = t_outputs.dataSync();
-      tf.dispose([t_patches, t_encoding, t_outputs]);
-      return output_data;
-    }
-
-    console.log('loading finished');
-
-    // =============================== high-level functions ===================================
-    function run_img_search(k){
-      // k: use the first-k returned results
-      // this value corresponds to the actual image number, when use_clusters=false
-      // or the cluster number, when use_clusters=true
-      // in the latter case, the actual image num is the sum of images of each cluster
-      const result_encoding = tf.tidy(()=>{
-        return run_full_model();
-      });
-      let result = dsu(arange(library_dim), result_encoding).slice(0,k);
-      let result_real_id=[];
-      // obtain the original index
-      if (use_clusters){
-        for (let r of result){
-          result_real_id = result_real_id.concat(cluster2index[r]);
-        }
-      }else{
-        result_real_id=result;
-      }
-
-      // set index data for the user interface
-      results_index = result_real_id; // update id
-      load_offset=0; // reset offset
-    }
-
-    function load_results_next_batch(){
-      // load the next batch to the result list area
-      for (let i=0;i<load_batch; i++){
-        if (load_offset<results_index.length){
-          const r_index=results_index[load_offset];
-          const r_name=namelist[indexlist[r_index]].replaceAll('-',' ');
-          const r_url=urllist[indexlist[r_index]];
-
-          const r_url_thumb = "https://storage.googleapis.com/zfguo_pretrained_models/thumbs/" + r_index + ".jpg";
-          add_entry(r_name, r_url, r_url_thumb);
-          load_offset+=1;
-        } else {
-          break;
-        }
-      }
-    }
-
-    // =============================== user-interface functions ===================================
-
-    // loading-while-scrolling
-    window.onscroll = function(e) {
-      // check search-box position
-      const search_box=document.getElementById("search-box");
-
-      const viewHeight = window.innerHeight;
-      const scrollHeight=document.body.scrollHeight; // total height
-      const scrollTop=Math.max(document.body.scrollTop, document.documentElement.scrollTop); // current top
-
-      // check loading process
-      if (scrollHeight - (scrollTop + viewHeight) <= 10 && !disable_scroll_loading){
-        console.log('load next batch');
-        load_results_next_batch();
-      }
-    };
-
-    // execute search while clicking button
-    document.getElementById("button_submit").onclick= function(){
-      const img_src = document.getElementById('input_image_url');
-      try {
-        new URL(img_src.value);
-        // update both the data and the thumb
-        document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
-        document.getElementById('img_thumb').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
-        div_indicator.innerHTML="Image loaded!";
-        remove_all_entries();
-        unload_results();
-      } catch (error) {
-        div_indicator.innerHTML="Seems not a URL?";
-      }
-    };
-
-    document.getElementById("button_process").onclick=function(){
-      div_indicator.innerHTML="Searching...";
-      disable_scroll_loading=true;
-      remove_all_entries();
-      unload_results();
-
-      window.setTimeout(function(){
-        run_img_search(k_use); // k_use determines the max-num of results
-        load_results_next_batch();
-        div_indicator.innerHTML="Finished!";
-        disable_scroll_loading=false;
-      }, 300);
-    };
-
-    div_indicator.innerHTML="Ready!";
+    // const friend_matching_model = (async function(){
+    //   // read saved weight file (from npy binary)
+    //   let NPYJS = new npyjs();
+    //   // weights
+    //   let codebook; // codebook
+    //   let library; // archdaily library
+    //
+    //   console.log('loading codebook file');
+    //   await NPYJS.load(codebook_path).then((res) => {
+    //     codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+    //   });
+    //
+    //   console.log('loading library file');
+    //   await NPYJS.load(library_path).then((res) => {
+    //     console.log('library shape', res.shape);
+    //     library = tf.tensor(res.data).reshape(res.shape).transpose();
+    //   });
+    //
+    //   // the friend_matching process, packed as a model
+    //   const friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+    //   return friend_matching_model;
+    // })();
+    //
+    // // =============================== mobilenet ===================================
+    //
+    // // load the mobilenet model exported from keras to get the same model behavior in python
+    // console.log('loading mobilenet');
+    // div_indicator.innerHTML="Loading Mobilenet...";
+    // const patch_encoding_model = await tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json');
+    //
+    // function run_full_model(given_patch_num=25){
+    //   // note on given_patch_num:
+    //
+    //   // it is observed that tensorflow has a serious memory leak when changing the input batch size
+    //   // this memory leak appears to be with WebGL and cannot be fixed by tf.tidy() or tf.dispose().
+    //   // more specifially, everytime the input batch size changes (i.e., feed a new input to model.predict()),
+    //   // a significant memory usage increase can be seen from the task manager, and meanwhile, tf.memory() returns wrong results which says the memory usage is stable.
+    //
+    //   // sadly, it seems this memory leak cannot be fixed by tf.tidy() or tf.dispose(),
+    //   // dispite the many attempts (e.g., implement patch-sampling process with / without tf framework) and research that have been made.
+    //
+    //   // currently, a temporary solution of this problem is to fix the input batch size that is fed to the mobilenet model.
+    //   // this solution does not alter the patch-sampling algorithm, it simply repeats the sampled patches if they are not enough to fill the batch,
+    //   // or discard patches that exceeds the batch size limit.
+    //
+    //   const t_patches=tf.tensor(update_patch_data(given_patch_num));
+    //   const t_encoding = patch_encoding_model.predict(t_patches);
+    //   const t_outputs = friend_matching_model.predict(t_encoding);
+    //   const output_data = t_outputs.dataSync();
+    //   tf.dispose([t_patches, t_encoding, t_outputs]);
+    //   return output_data;
+    // }
+    //
+    // console.log('loading finished');
+    //
+    // // =============================== high-level functions ===================================
+    // function run_img_search(k){
+    //   // k: use the first-k returned results
+    //   // this value corresponds to the actual image number, when use_clusters=false
+    //   // or the cluster number, when use_clusters=true
+    //   // in the latter case, the actual image num is the sum of images of each cluster
+    //   const result_encoding = tf.tidy(()=>{
+    //     return run_full_model();
+    //   });
+    //   let result = dsu(arange(library_dim), result_encoding).slice(0,k);
+    //   let result_real_id=[];
+    //   // obtain the original index
+    //   if (use_clusters){
+    //     for (let r of result){
+    //       result_real_id = result_real_id.concat(cluster2index[r]);
+    //     }
+    //   }else{
+    //     result_real_id=result;
+    //   }
+    //
+    //   // set index data for the user interface
+    //   results_index = result_real_id; // update id
+    //   load_offset=0; // reset offset
+    // }
+    //
+    // function load_results_next_batch(){
+    //   // load the next batch to the result list area
+    //   for (let i=0;i<load_batch; i++){
+    //     if (load_offset<results_index.length){
+    //       const r_index=results_index[load_offset];
+    //       const r_name=namelist[indexlist[r_index]].replaceAll('-',' ');
+    //       const r_url=urllist[indexlist[r_index]];
+    //
+    //       const r_url_thumb = "https://storage.googleapis.com/zfguo_pretrained_models/thumbs/" + r_index + ".jpg";
+    //       add_entry(r_name, r_url, r_url_thumb);
+    //       load_offset+=1;
+    //     } else {
+    //       break;
+    //     }
+    //   }
+    // }
+    //
+    // // =============================== user-interface functions ===================================
+    //
+    // // loading-while-scrolling
+    // window.onscroll = function(e) {
+    //   // check search-box position
+    //   const search_box=document.getElementById("search-box");
+    //
+    //   const viewHeight = window.innerHeight;
+    //   const scrollHeight=document.body.scrollHeight; // total height
+    //   const scrollTop=Math.max(document.body.scrollTop, document.documentElement.scrollTop); // current top
+    //
+    //   // check loading process
+    //   if (scrollHeight - (scrollTop + viewHeight) <= 10 && !disable_scroll_loading){
+    //     console.log('load next batch');
+    //     load_results_next_batch();
+    //   }
+    // };
+    //
+    // // execute search while clicking button
+    // document.getElementById("button_submit").onclick= function(){
+    //   const img_src = document.getElementById('input_image_url');
+    //   try {
+    //     new URL(img_src.value);
+    //     // update both the data and the thumb
+    //     document.getElementById('img').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
+    //     document.getElementById('img_thumb').src='https://cors-anywhere.herokuapp.com/' + img_src.value;
+    //     div_indicator.innerHTML="Image loaded!";
+    //     remove_all_entries();
+    //     unload_results();
+    //   } catch (error) {
+    //     div_indicator.innerHTML="Seems not a URL?";
+    //   }
+    // };
+    //
+    // document.getElementById("button_process").onclick=function(){
+    //   div_indicator.innerHTML="Searching...";
+    //   disable_scroll_loading=true;
+    //   remove_all_entries();
+    //   unload_results();
+    //
+    //   window.setTimeout(function(){
+    //     run_img_search(k_use); // k_use determines the max-num of results
+    //     load_results_next_batch();
+    //     div_indicator.innerHTML="Finished!";
+    //     disable_scroll_loading=false;
+    //   }, 300);
+    // };
+    //
+    // div_indicator.innerHTML="Ready!";
   </script>
   <script type="text/javascript">console.log('debug: 7'); </script>
 </body>
