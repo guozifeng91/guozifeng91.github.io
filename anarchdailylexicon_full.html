@@ -497,7 +497,7 @@
           const npy = parse_npy(buff);
           let codebook = tf.tensor(npy.data).reshape(npy.shape).transpose();
 
-          div_indicator.innerHTML="Loading Library...";
+          div_indicator.innerHTML="Loading Library...(7MB)";
 
           fetch(library_path, {}).then((resp)=>{
             resp.arrayBuffer().then((buff)=>{
@@ -505,7 +505,7 @@
               let library = tf.tensor(npy.data).reshape(npy.shape).transpose();
 
               friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
-              div_indicator.innerHTML="Loading Mobilenet...";
+              div_indicator.innerHTML="Loading Mobilenet...(12MB)";
               console.log('loading mobilenet');
 
               tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
