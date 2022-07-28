@@ -562,10 +562,17 @@
       // or discard patches that exceeds the batch size limit.
 
       const t_patches=tf.tensor(update_patch_data(given_patch_num));
-      const t_encoding = patch_encoding_model.predict(t_patches);
+
+      // use for-loop to reduce memory usage
+      const t_encodings=new Array(given_patch_num);
+      for (let i=0;i<given_patch_num;i++){
+        t_encodings[i]=patch_encoding_model.predict(t_patches.slice([i,0,0,0], [1, IMAGE_SIZE,IMAGE_SIZE,3]));
+      }
+      const t_encoding = tf.concat(t_encodings,0);
+      // const t_encoding = patch_encoding_model.predict(t_patches); // use batch, which takes 2GB memory
       const t_outputs = friend_matching_model.predict(t_encoding);
       const output_data = t_outputs.dataSync();
-      tf.dispose([t_patches, t_encoding, t_outputs]);
+      tf.dispose([t_patches, t_encodings, t_encoding, t_outputs]);
       return output_data;
     }
 
