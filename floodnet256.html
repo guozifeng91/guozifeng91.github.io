@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FLOOD SYNTHESIS</title>
     <style media="screen">
       *{
@@ -30,7 +31,7 @@
         <div class="logo-wrap" data-hover-hint="logo">
               <div class="logo">
                 <a id="home-link" href="./index.html?position=1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
                     <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
                 </a>
               </div>
@@ -53,12 +54,12 @@
             <div class="row-container">
               <div style="position:relative; width:100%;">
                 <p>Terrain</p>
-                <canvas id="terrain_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+                <canvas id="terrain_canvas" width="256px" height="256px" style="border:1px solid black; max-width:100%"></canvas>
               </div>
               <div class="row-gapper"></div>
               <div style="position:relative; width:100%;">
                 <p>Building</p>
-                <canvas id="building_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+                <canvas id="building_canvas" width="256px" height="256px" style="border:1px solid black; max-width:100%"></canvas>
               </div>
             </div>
           </div>
@@ -68,19 +69,19 @@
             <div class="row-container">
               <div style="position:relative; width:100%;">
                 <p>Water depth</p>
-                <canvas id="wd_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+                <canvas id="wd_canvas" width="256px" height="256px" style="border:1px solid black; max-width:100%"></canvas>
               </div>
               <div class="row-gapper"></div>
               <div style="position:relative; width:100%;">
                 <p>Flow velocity</p>
-                <canvas id="vel_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+                <canvas id="vel_canvas" width="256px" height="256px" style="border:1px solid black; max-width:100%"></canvas>
               </div>
             </div>
           </div>
           <div class="project-text-centered">
             <div class="">
-              <input type="button" id="button_submit" value="Flood Prediction" class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
-              <input type="button" id="button_reset" value="Reset" class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+              <input type="button" id="button_submit" value="Predict" class="project-text-centered" style="width:10em; height:2em; padding-top:0;padding-bottom:0;">
+              <input type="button" id="button_reset" value="Reset" class="project-text-centered" style="width:10em; height:2em; padding-top:0;padding-bottom:0;">
             </div>
             <br>
             <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
@@ -272,8 +273,10 @@
         });
 
         cnv.addEventListener('mousemove', (e)=>{
-          const x = Math.round(e.offsetX);
-          const y = Math.round(e.offsetY);
+          const xscale = 256 / cnv.clientWidth;
+          const yscale = 256 / cnv.clientHeight;
+          const x = Math.round(xscale * e.offsetX);
+          const y = Math.round(yscale * e.offsetY);
           if (button==0){
             rst.draw(x,y, intensity);
             rst.render(ctx);
@@ -285,10 +288,13 @@
 
         cnv.addEventListener('touchmove', (e)=>{
           e.preventDefault();
-          // console.log(e);
+
+          const xscale = 256 / cnv.clientWidth;
+          const yscale = 256 / cnv.clientHeight;
+
           const rect = cnv.getBoundingClientRect();
-          const x = Math.round(e.targetTouches[0].clientX - rect.left);
-          const y = Math.round(e.targetTouches[0].clientY - rect.top);
+          const x = Math.round(xscale*(e.targetTouches[0].clientX - rect.left));
+          const y = Math.round(yscale*(e.targetTouches[0].clientY - rect.top));
           // console.log(e);
           rst.draw(x,y, intensity);
           rst.render(ctx);
