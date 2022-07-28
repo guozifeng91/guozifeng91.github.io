@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>FLOOD SYNTHESIS</title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+        /* font-family: sans-serif; */
+        font-family: 'Courier New', monospace;
+      }
+
+      .row-container{
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        flex: none;
+        overflow: visible;
+      }
+      .row-gapper{
+        width: 5%;
+      }
+    </style>
+    <link rel="stylesheet" href="./stylesheet.css">
+    <link rel="stylesheet" href="./style-amended.css">
+  </head>
+  <body>
+    <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+        <div class="logo-wrap" data-hover-hint="logo">
+              <div class="logo">
+                <a id="home-link" href="./index.html?position=1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="300px" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+                    <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+                </a>
+              </div>
+        </div>
+    </header>
+    <script type="text/javascript" src="./checkhomeaddress.js"></script>
+
+    <!-- tensorflow js -->
+    <script src="./jslibs/tfjs/tf.min.js"></script>
+
+    <div class="project-container-wrapper">
+      <div id="project-container" class="project-container">
+        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
+          <div class="project-title">
+            Flood Synthesis with Machine Learning
+          </div>
+
+          <div class="project-text-centered">
+            <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
+            <br>
+            <div class="">
+              <input type="button" id="button_submit" value="Flood Prediction" class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+              <input type="button" id="button_reset" value="Reset" class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
+            </div>
+          </div>
+
+          <div class="project-text-centered">
+            <p>Use mouse buttons to draw below the terrain and buildings:<br><br></p>
+            <div class="row-container">
+              <div style="position:relative; width:100%;">
+                <p>Terrain</p>
+                <canvas id="terrain_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+              </div>
+              <div class="row-gapper"></div>
+              <div style="position:relative; width:100%;">
+                <p>Building</p>
+                <canvas id="building_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-text-centered">
+            <p>Output flood predictions:<br><br></p>
+            <div class="row-container">
+              <div style="position:relative; width:100%;">
+                <p>Water depth</p>
+                <canvas id="wd_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+              </div>
+              <div class="row-gapper"></div>
+              <div style="position:relative; width:100%;">
+                <p>Flow velocity</p>
+                <canvas id="vel_canvas" width="256px" height="256px" style="border:1px solid black"></canvas>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="project-text">
+            <p>This is a web demo showing rapid flood synthesis (maximum water depth and flow velocity) from elevation inputs (terrains and building layouts).</p>
+          </div>
+
+          <div class="project-text-centered">-</div>
+        <!-- </section> -->
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      function createArray(length) {
+        // code for creating nd-array, taken from
+        // https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
+        var arr = new Array(length || 0),
+        i = length;
+
+        if (arguments.length > 1) {
+          var args = Array.prototype.slice.call(arguments, 1);
+          while(i--) arr[length-1 - i] = createArray.apply(this, args);
+        }
+        return arr;
+      }
+
+      function cmap_jet(v, vmin=0, vmax=1){
+        // from https://stackoverflow.com/questions/7706339/grayscale-to-red-green-blue-matlab-jet-color-scale
+        const v_ = Math.max(vmin, Math.min(vmax, v));
+        const dv = vmax - vmin;
+
+        let rgba=[255,255,255,255];
+
+        if (v < (vmin + 0.25 * dv)) {
+           rgba[0]=0;
+           rgba[1]= Math.ceil(255 * 4 * (v - vmin) / dv);
+        } else if (v < (vmin + 0.5 * dv)) {
+           rgba[0] = 0;
+           rgba[2] = Math.ceil(255 * (1 + 4 * (vmin + 0.25 * dv - v) / dv));
+        } else if (v < (vmin + 0.75 * dv)) {
+           rgba[0] = Math.ceil(255 * 4 * (v - vmin - 0.5 * dv) / dv);
+           rgba[2] = 0;
+        } else {
+           rgba[1] = Math.ceil(255 *(1 + 4 * (vmin + 0.75 * dv - v) / dv));
+           rgba[2] = 0;
+        }
+
+        return rgba;
+      }
+
+      function render_raster(ctx, rst, h=256, w=256, cmap=(x)=>cmap_jet(x,0,2)){
+        // render raster data to RGB
+        let imgData = ctx.getImageData(0, 0, w, h);
+        for (let i=0; i<h; i++){ // y
+          for (let j=0; j<w; j++){ // x
+            const index_rst = (i*w + j);
+            const index_px = index_rst * 4;
+            const px = cmap(rst[index_rst]);
+            imgData.data[index_px]=px[0];
+            imgData.data[index_px+1]=px[1];
+            imgData.data[index_px+2]=px[2];
+            imgData.data[index_px+3]=px[3];
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }
+      class Drawable2DRaster{
+        constructor(r, h=256, w=256, kernel_type='hard', initializer=(x,y)=>0, render_inv=false){
+          this.ksize=r*2+1;
+          this.r=r;
+          this.h=h;
+          this.w=w;
+          this.render_inv=render_inv;
+          this.initializer=initializer;
+
+          this.kernel=createArray(this.ksize, this.ksize);
+          this.raster=createArray(h, w);
+
+          if (kernel_type=='hard'){
+            for (let row = 0; row<this.ksize; row++){
+              for (let col = 0; col<this.ksize; col++) {
+                this.kernel[row][col]=1.0 // a binary kernel
+              }
+            }
+          } else{
+            for (let row = 0; row<this.ksize; row++){
+              const dy2=(r-row)*(r-row);
+              for (let col = 0; col<this.ksize; col++) {
+                const dx2=(r-col)*(r-col);
+                const dist=Math.min(r, Math.sqrt(dx2+dy2)) / r; // [0,1]
+                const val=(Math.sin(-dist*Math.PI + Math.PI*0.5)+1)*0.5
+                this.kernel[row][col]=val
+              }
+            }
+          }
+          this.reset();
+        }
+
+        reset(){
+          for (let i=0; i<this.h; i++){
+            for (let j=0; j<this.w; j++){
+              this.raster[i][j]=this.initializer(j,i);
+            }
+          }
+        }
+
+        draw(x,y,intensity=1.0, vmin=0, vmax=1){
+          // copy the kernel to the canvas with given intensity
+          for (let row = 0; row<this.ksize; row++){
+            const y_=row + y - this.r;
+            if (y_>=0 && y_ < this.h){
+              for (let col = 0; col<this.ksize; col++) {
+                const x_ = col + x - this.r;
+                if (x_>=0 && x < this.w){
+                  this.raster[y_][x_] = Math.max(vmin, Math.min(vmax, this.raster[y_][x_] + this.kernel[row][col]*intensity));
+                }
+              }
+            }
+          }
+        }
+
+        render(ctx, cmap=(x)=>{const v=Math.floor(x*255); return [v,v,v,255];}){
+          // render raster data to RGB
+          let imgData = ctx.getImageData(0, 0, this.w, this.h);
+
+          if (this.render_inv){
+            for (let i=0; i<this.h; i++){ // y
+              for (let j=0; j<this.w; j++){ // x
+                const index = (i*this.w + j)*4;
+                const px = cmap(1-this.raster[i][j]);
+                imgData.data[index]=px[0];
+                imgData.data[index+1]=px[1];
+                imgData.data[index+2]=px[2];
+                imgData.data[index+3]=px[3];
+              }
+            }
+          } else {
+            for (let i=0; i<this.h; i++){ // y
+              for (let j=0; j<this.w; j++){ // x
+                const index = (i*this.w + j)*4;
+                const px = cmap(this.raster[i][j]);
+                imgData.data[index]=px[0];
+                imgData.data[index+1]=px[1];
+                imgData.data[index+2]=px[2];
+                imgData.data[index+3]=px[3];
+              }
+            }
+          }
+          ctx.putImageData(imgData, 0, 0);
+        }
+
+        to_tensor(normalizer=(x)=>x){
+          const t_data=createArray(this.h, this.w);
+          for (let i=0; i<this.h; i++){ // y
+            for (let j=0; j<this.w; j++){ // x
+              t_data[i][j]=normalizer(this.raster[i][j]);
+            }
+          }
+          return t_data;
+        }
+      }
+
+      function raster_on_canvas (cnv, ctx, rst, intensity){
+        let button=-1;
+        rst.render(ctx); // initialize
+
+        const refresh = function(){
+          rst.render(ctx);
+        };
+
+        // drawing operations on two canvas
+        cnv.addEventListener('mousedown', (e)=>{
+          button=e.button;
+        });
+
+        cnv.addEventListener('mouseup', (e)=>{
+          button=-1;
+        });
+
+        cnv.addEventListener('mousemove', (e)=>{
+          const x = Math.round(e.offsetX);
+          const y = Math.round(e.offsetY);
+          if (button==0){
+            rst.draw(x,y, intensity);
+            rst.render(ctx);
+          }else if (button==2){
+            rst.draw(x,y, -intensity);
+            rst.render(ctx);
+          }
+        });
+
+        cnv.addEventListener('touchmove', (e)=>{
+          e.preventDefault();
+          // console.log(e);
+          const rect = cnv.getBoundingClientRect();
+          const x = Math.round(e.targetTouches[0].clientX - rect.left);
+          const y = Math.round(e.targetTouches[0].clientY - rect.top);
+          // console.log(e);
+          rst.draw(x,y, intensity);
+          rst.render(ctx);
+        });
+
+        cnv.oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); }
+
+        return refresh;
+      }
+      const indicator = document.getElementById("indicator");
+
+      // create canvas element and append it to document body
+      const ct = document.getElementById('terrain_canvas');
+      const cb = document.getElementById('building_canvas');
+
+      // get canvas 2D context and set him correct size
+      const ct_ctx = ct.getContext('2d');
+      const cb_ctx = cb.getContext('2d');
+
+      const rt = new Drawable2DRaster(50, 256, 256, 'soft', (x,y)=>(0.3*(256-x) / 256 + 0.75 * (1 - Math.sin(Math.PI * y / (256.0 + x*0.5)))));
+      const rb = new Drawable2DRaster(10, 256, 256, 'hard', (x,y)=>0,true);
+
+      // create canvas element and append it to document body
+      const cwd = document.getElementById('wd_canvas');
+      const cvel = document.getElementById('vel_canvas');
+
+      // get canvas 2D context and set him correct size
+      const cwd_ctx = cwd.getContext('2d');
+      const cvel_ctx = cvel.getContext('2d');
+
+      const refresh_rt = raster_on_canvas(ct,ct_ctx,rt, 0.01);
+      const refresh_rb =raster_on_canvas(cb,cb_ctx,rb, 1);
+    </script>
+
+    <script type="module">
+      function load_and_ready(){
+        let floodnet_256=null;
+
+        indicator.innerHTML="Loading floodnet_256... (size: 17MB)";
+        tf.loadLayersModel("https://storage.googleapis.com/zfguo_pretrained_models/floodnet_256/model.json").then((res)=>{
+          floodnet_256=res;
+
+          function predict(){
+            indicator.innerHTML="Evaluating...";
+
+            window.setTimeout(function(){
+              tf.tidy(()=>{
+                const t_terrain=tf.expandDims(tf.tensor(rt.to_tensor((x)=>(1-x))),2);
+                const t_building=tf.expandDims(tf.tensor(rb.to_tensor()),2);
+                const t_input=tf.expandDims(tf.concat([t_terrain, t_building],2),0);
+
+                const t_output=floodnet_256.predict(t_input);
+                // console.log(t_output.shape);
+                const t_wd = t_output.slice([0,0,0,0],[1,256,256,1])
+                const t_vel = t_output.slice([0,0,0,1],[1,256,256,1])
+                // console.log(t_wd.shape, t_vel.shape);
+
+                render_raster(cwd_ctx, t_wd.dataSync(), 256, 256);
+                render_raster(cvel_ctx, t_vel.dataSync(), 256, 256);
+
+                indicator.innerHTML="Finished!";
+              });
+            },100);
+          }
+
+          document.getElementById("button_submit").onclick=predict;
+          document.getElementById("button_reset").onclick=function(){rt.reset();rb.reset();refresh_rt();refresh_rb();};
+
+          indicator.innerHTML="Ready!";
+        });
+      }
+
+      // start the loading process once GUI is rendered, give 0.1 s for rendering
+      window.setTimeout(load_and_ready,100);
+    </script>
+  </body>
+</html>
