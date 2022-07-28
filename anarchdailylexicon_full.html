@@ -452,6 +452,33 @@
     const library_path="./anarchdailylexicon_full/data/k-library.npy";
 
     const div_indicator=document.getElementById("indicator");
+
+    // decode NPY format
+    function make_arr(descr, arr, offset){
+      // console.log('descr',descr);
+      if (descr=="<f4") {
+        return new Float32Array(arr,offset);
+      } else if (descr=="<f8") {
+        return new Float64Array(arr,offset);
+      } else {
+        console.log("no implement");
+      }
+    }
+
+    function parse_npy(buff) {
+      // const version = arrayBufferContents.slice(6, 8); // Uint8-encoded
+      const hlen = new DataView(buff.slice(8, 10)).getUint8(0);
+      const offset = 10 + hlen;
+      const hstr = new TextDecoder("utf-8").decode(
+          new Uint8Array(buff.slice(10, 10 + hlen))
+      ).toLowerCase().replaceAll("(","[").replaceAll("),","]").replaceAll("'","\"");
+
+      // console.log(hstr);
+      const header = JSON.parse(hstr);
+      // console.log(header);
+
+      return {"data":make_arr(header["descr"], buff, offset), "shape": header["shape"]};
+    }
   </script>
 
   <script type="module">
@@ -459,7 +486,7 @@
     console.log("module starts");
 
     // read saved weight file (from npy binary)
-    import npyjs from "npyjs";
+    // import npyjs from "npyjs";
 
     let friend_matching_model=null;
     let patch_encoding_model=null;
@@ -469,28 +496,56 @@
       console.log('loading codebook');
       div_indicator.innerHTML="Loading Codebook...";
 
-      let NPYJS = new npyjs();
+      fetch(codebook_path, {}).then((resp)=>{
+        resp.arrayBuffer().then((buff)=>{
+          const npy = parse_npy(buff);
+          let codebook = tf.tensor(npy.data).reshape(npy.shape).transpose();
 
-      NPYJS.load(codebook_path).then((res) => {
-        // first load codebook
-        let codebook = tf.tensor(res.data).reshape(res.shape).transpose();
-        console.log('loading library');
-        NPYJS.load(library_path).then((res) => {
-          // then load library
-          let library = tf.tensor(res.data).reshape(res.shape).transpose();
-          // build friend-matching-model
-          friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+          div_indicator.innerHTML="Loading Library...";
 
-          div_indicator.innerHTML="Loading Mobilenet...";
-          console.log('loading mobilenet');
-          // then load mobilenet
-          tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
-            patch_encoding_model=res;
-            // maybe put onclick here?
-            div_indicator.innerHTML="Ready!";
+          fetch(library_path, {}).then((resp)=>{
+            resp.arrayBuffer().then((buff)=>{
+              const npy = parse_npy(buff);
+              let library = tf.tensor(npy.data).reshape(npy.shape).transpose();
+
+              friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+              div_indicator.innerHTML="Loading Mobilenet...";
+              console.log('loading mobilenet');
+
+              tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
+                patch_encoding_model=res;
+                // maybe put onclick here?
+                div_indicator.innerHTML="Ready!";
+              });
+
+            });
           });
         });
       });
+
+      // let NPYJS = new npyjs();
+      //
+      // NPYJS.load(codebook_path).then((res) => {
+      //   // first load codebook
+      //   let codebook = tf.tensor(res.data).reshape(res.shape).transpose();
+      //   console.log('loading library');
+      //   NPYJS.load(library_path).then((res) => {
+      //     // then load library
+      //     let library = tf.tensor(res.data).reshape(res.shape).transpose();
+      //     // build friend-matching-model
+      //     friend_matching_model = get_friend_matching_model(library, codebook, encoding_dim);
+      //
+      //     div_indicator.innerHTML="Loading Mobilenet...";
+      //     console.log('loading mobilenet');
+      //     // then load mobilenet
+      //     tf.loadLayersModel('./anarchdailylexicon_full/data/mobilenet/model.json').then((res)=>{
+      //       patch_encoding_model=res;
+      //       // maybe put onclick here?
+      //       div_indicator.innerHTML="Ready!";
+      //     });
+      //   });
+      // });
+
     })();
 
     // =============================== mobilenet ===================================
