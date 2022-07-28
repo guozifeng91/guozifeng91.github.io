@@ -49,7 +49,7 @@
           </div>
 
           <div class="project-text-centered">
-            <p>Use mouse buttons to draw below the terrain and buildings:<br><br></p>
+            <p>Press and draw the terrain and buildings:<br><br></p>
             <div class="row-container">
               <div style="position:relative; width:100%;">
                 <p>Terrain</p>
@@ -64,7 +64,7 @@
           </div>
 
           <div class="project-text-centered">
-            <p>Output flood predictions:<br><br></p>
+            <!-- <p>Output flood predictions:<br><br></p> -->
             <div class="row-container">
               <div style="position:relative; width:100%;">
                 <p>Water depth</p>
@@ -77,18 +77,6 @@
               </div>
             </div>
           </div>
-
-          <!-- <div class="project-text">
-            <p>
-              Publication: <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/jfr3.12684" target="_blank">Data-driven flood emulation: Speeding up urban flood predictions by deep convolutional neural networks (DOI: 10.1111/jfr3.12684)</a>
-            </p>
-          </div>
-          <div class="project-text">
-            <p>
-            Publication: <a href="https://www.sciencedirect.com/science/article/pii/S0022169422003018" target="_blank">Data-driven rapid flood prediction mapping with catchment generalizability (DOI: 10.1016/j.jhydrol.2022.127726)</a>
-            </p>
-          </div> -->
-
           <div class="project-text-centered">
             <div class="">
               <input type="button" id="button_submit" value="Flood Prediction" class="project-text-centered" style="width:12em; height:2em; padding-top:0;padding-bottom:0;">
@@ -97,9 +85,7 @@
             <br>
             <p id="indicator" style="color:#c00000">Initializing, please wait...</p>
           </div>
-
           <div class="project-text-centered"><a is_internal_link=1 href="./fromsimulationtosynthesis.html"><p>To the introduction</p></a></div>
-
           <div class="project-text-centered">-</div>
         <!-- </section> -->
       </div>
@@ -333,7 +319,7 @@
       const cwd_ctx = cwd.getContext('2d');
       const cvel_ctx = cvel.getContext('2d');
 
-      const refresh_rt = raster_on_canvas(ct,ct_ctx,rt, 0.01);
+      const refresh_rt = raster_on_canvas(ct,ct_ctx,rt, 0.02);
       const refresh_rb =raster_on_canvas(cb,cb_ctx,rb, 1);
     </script>
 
