@@ -472,11 +472,7 @@
       const hstr = new TextDecoder("utf-8").decode(
           new Uint8Array(buff.slice(10, 10 + hlen))
       ).toLowerCase().replaceAll("(","[").replaceAll("),","]").replaceAll("'","\"");
-
-      // console.log(hstr);
       const header = JSON.parse(hstr);
-      // console.log(header);
-
       return {"data":make_arr(header["descr"], buff, offset), "shape": header["shape"]};
     }
   </script>
