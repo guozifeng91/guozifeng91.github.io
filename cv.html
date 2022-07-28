@@ -16,45 +16,73 @@
     <link rel="stylesheet" href="./style-amended.css">
 
     <style>
-      .section-title{
-        margin-left: 2em;
-        text-indent: -2em;
-        padding-top:1em;
-        padding-bottom:1em;
-        font-weight: bold;
-      }
-      .section-content{
-        /* margin-left: 2em;
-        text-indent: 0em; */
-        font-size:80%;
-        line-height:100%;
-        padding-bottom:1em;
-      }
-      .section-publications{
-        margin-left: 2em;
-        text-indent: -2em;
-        font-size:80%;
-        line-height:100%;
-        padding-bottom:1em;
-      }
-      .datetime{
-        float:right;
-        font-size:80%;
-      }
-      @media screen and (max-width: 980px) {
+      @media screen and (max-width: 720px) {
         .pc{
           max-width: 1px;
           line-height: 1px;
           font-size: 0.1px;
           visibility: hidden;
         }
+
+        .section-title{
+          margin-left: 2em;
+          text-indent: -2em;
+          padding-top:1em;
+          padding-bottom:1em;
+          font-weight: bold;
+          font-size:80%;
+        }
+        .section-content{
+          /* margin-left: 2em;
+          text-indent: 0em; */
+          font-size:75%;
+          line-height:110%;
+          padding-bottom:1em;
+        }
+        .section-publications{
+          margin-left: 2em;
+          text-indent: -2em;
+          font-size:75%;
+          line-height:110%;
+          padding-bottom:1em;
+        }
+        .datetime{
+          float:right;
+          font-size:70%;
+        }
       }
-      @media screen and (min-width: 981px) {
+      @media screen and (min-width: 721px) {
         .phone{
           max-width: 1px;
           line-height: 1px;
           font-size: 0.1px;
           visibility: hidden;
+        }
+
+        .section-title{
+          margin-left: 2em;
+          text-indent: -2em;
+          padding-top:1em;
+          padding-bottom:1em;
+          font-weight: bold;
+        }
+        .section-content{
+          /* margin-left: 2em;
+          text-indent: 0em; */
+          font-size:100%;
+          line-height:100%;
+          padding-bottom:1em;
+        }
+        .section-publications{
+          margin-left: 2em;
+          text-indent: -2em;
+          font-size:100%;
+          line-height:100%;
+          padding-bottom:1em;
+        }
+        .datetime{
+          float:right;
+          font-size:80%;
         }
       }
     </style>
