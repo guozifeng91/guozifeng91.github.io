@@ -67,30 +67,29 @@
   <script type="text/javascript" src="anarchdailylexicon_full/data/indexlist.js"></script>
 </head>
 <body>
-
-  <div class="logo">
-    <a id="home-link" href="./index.html?position=1" target="_blank">
-      <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#a0a0a0;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
-      <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
-    </a>
-  </div>
-  <!-- <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
-    <div class="logo-wrap" data-hover-hint="logo">
-      <div class="logo">
-
-      </div>
+  <div style="position: relative; width:100vw; height:100vh; background-color: #000000">
+    <div class="logo" style="z-index: 1;">
+      <a id="home-link" href="./index.html?position=1">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#a0a0a0;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+        <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+      </a>
     </div>
-  </header> -->
-  <script type="text/javascript" src="./checkhomeaddress.js"></script>
-  <canvas id="main_canvas" width="1024px" height="512px" style="position: absolute; z-index: -2; top:0; width:100vw; height:100vh"></canvas>
 
+    <div class="project-text-centered" style="color:#a0a0a0; top: 50vh">
+      <p id="indicator">Initializing, please wait...</p>
+    </div>
+
+    <script type="text/javascript" src="./checkhomeaddress.js"></script>
+    <canvas id="main_canvas" width="1024px" height="512px" style="position: absolute; top:0; width:100vw; height:100vh"></canvas>
+  </div>
   <script type="text/javascript">
+    const indicator=document.getElementById('indicator');
     const Z_MAX=8.9;
     const Z_MIN=0;
     const Z_COUNT=9;
     const PATCH_SIZE_PX = 256; // patch size, must be 256 as the coords are saved in uint8 array
     const PATCH_SIZE_SCALE_RATIO = Math.ceil(Math.min(window.innerWidth / 256, window.innerHeight / 256)); // patch size scale up ratio
-    const IMAGE_PLOT_SIZE_BASE = Math.min(window.innerWidth / 24, window.innerHeight / 24);
+    const IMAGE_PLOT_SIZE_BASE = Math.min(window.innerWidth / 32, window.innerHeight / 32);
 
     const patch_indices=Array(Z_COUNT); // list of 2D arrays [[i,j],[i,j],...]
     const patch_coords=Array(Z_COUNT); // list of 2D arrays [[x,y],[x,y],...]
@@ -103,13 +102,13 @@
 
     let display_content=[]; // currently displayed contents
     // z level and x y position
-    let z_current=0.0;
+    let z_current=1.5;
     let x_current=0.5;
     let y_current=0.5;
 
     let img_plot_size=IMAGE_PLOT_SIZE_BASE;
     function update_image_plot_size(){
-      img_plot_size = IMAGE_PLOT_SIZE_BASE * Math.pow(1.25,z_current);
+      img_plot_size = IMAGE_PLOT_SIZE_BASE * Math.pow(1.23,z_current);
     }
 
     function get_image_plot_size() {return img_plot_size;}
@@ -296,11 +295,12 @@
                     const real_index = sample_index_to_real_index[z_int](sample_index);
                     if (buffer_images[real_index]==null){
                       // add buffer image and set onload event
-                      buffer_images[real_index] = new BufferImage(real_index, ctx, u, v);
+                      buffer_images[real_index] = new BufferImage(real_index, ctx, u, v, z);
                     } else {
                       // update uv coordinate and draw
                       buffer_images[real_index].u=u;
                       buffer_images[real_index].v=v;
+                      buffer_images[real_index].z=z;
                       buffer_images[real_index].draw();
                     }
                   }
@@ -315,7 +315,7 @@
     }
 
     class BufferImage{
-      constructor(index, ctx, u, v){
+      constructor(index, ctx, u, v, z){
         this.index=index;
         const r_url_thumb = "https://storage.googleapis.com/zfguo_pretrained_models/thumbs/" + index + ".jpg";
         this.img = new Image();
@@ -323,6 +323,7 @@
 
         this.u=u;
         this.v=v;
+        this.z=z;
         this.ctx=ctx;
 
         this.img.onload=(()=>{
@@ -334,8 +335,10 @@
       }
 
       draw(){
-        const img_plot_size=get_image_plot_size();
-        this.ctx.drawImage(this.img,this.u-img_plot_size/2,this.v-img_plot_size/2, img_plot_size, img_plot_size);
+        if (this.z==z_current){
+          const img_plot_size=get_image_plot_size();
+          this.ctx.drawImage(this.img,this.u-img_plot_size/2,this.v-img_plot_size/2, img_plot_size, img_plot_size);
+        }
       }
     }
   </script>
@@ -432,10 +435,22 @@
         let y = yscale * ypx;
 
         let selected_item=-1;
+        let lastDist=-1;
         for (let i=0;i<display_content.length;i++){
-          if (Math.abs(display_content[i][1]-x)<=image_plot_size/2 && Math.abs(display_content[i][2]-y)<=image_plot_size/2){
-            selected_item = display_content[i][0];
-            break;
+          const dx = Math.abs(display_content[i][1]-x);
+          const dy = Math.abs(display_content[i][2]-y);
+          if (dx<=image_plot_size/2 && dy<=image_plot_size/2){
+            if (selected_item==-1){
+              selected_item = display_content[i][0];
+              lastDist = dx*dx + dy*dy;
+            } else {
+              const dist = dx*dx + dy*dy;
+              if (dist < lastDist){
+                lastDist=dist;
+                selected_item = display_content[i][0];
+              }
+            }
+            // break;
           }
         }
         if (selected_item>=0){
@@ -518,7 +533,7 @@
         // prevent two touch event happen too close
         no_open_link = (e.timeStamp - timestamp < 300);
         no_touch_drag=no_open_link;
-        
+
         timestamp=e.timeStamp;
         x_down = e.targetTouches[0].clientX;// - rect.left;
         y_down = e.targetTouches[0].clientY;// - rect.top;
@@ -602,13 +617,14 @@
       build_patch_item_map();
       build_indexing_func();
       regist_events();
+      indicator.parentNode.parentNode.removeChild(indicator.parentNode);
     }
 
     // load all z-level informations
     // using nested functions, and returns the out-most function for calling (initiate the nested chain)
     let load_data_entry=init; // a callable which register the gui functions, or null if nothing to do
     for (let i=0; i<Z_COUNT; i++){
-      const pi = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_pi.npy', (x)=>{patch_indices[i]=x;},load_data_entry);
+      const pi = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_pi.npy', (x)=>{indicator.innerHTML='Loading Indexes ' + i + '...'; patch_indices[i]=x;},load_data_entry);
       const pc = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_pc.npy',(x)=>{patch_coords[i]=x;},pi);
       if (i<Z_COUNT-1){
         const ps = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_i.npy',(x)=>{sample_list[i]=x;},pc);
