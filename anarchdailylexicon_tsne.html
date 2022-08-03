@@ -548,7 +548,8 @@
       cnv.addEventListener('touchend', (e)=>{
         e.preventDefault();
         console.log(e.timeStamp);
-        if (e.timeStamp - timestamp < 300) {
+        if (e.timeStamp - timestamp < 300 && pinch_dist == -1) {
+          // openlink when no zooming was made
           open_link(x_down, y_down);
         }
         timestamp = e.timeStamp;
