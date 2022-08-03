@@ -522,11 +522,12 @@
 
       cnv.addEventListener('touchmove', (e)=>{
         e.preventDefault();
+        no_open_link=true; // if move is detected, no open link??
 
         if (e.targetTouches.length==1){
           drage_canvas(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
         } else if (e.targetTouches.length==2){
-          no_open_link=true;
+          // no_open_link=true;
           var dist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY);
