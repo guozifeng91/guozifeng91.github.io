@@ -514,8 +514,11 @@
 
       cnv.addEventListener('touchstart', (e)=>{
         e.preventDefault();
-        // const rect = cnv.getBoundingClientRect();
+
+        // prevent two touch event happen too close
         no_open_link = (e.timeStamp - timestamp < 300);
+        no_touch_drag=no_open_link;
+        
         timestamp=e.timeStamp;
         x_down = e.targetTouches[0].clientX;// - rect.left;
         y_down = e.targetTouches[0].clientY;// - rect.top;
@@ -559,7 +562,6 @@
         }
         timestamp = e.timeStamp;
         pinch_dist=-1;
-        no_touch_drag=false;
       });
     }
 
