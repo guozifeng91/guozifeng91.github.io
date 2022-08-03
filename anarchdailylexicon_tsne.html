@@ -375,6 +375,7 @@
       let timestamp=-1;
       let pinch_dist=-1;
       let no_open_link=false;
+      let no_touch_drag=false;
       // initialize
       draw_patches(ctx, z_current, x_current, y_current);
 
@@ -524,10 +525,12 @@
         e.preventDefault();
         no_open_link=true; // if move is detected, no open link??
 
-        if (e.targetTouches.length==1){
+        if (e.targetTouches.length==1 && !no_touch_drag){
           drage_canvas(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
         } else if (e.targetTouches.length==2){
           // no_open_link=true;
+          no_touch_drag=true;
+
           var dist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY);
@@ -556,6 +559,7 @@
         }
         timestamp = e.timeStamp;
         pinch_dist=-1;
+        no_touch_drag=false;
       });
     }
 
