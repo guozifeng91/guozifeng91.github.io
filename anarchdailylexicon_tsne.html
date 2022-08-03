@@ -374,6 +374,7 @@
       let button=-1;
       let timestamp=-1;
       let pinch_dist=-1;
+      let no_open_link=false;
       // initialize
       draw_patches(ctx, z_current, x_current, y_current);
 
@@ -485,7 +486,6 @@
       });
 
       cnv.addEventListener('click', (e)=>{
-        console.log(e.timeStamp);
         if (e.timeStamp - timestamp < 300) {
           open_link(e.offsetX, e.offsetY);
         }
@@ -514,6 +514,7 @@
       cnv.addEventListener('touchstart', (e)=>{
         e.preventDefault();
         // const rect = cnv.getBoundingClientRect();
+        no_open_link = (e.timeStamp - timestamp < 300);
         timestamp=e.timeStamp;
         x_down = e.targetTouches[0].clientX;// - rect.left;
         y_down = e.targetTouches[0].clientY;// - rect.top;
@@ -525,6 +526,7 @@
         if (e.targetTouches.length==1){
           drage_canvas(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
         } else if (e.targetTouches.length==2){
+          no_open_link=true;
           var dist = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY);
@@ -547,8 +549,7 @@
 
       cnv.addEventListener('touchend', (e)=>{
         e.preventDefault();
-        console.log(e.timeStamp);
-        if (e.timeStamp - timestamp < 300 && pinch_dist == -1) {
+        if (e.timeStamp - timestamp < 300 && !no_open_link) {
           // openlink when no zooming was made
           open_link(x_down, y_down);
         }
