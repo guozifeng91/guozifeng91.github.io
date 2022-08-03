@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AN ARCHDAILY LEXICON - DEMO</title>
+  <style media="screen">
+  *{
+    margin: 0;
+    padding: 0;
+    /* font-family: sans-serif; */
+    font-family: 'Courier New', monospace;
+  }
+  </style>
+  <link rel="stylesheet" href="./stylesheet.css">
+  <!-- <link rel="stylesheet" href="./style-amended.css"> -->
+
+  <!-- amended style for this page -->
+  <style media="screen">
+  .name_and_cover_container{
+    display:flex;
+    flex-direction:column;
+    line-height:normal;
+    text-align: center;
+  }
+
+  .square_image_container{
+    position:relative; width:100%; padding-bottom:100%; overflow:hidden;
+  }
+
+  .square_image_content{
+    position:absolute; height:100%; width:100%; left:0; top:0; object-fit: cover;
+  }
+
+  .name_tag_fix_height{
+    min-height: 6em;
+    max-height: 6em;
+  }
+
+  .sticky-search-box{
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #ffffffa0;
+  }
+  /* unvisited link */
+  .class_a:link {
+    color: #c00000;
+    text-decoration: none;
+  }
+
+  /* visited link */
+  .class_a:visited {
+    color: #c00000;
+    text-decoration: none;
+  }
+
+  /* mouse over link */
+  .class_a:hover {
+    color: black;
+    text-decoration: none;
+  }
+  </style>
+  <!-- constants -->
+  <script type="text/javascript" src="anarchdailylexicon/data/urllist.js"></script>
+  <script type="text/javascript" src="anarchdailylexicon_full/data/indexlist.js"></script>
+</head>
+<body>
+
+  <div class="logo">
+    <a id="home-link" href="./index.html?position=1" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#a0a0a0;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
+      <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
+    </a>
+  </div>
+  <!-- <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
+    <div class="logo-wrap" data-hover-hint="logo">
+      <div class="logo">
+
+      </div>
+    </div>
+  </header> -->
+  <script type="text/javascript" src="./checkhomeaddress.js"></script>
+  <canvas id="main_canvas" width="1024px" height="512px" style="position: absolute; z-index: -2; top:0; width:100vw; height:100vh"></canvas>
+
+  <script type="text/javascript">
+    const Z_MAX=8.9;
+    const Z_MIN=0;
+    const Z_COUNT=9;
+    const PATCH_SIZE_PX = 256; // patch size, must be 256 as the coords are saved in uint8 array
+    const PATCH_SIZE_SCALE_RATIO = Math.ceil(Math.min(window.innerWidth / 256, window.innerHeight / 256)); // patch size scale up ratio
+    const IMAGE_PLOT_SIZE_BASE = Math.min(window.innerWidth / 24, window.innerHeight / 24);
+
+    const patch_indices=Array(Z_COUNT); // list of 2D arrays [[i,j],[i,j],...]
+    const patch_coords=Array(Z_COUNT); // list of 2D arrays [[x,y],[x,y],...]
+    const sample_list=Array(Z_COUNT); // list of 1D arrays [i,j,k,...]
+    const sample_index_to_real_index=Array(Z_COUNT); // list of functions
+
+    const patch_sample_map=Array(Z_COUNT); // list of 2D arrays, patch index to list of sample indexs
+
+    const buffer_images={};
+
+    let display_content=[]; // currently displayed contents
+    // z level and x y position
+    let z_current=0.0;
+    let x_current=0.5;
+    let y_current=0.5;
+
+    let img_plot_size=IMAGE_PLOT_SIZE_BASE;
+    function update_image_plot_size(){
+      img_plot_size = IMAGE_PLOT_SIZE_BASE * Math.pow(1.25,z_current);
+    }
+
+    function get_image_plot_size() {return img_plot_size;}
+    function createArray(length) {
+      // code for creating nd-array, taken from
+      // https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
+      var arr = new Array(length || 0),
+      i = length;
+
+      if (arguments.length > 1) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        while(i--) arr[length-1 - i] = createArray.apply(this, args);
+      }
+      return arr;
+    }
+
+    // decode NPY format
+    function make_arr(descr, arr, offset){
+      // console.log('descr',descr);
+      if (descr=="|u1") {
+        return new Uint8Array(arr,offset);
+      } else if (descr=="<i4") {
+        return new Int32Array(arr,offset);
+      } else if (descr=="<f4") {
+        return new Float32Array(arr,offset);
+      } else if (descr=="<f8") {
+        return new Float64Array(arr,offset);
+      } else {
+        console.log("no implement");
+      }
+    }
+
+    function parse_npy(buff) {
+      // const version = arrayBufferContents.slice(6, 8); // Uint8-encoded
+      const hlen = new DataView(buff.slice(8, 10)).getUint8(0);
+      const offset = 10 + hlen;
+      const hstr = new TextDecoder("utf-8").decode(
+          new Uint8Array(buff.slice(10, 10 + hlen))
+      ).toLowerCase().replaceAll("(","[").replaceAll("),","]").replaceAll(",]","]").replaceAll("'","\"");
+      const header = JSON.parse(hstr);
+      return {"data":make_arr(header["descr"], buff, offset), "shape": header["shape"]};
+    }
+
+    function get_map_size(z_float){
+      return PATCH_SIZE_PX * Math.pow(2, z_float) * PATCH_SIZE_SCALE_RATIO;
+    }
+
+    function get_transformation(z_float, x, y, w_px=0, h_px=0) {
+      // z_float: current zoom level, float
+      // x: current x position relative to the ENTIRE MAP (i.e., [0, 1])
+      // y: current y position relative to the ENTIRE MAP (i.e., [0, 1])
+      const z = z_float; // no value inspection, turst the input
+      // const z = Math.min(Z_MAX, Math.max(Z_MIN, z_float));
+      const z_int = Math.floor(z);
+      const scale = Math.pow(2, z - z_int) * PATCH_SIZE_SCALE_RATIO; // the resizing ratio of 256 x 256 patches [1, 2)
+      const size_px = PATCH_SIZE_PX * Math.pow(2, z_float) * PATCH_SIZE_SCALE_RATIO;
+
+      return [-x*size_px + w_px/2, -y*size_px + h_px/2, scale];
+    }
+
+    function draw_next_level_preview(ctx, z_float, x, y, lv=1, color='white'){
+      // x and y are canvas center relative to the entire map
+      z_float=z_float+lv;
+      const win_scale = 2**lv;
+      const coord_scale = 2**(-lv);
+      const dot_scale = 1.5**(-lv);
+      ctx.fillStyle = color;
+
+      const z = Math.min(Z_MAX, Math.max(Z_MIN, z_float));
+      const w_px = ctx.canvas.width * win_scale;//  = window.innerWidth;
+      const h_px = ctx.canvas.height * win_scale;// = window.innerHeight;
+
+      const z_int = Math.floor(z);
+
+      const [tx,ty,s] = get_transformation(z_float, x, y, w_px, h_px);
+
+      const pi = patch_indices[z_int];
+      const pc = patch_coords[z_int];
+
+      const u_min = -tx/s;
+      const u_max = (w_px-tx)/s;
+
+      const v_min = -ty/s;
+      const v_max = (h_px-ty)/s;
+
+      const map_size = get_map_size(z);
+      const grid_size = Math.pow(2, z_int);
+      const i_range = Math.ceil(grid_size * w_px / map_size)
+      const j_range = Math.ceil(grid_size * h_px / map_size)
+      const i_center = Math.floor(x * grid_size);
+      const j_center = Math.floor(y * grid_size);
+      // console.log(grid_size);
+      for (let di=-i_range; di<=i_range; di++){
+        const i = di+i_center;
+        if (i>=0 && i < grid_size){
+          for (let dj=-j_range; dj<=j_range; dj++){
+            const j=dj+j_center;
+            if (j>=0 && j < grid_size){
+              const patch_index = i * grid_size + j;
+              const sample_list = patch_sample_map[z_int][patch_index];
+              if (sample_list!=null){
+                for (let sample_index of sample_list){
+                  let [u,v]=pc.data.slice(sample_index*2, sample_index*2+2);
+
+                  u=(u+i*PATCH_SIZE_PX);
+                  v=(v+j*PATCH_SIZE_PX);
+
+                  if (u>u_min && u<u_max && v>v_min && v<v_max){
+                    u = u*s + tx;
+                    v = v*s + ty;
+                    ctx.fillRect(u * coord_scale,v * coord_scale, 4 * dot_scale, 4 * dot_scale);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function draw_patches(ctx, z_float, x, y) {
+      update_image_plot_size();
+      // x and y are canvas center relative to the entire map
+      ctx.canvas.width  = window.innerWidth;
+      ctx.canvas.height = window.innerHeight;
+
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      draw_next_level_preview(ctx, z_float, x, y, 1);
+      draw_next_level_preview(ctx, z_float, x, y, 2);
+      draw_next_level_preview(ctx, z_float, x, y, 3);
+
+      const w_px = ctx.canvas.width;//  = window.innerWidth;
+      const h_px = ctx.canvas.height;// = window.innerHeight;
+
+      const z = z_float;
+      const z_int = Math.floor(z);
+
+      const [tx,ty,s] = get_transformation(z_float, x, y, w_px, h_px);
+
+      const pi = patch_indices[z_int];
+      const pc = patch_coords[z_int];
+
+      // add IMAGE_PLOT_SIZE to avoid image showing / disappearing effecr
+      const img_plot_size=get_image_plot_size();
+      const u_min = (-img_plot_size-tx)/s;
+      const u_max = (w_px-tx + img_plot_size)/s;
+
+      const v_min = (-img_plot_size-ty)/s;
+      const v_max = (h_px-ty + img_plot_size)/s;
+
+      display_content=[]; // contents which are interactable
+
+      // new implementation, from center patch to outside patches, until no items are added
+      const map_size = get_map_size(z);
+      const grid_size = Math.pow(2, z_int);
+      const i_range = Math.ceil(grid_size * w_px / map_size)
+      const j_range = Math.ceil(grid_size * h_px / map_size)
+      const i_center = Math.floor(x * grid_size);
+      const j_center = Math.floor(y * grid_size);
+
+      for (let di=-i_range; di<=i_range; di++){
+        const i = di+i_center;
+        if (i>=0 && i < grid_size){
+          for (let dj=-j_range; dj<=j_range; dj++){
+            const j=dj+j_center;
+            if (j>=0 && j < grid_size){
+              const patch_index = i * grid_size + j;
+              const sample_list = patch_sample_map[z_int][patch_index];
+              if (sample_list!=null){
+                for (let sample_index of sample_list){
+                  let [u,v]=pc.data.slice(sample_index*2, sample_index*2+2);
+
+                  u=(u+i*PATCH_SIZE_PX);
+                  v=(v+j*PATCH_SIZE_PX);
+
+                  if (u>u_min && u<u_max && v>v_min && v<v_max){
+                    u = u*s + tx;
+                    v = v*s + ty;
+                    ctx.fillRect(u,v,5,5); // fill in the pixel at (10,10)
+                    display_content.push([sample_index, u, v]);
+
+                    const real_index = sample_index_to_real_index[z_int](sample_index);
+                    if (buffer_images[real_index]==null){
+                      // add buffer image and set onload event
+                      buffer_images[real_index] = new BufferImage(real_index, ctx, u, v);
+                    } else {
+                      // update uv coordinate and draw
+                      buffer_images[real_index].u=u;
+                      buffer_images[real_index].v=v;
+                      buffer_images[real_index].draw();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // draw_next_level_preview(ctx, z_float+1, x, y);
+    }
+
+    class BufferImage{
+      constructor(index, ctx, u, v){
+        this.index=index;
+        const r_url_thumb = "https://storage.googleapis.com/zfguo_pretrained_models/thumbs/" + index + ".jpg";
+        this.img = new Image();
+        this.img.src=r_url_thumb;
+
+        this.u=u;
+        this.v=v;
+        this.ctx=ctx;
+
+        this.img.onload=(()=>{
+          this.img.width=128;
+          this.img.height=128;
+          this.draw();
+          this.img.onload=null;
+        });
+      }
+
+      draw(){
+        const img_plot_size=get_image_plot_size();
+        this.ctx.drawImage(this.img,this.u-img_plot_size/2,this.v-img_plot_size/2, img_plot_size, img_plot_size);
+      }
+    }
+  </script>
+
+  <script type="module">
+    console.log("module starts");
+
+    function fetch_operation(path, callback=null, callback_async=null){
+      return (function(){
+        // return the operation as a callable function
+        // console.log('loading', path);
+        fetch(path, {}).then((resp)=>{
+          resp.arrayBuffer().then((buff)=>{
+            const npy = parse_npy(buff);
+            if (callback!=null){
+              callback(npy);
+            }
+
+            if (callback_async!=null){
+              callback_async();
+            }
+          });
+        });
+      });
+    }
+
+    // register GUI events, which is the final step after successfully loading the data
+    function regist_events(){
+      const cnv = document.getElementById("main_canvas");
+      const ctx = cnv.getContext("2d");
+
+      let cur_mapsize=get_map_size(z_current);
+
+      let x_down=0;
+      let y_down=0;
+      let button=-1;
+      let timestamp=-1;
+      let pinch_dist=-1;
+      // initialize
+      draw_patches(ctx, z_current, x_current, y_current);
+
+      function drage_canvas(xpx, ypx){
+        const xscale = cnv.width / cnv.clientWidth;
+        const yscale = cnv.height / cnv.clientHeight;
+        // dx and dy in rendering px
+        let dx = Math.round(xscale * (x_down-xpx));
+        let dy = Math.round(yscale * (y_down-ypx));
+
+        // dx and dy relative to entire map
+        dx /= cur_mapsize;
+        dy /= cur_mapsize;
+
+        x_down = xpx;
+        y_down = ypx;
+
+        x_current+=dx;
+        y_current+=dy;
+
+        draw_patches(ctx, z_current, x_current, y_current);
+      }
+
+      function update_cursor(xpx, ypx){
+        const image_plot_size=get_image_plot_size();
+
+        const xscale = cnv.width / cnv.clientWidth;
+        const yscale = cnv.height / cnv.clientHeight;
+        // detect element
+        let x =  xscale * xpx;
+        let y = yscale * ypx;
+
+        let selected_item=-1;
+        for (let i=0;i<display_content.length;i++){
+          if (Math.abs(display_content[i][1]-x)<=image_plot_size/2 && Math.abs(display_content[i][2]-y)<=image_plot_size/2){
+            selected_item = display_content[i][0];
+            break;
+          }
+        }
+        if (selected_item>=0){
+          cnv.style.cursor="pointer";
+        } else {
+          cnv.style.cursor="default";
+        }
+      }
+
+      function open_link(xpx, ypx){
+        const image_plot_size=get_image_plot_size();
+
+        const xscale = cnv.width / cnv.clientWidth;
+        const yscale = cnv.height / cnv.clientHeight;
+        // detect element
+        let x =  xscale * xpx;
+        let y = yscale * ypx;
+
+        let selected_item=-1;
+        for (let i=0;i<display_content.length;i++){
+          if (Math.abs(display_content[i][1]-x)<=image_plot_size/2 && Math.abs(display_content[i][2]-y)<=image_plot_size/2){
+            selected_item = display_content[i][0];
+            break;
+          }
+        }
+        if (selected_item>=0){
+          window.open(urllist[indexlist[sample_index_to_real_index[Math.floor(z_current)](selected_item)]], '_blank');
+        }
+      }
+
+      function zoom_in_out(mousex, mousey, z_prev, z_current){
+        const z_delta = z_current - z_prev;
+
+        let old_mapsize=get_map_size(z_prev);
+        cur_mapsize=get_map_size(z_current);
+
+        const xscale = cnv.width / cnv.clientWidth;
+        const yscale = cnv.height / cnv.clientHeight;
+
+        // dx and dy in rendering px
+        let dx = Math.round(xscale * (cnv.width / 2 - mousex));
+        let dy = Math.round(yscale * (cnv.height / 2 - mousey));
+        // dx and dy relative to entire map
+        dx = dx / old_mapsize - dx / cur_mapsize;
+        dy = dy / old_mapsize - dy / cur_mapsize;
+
+        x_current-=dx;
+        y_current-=dy;
+
+        draw_patches(ctx, z_current, x_current, y_current);
+        update_cursor(mousex, mousey);
+      }
+
+      window.addEventListener("resize", (e)=>{
+        cnv.width=window.innerWidth;
+        cnv.height=window.innerHeight;
+        draw_patches(ctx, z_current, x_current, y_current);
+      });
+
+      cnv.oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); }
+
+      cnv.addEventListener("wheel", (e)=>{
+        e.preventDefault();
+        const z_prev = z_current;
+        z_current+=0.3*Math.sign(e.wheelDeltaY);
+        z_current = Math.min(Z_MAX, Math.max(Z_MIN, z_current));
+        const z_delta = z_current - z_prev;
+
+        if (z_delta != 0){
+          zoom_in_out(e.offsetX, e.offsetY, z_prev, z_current);
+        }
+      });
+
+      cnv.addEventListener('click', (e)=>{
+        console.log(e.timeStamp);
+        if (e.timeStamp - timestamp < 300) {
+          open_link(e.offsetX, e.offsetY);
+        }
+        timestamp = e.timeStamp;
+      });
+
+      cnv.addEventListener('mousedown', (e)=>{
+        update_cursor(e);
+        x_down = e.offsetX;
+        y_down = e.offsetY;
+        button = e.button;
+        timestamp = e.timeStamp;
+      });
+
+      cnv.addEventListener('mousemove', (e)=>{
+        update_cursor(e.offsetX, e.offsetY);
+        if (button==0){ // drag
+          drage_canvas(e.offsetX, e.offsetY);
+        }
+      });
+
+      cnv.addEventListener('mouseup', (e)=>{
+        button = -1;
+      });
+
+      cnv.addEventListener('touchstart', (e)=>{
+        e.preventDefault();
+        // const rect = cnv.getBoundingClientRect();
+        timestamp=e.timeStamp;
+        x_down = e.targetTouches[0].clientX;// - rect.left;
+        y_down = e.targetTouches[0].clientY;// - rect.top;
+      });
+
+      cnv.addEventListener('touchmove', (e)=>{
+        e.preventDefault();
+
+        if (e.targetTouches.length==1){
+          drage_canvas(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+        } else if (e.targetTouches.length==2){
+          var dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY);
+
+          // pinch detection
+          if (pinch_dist>0){
+            const z_prev = z_current;
+            z_current += 0.01*(dist - pinch_dist);
+            z_current = Math.min(Z_MAX, Math.max(Z_MIN, z_current));
+            const z_delta = z_current - z_prev;
+
+            zoom_in_out(
+              (e.touches[0].clientX + e.touches[1].clientX)/2,
+              (e.touches[0].clientY + e.touches[1].clientY)/2,
+              z_prev, z_current);
+          }
+          pinch_dist=dist;
+        }
+      });
+
+      cnv.addEventListener('touchend', (e)=>{
+        e.preventDefault();
+        console.log(e.timeStamp);
+        if (e.timeStamp - timestamp < 300) {
+          open_link(x_down, y_down);
+        }
+        timestamp = e.timeStamp;
+        pinch_dist=-1;
+      });
+    }
+
+    // build patch-id - element map to increase performance
+    // this should be done after successfully loading the data
+    function build_patch_item_map(){
+      for (let z=0;z<Z_COUNT; z++){
+        const sample_num = patch_indices[z].shape[0];
+        const grid_size = Math.pow(2,z);
+        const sample_map = Array(grid_size * grid_size);
+
+        for (let index=0; index < sample_num; index++){
+          const [i,j]=patch_indices[z].data.slice(index*2, index*2+2);
+          const patch_index_int = i*grid_size+j;
+
+          if (sample_map[patch_index_int]==null){
+            sample_map[patch_index_int]=[];
+          }
+          sample_map[patch_index_int].push(index);
+        }
+
+        patch_sample_map[z]=sample_map;
+      }
+    }
+
+    function build_indexing_func(){
+      for (let z=0;z<Z_COUNT; z++){
+        if (z<Z_COUNT-1){
+          sample_index_to_real_index[z]=((x)=>{return sample_list[z].data[x];});
+        } else {
+          sample_index_to_real_index[z]=((x)=>{return x;});
+        }
+      }
+      console.log(sample_list[0]);
+    }
+
+    function init(){
+      build_patch_item_map();
+      build_indexing_func();
+      regist_events();
+    }
+
+    // load all z-level informations
+    // using nested functions, and returns the out-most function for calling (initiate the nested chain)
+    let load_data_entry=init; // a callable which register the gui functions, or null if nothing to do
+    for (let i=0; i<Z_COUNT; i++){
+      const pi = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_pi.npy', (x)=>{patch_indices[i]=x;},load_data_entry);
+      const pc = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_pc.npy',(x)=>{patch_coords[i]=x;},pi);
+      if (i<Z_COUNT-1){
+        const ps = fetch_operation('./anarchdailylexicon_tsne/data/z'+i+'_i.npy',(x)=>{sample_list[i]=x;},pc);
+        load_data_entry = ps;
+      } else {
+        load_data_entry = pc;
+      }
+    }
+
+    load_data_entry();
+  </script>
+</body>
+</html>
