@@ -106,12 +106,52 @@
     let x_current=0.5;
     let y_current=0.5;
 
+    // check xyz args from url (useful for locating the area of interests)
+    (function(){
+      const args = window.location.search;
+      const kv = new URLSearchParams(args);
+      if (kv.get('x')!=null) {
+        x_current=parseFloat(kv.get('x'));
+      }
+      if (kv.get('y')!=null) {
+        y_current=parseFloat(kv.get('y'));
+      }
+      if (kv.get('z')!=null) {
+        z_current=parseFloat(kv.get('z'));
+      }
+    })();
+
     let img_plot_size=IMAGE_PLOT_SIZE_BASE;
     function update_image_plot_size(){
       img_plot_size = IMAGE_PLOT_SIZE_BASE * Math.pow(1.23,z_current);
     }
 
     function get_image_plot_size() {return img_plot_size;}
+
+    function update_url_arg(){
+      const url = window.location.href.split('?');
+      const base = url[0];
+      let args_new='';
+      let and_synbol='';
+
+      if (url.length>1){
+        const pairs = url[1].split('&');
+        for (let kv of pairs){
+          const k = kv.split('=')[0];
+          if (k!='x' && k != 'y' && k != 'z'){
+            args_new = args_new + and_synbol + kv;
+            and_synbol='&'
+          }
+        }
+      }
+
+      args_new = args_new + and_synbol + 'x=' + x_current +'&y=' + y_current + '&z=' + z_current;
+
+      const url_new = base + "?" + args_new;
+      // console.log(url_new);
+      window.history.replaceState('','',url_new);
+    }
+
     function createArray(length) {
       // code for creating nd-array, taken from
       // https://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript
@@ -230,6 +270,7 @@
     }
 
     function draw_patches(ctx, z_float, x, y) {
+      // update_url_arg();
       update_image_plot_size();
       // x and y are canvas center relative to the entire map
       ctx.canvas.width  = window.innerWidth;
@@ -498,6 +539,7 @@
 
         if (z_delta != 0){
           zoom_in_out(e.offsetX, e.offsetY, z_prev, z_current);
+          update_url_arg();
         }
       });
 
@@ -525,6 +567,7 @@
 
       cnv.addEventListener('mouseup', (e)=>{
         button = -1;
+        update_url_arg();
       });
 
       cnv.addEventListener('touchstart', (e)=>{
@@ -575,6 +618,9 @@
           // openlink when no zooming was made
           open_link(x_down, y_down);
         }
+        if (!no_touch_drag || pinch_dist>0) {
+          update_url_arg();
+        }
         timestamp = e.timeStamp;
         pinch_dist=-1;
       });
@@ -610,7 +656,7 @@
           sample_index_to_real_index[z]=((x)=>{return x;});
         }
       }
-      console.log(sample_list[0]);
+      // console.log(sample_list[0]);
     }
 
     function init(){
