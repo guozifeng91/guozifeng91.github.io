@@ -17,52 +17,93 @@
 
   <!-- amended style for this page -->
   <style media="screen">
-  .name_and_cover_container{
-    display:flex;
-    flex-direction:column;
-    line-height:normal;
-    text-align: center;
-  }
+    .name_and_cover_container{
+      display:flex;
+      flex-direction:column;
+      line-height:normal;
+      text-align: center;
+    }
 
-  .square_image_container{
-    position:relative; width:100%; padding-bottom:100%; overflow:hidden;
-  }
+    .square_image_container{
+      position:relative; width:100%; padding-bottom:100%; overflow:hidden;
+    }
 
-  .square_image_content{
-    position:absolute; height:100%; width:100%; left:0; top:0; object-fit: cover;
-  }
+    .square_image_content{
+      position:absolute; height:100%; width:100%; left:0; top:0; object-fit: cover;
+    }
 
-  .name_tag_fix_height{
-    min-height: 6em;
-    max-height: 6em;
-  }
+    .name_tag_fix_height{
+      min-height: 6em;
+      max-height: 6em;
+    }
 
-  .sticky-search-box{
-    position: sticky;
-    position: -webkit-sticky;
-    top: 0;
-    z-index: 2;
-    background-color: #ffffffa0;
-  }
-  /* unvisited link */
-  .class_a:link {
-    color: #c00000;
-    text-decoration: none;
-  }
+    .ios-bottom-adjust{
+      bottom:0em;
+    }
 
-  /* visited link */
-  .class_a:visited {
-    color: #c00000;
-    text-decoration: none;
-  }
+    .bake_area{
+      position: relative;
+      min-height: 35vh;
+      margin-left: 2em;
+      margin-right: 2em;
+      width:auto;
 
-  /* mouse over link */
-  .class_a:hover {
-    color: black;
-    text-decoration: none;
-  }
+      top:250px;
+      max-height: calc(100vh - 300px);
+      overflow: auto;
+    }
+
+    .bake-container{
+      position: relative;
+      display: grid;
+      flex-wrap: wrap;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 5px;
+    }
+
+    @media screen and (max-width: 680px) {
+      .ios-bottom-adjust{
+        bottom:6em;
+      }
+      .bake_area{
+        position: relative;
+        min-height: 35vh;
+        margin-left: 2em;
+        margin-right: 2em;
+        width:auto;
+
+        top:200px;
+        max-height: calc(100vh - 250px);
+        overflow: auto;
+      }
+    }
+
+    .p-button{
+      position: relative;
+      width: 100%;
+      /* left:50%;
+      transform:translateX(-50%); */
+      cursor:pointer;
+      font-weight:bold;
+      z-index:1;
+      margin: 0.5em;
+      border-style: solid;
+      border-width: thin;
+      border-color: #ffffff00;
+    }
+
+    .p-button:hover{
+      border-style: solid;
+      border-width: thin;
+      border-color: #ffffffa0;
+      background-color: #ffffff30;
+    }
   </style>
   <!-- constants -->
+  <script type="text/javascript" src="anarchdailylexicon/data/namelist.js"></script>
   <script type="text/javascript" src="anarchdailylexicon/data/urllist.js"></script>
   <script type="text/javascript" src="anarchdailylexicon_full/data/indexlist.js"></script>
 </head>
@@ -75,8 +116,19 @@
       </a>
     </div>
 
-    <div id="mode_switch" class="project-text-centered" style="width: 100%; top:90vh; color:#ffffff;">
-      <p id="mode_switch_lb" style="position: relative; width: 10em; left:50%; transform:translateX(-50%); cursor:pointer; font-weight:bold;z-index:1">Mode</p>
+    <div id="bake_background" style="position: absolute; z-index: -1; width:100vw; height:100vh; left:0; top:0; background-color: #000000c0">
+      <div class="bake_area">
+        <div id="bake_output" class="bake-container" style="gap: 10px;">
+          <!-- search output here  -->
+        </div>
+      </div>
+    </div>
+
+    <div class="project-text-centered ios-bottom-adjust" style="position: absolute; width: 100%; color:#ffffffa0;">
+      <div id="buttons" style="position:relative; display:flex; flex-direction: row; width:15em; left:50%; transform:translateX(-50%); z-index:1;">
+        <p id="button_bake" class="p-button" style="padding:0">bake</p>
+        <p id="button_mode" class="p-button" style="padding:0">Mode</p>
+      </div>
     </div>
 
     <div class="project-text-centered" style="color:#a0a0a0; top: 50vh">
@@ -88,8 +140,51 @@
   </div>
   <script type="text/javascript">
     const indicator=document.getElementById('indicator');
-    const mode_switch=document.getElementById('mode_switch');
-    const mode_switch_lb=document.getElementById('mode_switch_lb');
+    const button_mode=document.getElementById('button_mode');
+    const button_bake=document.getElementById('button_bake');
+    const bake_background = document.getElementById("bake_background");
+    const bake_output = document.getElementById("bake_output");
+
+    const remove_all_entries = function(){
+      const container=bake_output;
+      while (container.firstChild) {
+        const c = container.lastChild;
+        container.removeChild(c);
+        c.remove();
+      }
+    };
+
+    const add_entry = function(url_target, url_img='./gallery/thumbs/agentlamp.gif', target='_blank'){
+      const container = bake_output;
+      const ele_cover = document.createElement("div");
+      ele_cover.className="project-cover-gallery";
+      // console.log(v2);
+      const ele_link = document.createElement("a");
+      ele_link.href=url_target;
+
+      const ele_wrapper=document.createElement('div');
+      ele_wrapper.className="name_and_cover_container";
+      const ele_wrapper_img=document.createElement('div');
+      ele_wrapper_img.className="square_image_container";
+
+      const ele_img = document.createElement("img");
+      // const ele_name = document.createElement("p");
+      // ele_name.innerHTML=name;
+      // ele_name.className="name_tag_fix_height";
+
+      ele_img.src=url_img;
+      ele_img.className="square_image_content";
+
+      if (target!=null){ ele_link.target=target;}
+
+      ele_cover.appendChild(ele_link);
+      ele_link.appendChild(ele_wrapper);
+      ele_wrapper.appendChild(ele_wrapper_img);
+      // ele_wrapper.appendChild(ele_name);
+      ele_wrapper_img.appendChild(ele_img);
+
+      container.appendChild(ele_cover);
+    };
 
     const Z_MAX=8.9;
     const Z_MIN=0;
@@ -132,13 +227,16 @@
       }
 
       if (use_high_performance_data){
-        mode_switch_lb.innerHTML="show more";
+        button_mode.innerHTML="show more";
       } else {
-        mode_switch_lb.innerHTML="show less";
+        button_mode.innerHTML="show less";
       }
     })();
 
-    mode_switch.addEventListener('click',(e)=>{
+    bake_background.onclick=function(e){if (e.target == bake_background){bake_background.style.zIndex=null;}};
+    bake_output.onclick=function(e){if (e.target == bake_output){bake_background.style.zIndex=null;}};
+
+    button_mode.addEventListener('click',(e)=>{
       update_url_arg();
       let url = window.location.href;
       if (url.includes('hp=')){
@@ -155,6 +253,19 @@
         }
       }
       window.location.href = url;
+    });
+
+    button_bake.addEventListener('click', (e)=>{
+      remove_all_entries();
+      for (let c of display_content){
+        const selected_item = c[0];
+        const selected_real_index = sample_index_to_real_index[Math.floor(z_current)](selected_item);
+        const url = urllist[indexlist[selected_real_index]];
+        // const name = namelist[indexlist[selected_real_index]];
+        const url_thumb = "https://storage.googleapis.com/zfguo_pretrained_models/thumbs/" + selected_real_index + ".jpg";
+        add_entry(url,url_thumb);
+      }
+      document.getElementById("bake_background").style.zIndex=2;
     });
 
     let img_plot_size=IMAGE_PLOT_SIZE_BASE;
