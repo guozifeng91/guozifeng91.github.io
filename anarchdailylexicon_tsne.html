@@ -84,11 +84,8 @@
     .p-button{
       position: relative;
       width: 100%;
-      /* left:50%;
-      transform:translateX(-50%); */
       cursor:pointer;
       font-weight:bold;
-      z-index:1;
       margin: 0.5em;
       border-style: solid;
       border-width: thin;
@@ -125,7 +122,7 @@
     </div>
 
     <div class="project-text-centered ios-bottom-adjust" style="position: absolute; width: 100%; color:#ffffff;">
-      <div id="buttons" style="position:relative; display:flex; flex-direction: row; width:15em; left:50%; transform:translateX(-50%); z-index:1;">
+      <div id="buttons" style="position:relative; display:flex; flex-direction: row; width:15em; left:50%; transform:translateX(-50%); z-index:-1;">
         <p id="button_bake" class="p-button" style="padding:0">bake</p>
         <p id="button_mode" class="p-button" style="padding:0">Mode</p>
       </div>
@@ -806,6 +803,7 @@
       build_indexing_func();
       regist_events();
       indicator.parentNode.parentNode.removeChild(indicator.parentNode);
+      document.getElementById("buttons").style.zIndex=1; // bring button to front
     }
 
     let root_path='./anarchdailylexicon_tsne/data/z';
