@@ -233,8 +233,9 @@
       }
     })();
 
-    bake_background.onclick=function(e){if (e.target == bake_background){bake_background.style.zIndex=null;}};
-    bake_output.onclick=function(e){if (e.target == bake_output){bake_background.style.zIndex=null;}};
+    // add window.scroll(0, 0) to restore the viewing position in ios browsers
+    bake_background.onclick=function(e){if (e.target == bake_background){window.scroll(0, 0);bake_background.style.zIndex=null;}};
+    bake_output.onclick=function(e){if (e.target == bake_output){window.scroll(0, 0);bake_background.style.zIndex=null;}};
 
     button_mode.addEventListener('click',(e)=>{
       update_url_arg();
