@@ -347,8 +347,8 @@
 
       function reg_ops(){
         start_button.onclick=()=>{section_labeling.hidden=""; start_button.hidden="hidden";}
-        adj_opt_1.onclick=()=>{labels.push({"adj":adjectives[current_adj], "adj_id":current_adj, "form_id_user_choice":current_i, "form_id_control":current_j}); next_sample_rand();};
-        adj_opt_2.onclick=()=>{labels.push({"adj":adjectives[current_adj], "adj_id":current_adj, "form_id_user_choice":current_j, "form_id_control":current_i}); next_sample_rand();};
+        adj_opt_1.onclick=()=>{labels.push({"id":labels.length, "adj":adjectives[current_adj], "adj_id":current_adj, "form_id_user_choice":current_i, "form_id_control":current_j, "timestamp":Date.now()}); next_sample_rand();};
+        adj_opt_2.onclick=()=>{labels.push({"id":labels.length, "adj":adjectives[current_adj], "adj_id":current_adj, "form_id_user_choice":current_j, "form_id_control":current_i, "timestamp":Date.now()}); next_sample_rand();};
         save_op.onclick=()=>{export2json();};
       }
 
