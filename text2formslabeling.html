@@ -353,11 +353,12 @@
       }
 
       const op_xyz = fetch_npy_operation(root_path+'cem-dataset_node-xyz.npy',
-      (x)=>{indicator.innerHTML='Loading Node XYZ (9MB) ...'; xyz=reshape_naive(x);},
+      (x)=>{xyz=reshape_naive(x);},
       ()=>{indicator.innerHTML='Texts to Forms Labeller'; start_button.value="start"; reg_ops(); next_sample_rand();});
-      const op_forces = fetch_npy_operation(root_path+'cem-dataset_edge-forces.npy',(x)=>{indicator.innerHTML='Loading Edge Forces (7MB) ...'; forces=reshape_naive(x);},op_xyz);
-      const op_topology = fetch_npy_operation(root_path+'cem-dataset_topology.npy',(x)=>{indicator.innerHTML='Loading Topology (1MB) ...'; topology=reshape_naive(x);},op_forces);
+      const op_forces = fetch_npy_operation(root_path+'cem-dataset_edge-forces.npy',(x)=>{indicator.innerHTML='Loading Node XYZ (9MB) ...'; forces=reshape_naive(x);},op_xyz);
+      const op_topology = fetch_npy_operation(root_path+'cem-dataset_topology.npy',(x)=>{indicator.innerHTML='Loading Edge Forces (7MB) ...'; topology=reshape_naive(x);},op_forces);
 
+      indicator.innerHTML='Loading Topology (1MB) ...';
       op_topology();
     </script>
   </body>
