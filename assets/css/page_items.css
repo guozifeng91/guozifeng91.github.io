@@ -1,0 +1,28 @@
+/* page elements and containers */
+
+.logo-container-main-page{
+  position: relative;
+  width: 100%;
+  height:100vh;
+}
+
+.page-body{
+  position: relative;
+  /* height: 100%; */
+  width: 100%;
+}
+
+.page-body-main-page{
+  position: relative;
+  /* height: 100%; */
+  width: 100%;
+}
+
+.article-container{
+  position: relative;
+  min-height:35vh;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-left: auto;
+  margin-right: auto;
+}

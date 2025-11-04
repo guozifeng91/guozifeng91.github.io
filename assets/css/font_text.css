@@ -58,36 +58,16 @@
 
 /* phone and narrow view */
 @media screen and (max-width: 680px) {
-    .pc-only {
+    .pc-only-text {
         position: relative;
         max-height: 1px;
         visibility: hidden;
-    }
-
-    .main-text {
-        padding-left: 1.5em;
-        padding-right: 1.5em;
-    }
-
-    .caption-text {
-        padding-left: 1.5em;
-        padding-right: 1.5em;
-    }
-
-    .title2{
-        padding-left: 1em;
-        padding-right: 1em;
-    }
-
-    .title3{
-        padding-left: 1.5em;
-        padding-right: 1.5em;
     }
 }
 
 /* For PC */
 @media screen and (min-width: 681px) {
-    .phone-only {
+    .phone-only-text {
         position: relative;
         max-height: 1px;
         visibility: hidden;
