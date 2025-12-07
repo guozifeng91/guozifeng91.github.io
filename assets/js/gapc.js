@@ -2,14 +2,18 @@
 
 export function fetch_and_do(url, action)
 {
+    console.debug(url);
     fetch(url)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
         }
-
-        // do something on the content
-        action(response.text());
+        response.text().then(
+            text => {
+                console.log(text);
+                action(text);
+            }
+        );
     })
 };
 
@@ -23,7 +27,7 @@ const parse_italic = (md) => md.replace(/\*(.*?)\*/gim, '<i>$1</i>');
 const parse_link = (md) => md.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>');
 const parse_br = (md) => md.replace(/\n/gim, '<br>');
 const parse_codeblock = (md) => md.replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>');
-const parse_img = (md) => md.replace(/\!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />');
+const parse_img = (md) => md.replace(/\!\[(.*?)\]\((.*?)\)/gim, '<img class="$1" src="$2"/>');
 const parse_bullet = (md) => md.replace(/^\s*[\-\*] (.*)$/gim, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/gim, '');
 const parse_number = (md) => md.replace(/^\s*\d+\. (.*)$/gim, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/gim, '');
 const parse_p = (md) => {
@@ -32,7 +36,8 @@ const parse_p = (md) => {
     // split by \n
     .split(/\n/)
     .map(block => {
-        var trim = block.trim();
+        /* untrim to keep additional empty lines functional */
+        var trim = block; //.trim();
         if (trim == "")
             return "";
 
@@ -121,78 +126,136 @@ export function parse_to_DOM(md)
     return doc;
 }
 
+function is_null_or_empty(str)
+{
+    return str == null || str == "";
+}
+
+function add_cls_to_elem(elem, cls)
+{
+    if (is_null_or_empty(cls))
+        return;
+
+    elem.className = elem.className + " " + cls;
+}
+
+/* create a div and consume the stacked imgs */
+function create_div_and_consume_img_stack(
+    root, 
+    img_stack, 
+    cls_centered,
+    cls_normal,
+    cls_img_group)
+{
+    var stack_size = img_stack.length;
+    var parent_div = document.createElement("div");
+    root.appendChild(parent_div);
+
+    add_cls_to_elem(
+        parent_div, 
+        stack_size > 0 ? cls_centered : cls_normal
+    );
+
+    if (stack_size == 1){
+        parent_div.appendChild(img_stack[0]);
+    }else if (stack_size > 1){
+        var child_div = document.createElement("div");
+        add_cls_to_elem(child_div, cls_img_group);
+        for(const img_elem of img_stack){
+            var container = document.createElement("div");
+            container.appendChild(img_elem);
+            img_elem.style="max-width:100%;";
+            child_div.appendChild(container);
+        }
+        parent_div.appendChild(child_div);
+    }
+    return parent_div;
+}
+
 /*
 add DOM elements to the current document
 
 rules
-1. special elements (tag name found in cls_special_tags dictionary),
+1. special elements such as H1, H2 (found in cls_special_tags dictionary),
    will be wrapped by its own <div>. div will not get class assigned,
    each element gets its own class
 
-2. continuous non-special elements, such as <p> will be wrapped in 
+2. continuous non-special elements, such as <p>s will be wrapped in 
    the same <div>, the <div> is assigned class p_class, <p> has no class
 
-3. special rule for <img>: will be wrapped in a <div> assigned class
-   p_class_center. the immediate non-special element that follows the <img>,
-   will be treated as img caption and put into the same <div> of the image
+3. 2 stops, if a special element, or <img> is encountered.
+
+4. single <img> will be wrapped in a <div> together with the <p> immediately
+   behinds it. this <div> gets a class = p_class_center.
+
+5. continuous <imgs>s will be wrapped in a <div>, and this <div> will be treated
+   as a single image and 4. applies
  */
 export function
 add_DOM_to_document(
-    src_doc,            // src DOM document
-    root,               // root element in target document
-    cls_special_tags,   // dict of tag-name => class name
-    p_class,            // class name for <p> (will be assigned to wrapping div)
-    p_class_center      // class name for <p> that will be centered (will be assigned to wrapping div)
+    src_doc,                // src DOM document
+    root,                   // root element in target document
+    cls_special_tags,       // dict of tag-name => class name
+    cls_normal,             // class name for <p> (will be assigned to wrapping div)
+    cls_centered,           // class name for <p> that will be centered (will be assigned to wrapping div)
+    cls_img_group           // class name for <div> that contains the group of images (rule 5.)
 ){
-    // example of cls_special_tags
-    // var specials = {
-    //     "H1": h1_class,
-    //     "H2": h2_class,
-    //     "H3": h3_class,
-    //     'IMG': img_class,
-    //     'OL': p_class,
-    //     'UL': p_class
-    // }
+    var img_stack = [];
+    var current_div = null;
+    var elems = Array.from(src_doc.body.childNodes);
 
-    var last_div = null;
-    var last_is_img = false;
-
-    for(const elem of src_doc.body.childNodes){
+    for(const elem of elems){
         var tag = elem.tagName;
+        if (tag == null)
+            continue;
+
         var is_special = tag in cls_special_tags;
+        var is_img = tag == "IMG";
 
-        var cls = is_special ? cls_special_tags[tag] : p_class;
-        var is_img = elem.tagName == "IMG";
+        if (is_special && !is_img)
+        {
+            // reset so new div will be created
+            current_div = null;
 
-        if (is_special)
-            elem.className = cls;
-
-        // create new div tag?
-        if (is_special || is_img || last_div == null){
-            last_div = document.createElement("div");
-            root.appendChild(last_div);
-            
-            // paragraph style in div
-            // other styles in tag
-            if (!is_special)
-                last_div.className = cls;
-
-            if (is_img)
-                last_div.className = p_class_center
+            // special tags that should be placed within their own divs
+            add_cls_to_elem(elem, cls_special_tags[tag]);
+            var div = document.createElement("div");
+            div.appendChild(elem);
+            root.appendChild(div);
+            continue;
         }
 
-        // add elem to last_div
-        last_div.appendChild(elem);
+        if (is_img){
+            // reset so new div will be created
+            current_div = null;
+            img_stack.push(elem);
+            continue;
+        }
 
-        // reset, when current is not img, and is special elem
-        // or last is img, and current is not special elem
-        if (is_special && !is_img)
-            last_div = null;
-        
-        if (!is_special && last_is_img)
-            last_div = null;
+        if (current_div == null){
+            current_div = create_div_and_consume_img_stack(
+                root,
+                img_stack,
+                cls_centered,
+                cls_normal,
+                cls_img_group);
+        }
 
-        last_is_img = is_img;
+        current_div.appendChild(elem);
+
+        if (img_stack.length > 0){
+            current_div = null;
+            img_stack = [];
+        }
+    }
+    
+    if (img_stack.length > 0){
+        create_div_and_consume_img_stack(
+                root,
+                img_stack,
+                cls_centered,
+                cls_normal,
+                cls_img_group);
     }
 }
 
@@ -200,11 +263,60 @@ export function add_md_to_document(
     md,
     root,
     cls_special_tags,
-    p_class,
-    p_class_center
+    cls_normal,
+    cls_centered,
+    cls_img_group
 ){
     var doc = parse_to_DOM(md);
-    add_DOM_to_document(doc, root, cls_special_tags, p_class, p_class_center)
+    add_DOM_to_document(
+        doc, 
+        root, 
+        cls_special_tags, 
+        cls_normal, 
+        cls_centered, 
+        cls_img_group);
 };
 
 // console.log(parse_to_DOM(md_sample));
+
+export function add_md_to_document_default_style(
+    md
+){
+    var root = document.getElementById("article-container");
+    const default_specials_tags = {
+        "H1": "title1",
+        "H2": "title2",
+        "H3": "title3",
+        // 'IMG': "",
+        'OL': "main-text",
+        'UL': "main-text"
+      };
+
+    add_md_to_document(
+        md,
+        root,
+        default_specials_tags,
+        "main-text",
+        "main-text-centered",
+        "row-column-container"
+    )
+}
+
+/* 
+a compact entry for most pages
+
+- parse .md from the ?article=XXX query
+- use pre-set css class
+
+*/
+export function fetch_article_and_add_to_document_default()
+{
+    const url_str = window.location.search;
+    const url_params = new URLSearchParams(url_str);
+    var md_url = url_params.get('article');
+    console.debug(md_url);
+
+    if (md_url != null) {
+        fetch_and_do(md_url, add_md_to_document_default_style)
+    }
+}

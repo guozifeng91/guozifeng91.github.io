@@ -20,7 +20,7 @@
   .row-column-container{
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;    /* change to column if needed */
     flex: none;
     overflow: visible;
   }

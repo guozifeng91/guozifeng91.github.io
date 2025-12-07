@@ -20,28 +20,8 @@
     <link rel="stylesheet" href="/assets/css/hyperlink_article.css">
 
     <script type="module">
-      import {add_md_to_document, md_sample} from "/assets/js/gapc.js";
-      var root = document.getElementById("article-container");
-
-      var specials = {
-        "H1": "title1",
-        "H2": "title2",
-        "H3": "title3",
-        'IMG': "",
-        'OL': "main-text",
-        'UL': "main-text"
-      };
-
-      (()=>{
-        add_md_to_document(
-          md_sample,
-          root,
-          specials,
-          "main-text",
-          "main-text-centered"
-        )
-      })();
-
+      import {fetch_article_and_add_to_document_default} from "/assets/js/gapc.js";
+      fetch_article_and_add_to_document_default();
     </script>
   </head>
   <body>

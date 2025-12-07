@@ -31,6 +31,27 @@
     padding-bottom: 0.5em;
 }
 
+.main-text>img{
+    height: auto;
+    max-width: 100%;
+}
+
+.main-text-centered>img{
+    height: auto;
+    max-width: 100%;
+}
+
+.full-width-img
+{
+    width: 100%;
+}
+
+.auto-width-img
+{
+  height: auto;
+  max-width: 100%;  
+}
+
 ul{
     padding-top: 0.35em;
     padding-bottom: 0.35em;
