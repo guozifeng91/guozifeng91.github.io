@@ -8,7 +8,7 @@
 [ArchDaily Galaxy](/anarchdailylexicon_tsne.html")
 [ArchDaily + Self Organizing Map](/anarchdailylexicon.html")
 [Flood Synthesis](/floodnet256.html")
-["Random Subdivision Columns](./subdivisioncolumn.html?home=1")
+[Subdivision Columns](./subdivisioncolumn.html?home=1")
 
 ### - projects -
 
