@@ -1,6 +1,6 @@
 ### -
 
-[About](/about.html")
+[About](/article_reader.html?url=/articles/about.md")
 [CV](/cv.html")
 
 ### - plays -

@@ -183,15 +183,15 @@
   <script type="importmap">
 			{
 				"imports": {
-					"three": "./jslibs/threejs/three.module.js"
+					"three": "./assets/js/threejs/three.module.js"
 				}
 			}
 		</script>
     <script type="module">
 
 			import * as THREE from 'three';
-      import { OrbitControls } from './jslibs/threejs/OrbitControls.js';
-      import { GUI } from './jslibs/threejs/lil-gui.module.min.js';
+      import { OrbitControls } from './assets/js/threejs/OrbitControls.js';
+      import { GUI } from './assets/js/threejs/lil-gui.module.min.js';
 
 			let camera, scene, renderer;
 			let mesh;
@@ -266,32 +266,40 @@
 			}
 
       function createPanel() {
-    				let panel = new GUI( { width: 120} );
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            if (urlParams.get('home')>0) {
-              // add button to home
+        const lil_gui_font_size_override = "font-size:28px;--widget-height: 48px;";
+        const lil_gui_color_override = "--background-color: none; --text-color:none; --title-text-color:none; --title-background-color: none; --widget-color: none; --hover-color: #f0f0f0;";
 
-              if (urlParams.get('gallery')>0) {
-                panel.add( {"home":function(){window.open("./gallery.html?position=1", '_self');}}, 'home' );
-                panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html?gallery=1", '_self');}}, 'about' );
-              } else {
-                panel.add( {"home":function(){window.open("./index.html?position=1", '_self');}}, 'home' );
-                panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html", '_self');}}, 'about' );
-              }
+        let panel = new GUI( { width: 120} );
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.get('home')>0) {
+          // add button to home
 
-              panel.domElement.classList.add( 'force-touch-styles' );
-              panel.domElement.style="font-size:28px;--widget-height: 48px;";
-            }
-    				panel.add( {'random':regenerate}, 'random' );
+          if (urlParams.get('gallery')>0) {
+            panel.add( {"home":function(){window.open("./gallery.html?position=1", '_self');}}, 'home' );
+            panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html?gallery=1", '_self');}}, 'about' );
+          } else {
+            panel.add( {"home":function(){window.open("./index.html?position=1", '_self');}}, 'home' );
+            panel.add( {"about":function(){window.open("./subdivisioncolumn_intro.html", '_self');}}, 'about' );
+          }
+          panel.domElement.classList.add( 'force-touch-styles' );
+          panel.domElement.style =
+            lil_gui_font_size_override +
+            lil_gui_color_override;
+        }else{
+            panel.domElement.style =
+            lil_gui_color_override;
+        }
+        
+        panel.add( {'generate':regenerate}, 'generate' );
 
-            if (urlParams.get('home')>0) {
-              for (let c of panel.domElement.getElementsByClassName("name")){
-                c.style="font-size:28px";
-              }
-            }
-            panel.open();
-    			}
+        if (urlParams.get('home')>0) {
+          for (let c of panel.domElement.getElementsByClassName("name")){
+            c.style="font-size:28px";
+          }
+        }
+        panel.open();
+      }
 
       function regenerate(){
         scene.remove(mesh);

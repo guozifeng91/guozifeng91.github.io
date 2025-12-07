@@ -11,6 +11,7 @@
     font-style: normal;
     font-weight: normal;
     text-align: justify;
+    line-height: 24px;
 }
 
 .main-text-centered {
@@ -19,26 +20,27 @@
     font-style: normal;
     font-weight: normal;
     text-align: center;
+    line-height: 24px;
 }
 
 .main-text>p{
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 .main-text-centered>p{
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 .main-text>p{
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 .main-text-centered>p{
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 .main-text>img{

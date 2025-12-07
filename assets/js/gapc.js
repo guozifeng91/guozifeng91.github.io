@@ -312,7 +312,7 @@ export function add_md_to_document_default_style(
 
     const default_options = {
         "no_list" : false,
-        "trim_empty": false
+        "trim_empty": true
     }
 
     add_md_to_document(

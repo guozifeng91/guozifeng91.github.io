@@ -1,0 +1,7 @@
+# About
+
+*Towards the Digital Architectonic* is a collection of selected works by Zifeng Guo on computation, architecture, and design.
+
+Zifeng Guo holds a doctoral degree from ETH Zürich, Switzerland. He was trained as an architect and computational designer from the Southeast University, China. Previously, he was working partime at AESEU in Nanjing, China as a computational designer on rule-based design and digital fabrications. During his doctoral study, he was working part-time as a technical consultant at the Kozo Keikaku Engineering Inc. in Tokyo, Japan on developing optimization algorithms for commercial building programs and layouts. After finishing the doctoral degree, he spent one year working as a researcher in both the SHARE lab, University of Florida, and Professur für Structural Design, TUM, Germany. He is currently a specialist computational designer in SID, Strabag, Germany.
+
+Zifeng Guo’s interest lies in the intersection between Computation, Artificial Intelligence and Architecture. He is also deeply into geometries, modeling, and optimization. His recent work focuses on the new paradigm of thinking and modeling that is revealed by the contemporary artificial intelligence. The main body of his work can be found in the doctoral thesis [From Simulation to Synthesis, Architectural Modeling with Context-Based Encoding Using Data-Driven Computational Machines (DOI: 10.3929/ethz-b-000527259)](https://www.research-collection.ethz.ch/handle/20.500.11850/527259) published by ETH Zürich in 2021.
