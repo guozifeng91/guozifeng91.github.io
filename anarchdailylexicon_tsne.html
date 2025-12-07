@@ -12,8 +12,11 @@
     font-family: 'Courier New', monospace;
   }
   </style>
-  <link rel="stylesheet" href="./stylesheet.css">
-  <!-- <link rel="stylesheet" href="./style-amended.css"> -->
+  <link rel="stylesheet" href="/assets/css/page_items_mobile.css">
+  <link rel="stylesheet" href="/assets/css/page_items_pc.css">
+  <link rel="stylesheet" href="/assets/css/page_items.css">
+  <link rel="stylesheet" href="/assets/css/font_text.css">
+  <link rel="stylesheet" href="/assets/css/hyperlink_article.css">
 
   <!-- amended style for this page -->
   <style media="screen">
@@ -106,12 +109,13 @@
 </head>
 <body>
   <div style="position: relative; width:100vw; height:100vh; background-color: #000000">
-    <div class="logo" style="z-index: 1;">
-      <a id="home-link" href="./index.html?position=1">
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#a0a0a0;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
-        <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
-      </a>
-    </div>
+    <!-- <div class="logo-container" data-hover-hint="logo" style="z-index:1; background-color: rgba(0,0,0,0.3);"> -->
+      <div class="logo" style="z-index:1; background-color:rgba(0,0,0,1);">
+        <a id="home-link" href="/index.html?position=1">
+          <img src="/assets/img/logo_inverse.svg">
+        </a>
+      </div>
+    <!-- </div> -->
 
     <div id="bake_background" style="position: absolute; z-index: -1; width:100vw; height:100vh; left:0; top:0; background-color: #000000c0">
       <div class="bake_area">
@@ -121,14 +125,14 @@
       </div>
     </div>
 
-    <div class="project-text-centered ios-bottom-adjust" style="position: absolute; width: 100%; color:#ffffff;">
+    <div class="main-text-centered ios-bottom-adjust" style="position: absolute; width: 100%; color:#ffffff;">
       <div id="buttons" style="position:relative; display:flex; flex-direction: row; width:15em; left:50%; transform:translateX(-50%); z-index:-1;">
         <p id="button_bake" class="p-button" style="padding:0">bake</p>
         <p id="button_mode" class="p-button" style="padding:0">Mode</p>
       </div>
     </div>
 
-    <div class="project-text-centered" style="color:#a0a0a0; top: 50vh">
+    <div class="main-text-centered" style="color:#a0a0a0; top: 50vh">
       <p id="indicator">Initializing, please wait...</p>
     </div>
 
