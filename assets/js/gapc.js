@@ -10,7 +10,7 @@ export function fetch_and_do(url, action)
         }
         response.text().then(
             text => {
-                console.log(text);
+                // console.log(text);
                 action(text);
             }
         );
@@ -30,14 +30,14 @@ const parse_codeblock = (md) => md.replace(/```([\s\S]*?)```/gim, '<pre><code>$1
 const parse_img = (md) => md.replace(/\!\[(.*?)\]\((.*?)\)/gim, '<img class="$1" src="$2"/>');
 const parse_bullet = (md) => md.replace(/^\s*[\-\*] (.*)$/gim, '<ul><li>$1</li></ul>').replace(/<\/ul>\s*<ul>/gim, '');
 const parse_number = (md) => md.replace(/^\s*\d+\. (.*)$/gim, '<ol><li>$1</li></ol>').replace(/<\/ol>\s*<ol>/gim, '');
-const parse_p = (md) => {
+const parse_p = (md, trim_empty) => {
   md = md
     .trim()
     // split by \n
     .split(/\n/)
     .map(block => {
         /* untrim to keep additional empty lines functional */
-        var trim = block; //.trim();
+        var trim = trim_empty ? trim.trim() : block;
         if (trim == "")
             return "";
 
@@ -54,7 +54,7 @@ const parse_p = (md) => {
 }
 
 /* parser main */
-export function parse_to_html(md)
+export function parse_to_html(md, trim_empty)
 {
     md = escape_char(md);
     md = parse_h1(md);
@@ -72,7 +72,7 @@ export function parse_to_html(md)
 
     md = parse_codeblock(md);
 
-    md = parse_p(md);
+    md = parse_p(md, trim_empty);
     return md;
 }
 
@@ -114,16 +114,25 @@ some texts with [content](.link)
 
 `
 
-export function parse_to_DOM(md)
+export function parse_to_DOM(md, trim_empty)
 {
-    var html_str = parse_to_html(md);
-    // console.log(html_str)
+    var html_str = parse_to_html(md, trim_empty);
     var doc = new DOMParser().parseFromString(html_str, "text/html");
-    // console.log(doc)
-    // for(const elem of doc.body.childNodes){
-    //     console.log(elem);
-    // }
     return doc;
+}
+
+export function try_set_title(src_doc){
+    var elems = Array.from(src_doc.body.childNodes);
+    
+    for(const elem of elems){
+        var tag = elem.tagName;
+
+        if (tag == "H1"){
+            document.title = elem.textContent;
+            console.log("title", elem.textContent);
+            break;
+        }
+    }
 }
 
 function is_null_or_empty(str)
@@ -262,12 +271,21 @@ add_DOM_to_document(
 export function add_md_to_document(
     md,
     root,
+    trim_empty_when_parsing,
     cls_special_tags,
     cls_normal,
     cls_centered,
     cls_img_group
 ){
-    var doc = parse_to_DOM(md);
+    var doc = parse_to_DOM(
+        md,
+        trim_empty_when_parsing
+    );
+    
+    // use the first H1 as title
+    try_set_title(doc);
+
+    // add the doc to the document object
     add_DOM_to_document(
         doc, 
         root, 
@@ -295,6 +313,7 @@ export function add_md_to_document_default_style(
     add_md_to_document(
         md,
         root,
+        false,
         default_specials_tags,
         "main-text",
         "main-text-centered",
@@ -313,7 +332,7 @@ export function fetch_article_and_add_to_document_default()
 {
     const url_str = window.location.search;
     const url_params = new URLSearchParams(url_str);
-    var md_url = url_params.get('article');
+    var md_url = url_params.get('url');
     console.debug(md_url);
 
     if (md_url != null) {

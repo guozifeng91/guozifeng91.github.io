@@ -2,104 +2,13 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AN ARCHDAILY LEXICON</title>
-    <style media="screen">
-      *{
-        margin: 0;
-        padding: 0;
-        /* font-family: sans-serif; */
-        font-family: 'Courier New', monospace;
-      }
-    </style>
-    <link rel="stylesheet" href="./stylesheet.css">
-    <link rel="stylesheet" href="./style-amended.css">
+    <title>An Archdaily Lexicon</title>
+    <meta http-equiv="refresh" content="0; url=/article_reader.html?url=/articles/archdaily_lexicon/an_archdaily_lexicon.md"/>
+    <script>
+      window.location.href = "/article_reader.html?url=/articles/archdaily_lexicon/an_archdaily_lexicon.md"
+    </script>
   </head>
   <body>
-    <header class="site-header" data-context="theme.topcontainer" data-hover-hint="header">
-        <div class="logo-wrap" data-hover-hint="logo">
-              <div class="logo">
-                <a id="home-link" href="./index.html?position=1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 98.4533 46.3838"><defs><style>.a{font-size:12px;fill:#231815;font-family:CourierNewPSMT, Courier New;}.b{letter-spacing:0.1757em;}.c{letter-spacing:0.198em;}.d{letter-spacing:0.6673em;}.e{letter-spacing:-0.0151em;}</style></defs><text class="a" transform="translate(0.0004 9.4276)"><tspan class="b">TOWARD</tspan><tspan x="55.855" y="0">S</tspan><tspan class="c" x="63.0562" y="0"> </tspan><tspan class="b" x="72.6338" y="0">TH</tspan><tspan x="91.252" y="0">E</tspan><tspan class="d" x="0" y="14.3999">DIGITA</tspan><tspan x="91.252" y="14.3999">L</tspan><tspan class="e" x="0" y="28.7998">ARCHITECTONIC</tspan><tspan x="91.252" y="28.7998">S</tspan></text></svg>
-                    <!-- <a href="./index.html" class="preserve-whitespace" style="color: #404040">TOWARDS THE DIGITAL ARCHITECTONIC</a> -->
-                </a>
-              </div>
-        </div>
-    </header>
-    <script type="text/javascript" src="./checkhomeaddress.js"></script>
-
-    <div class="project-container-wrapper">
-      <div id="project-container" class="project-container">
-        <!-- <section class="project-covers" data-context="page.gallery.covers"> -->
-          <div class="project-title">
-            An Archdaily Lexicon
-          </div>
-          <div class="project-text-centered">
-            <a is_internal_link=1 href="./anarchdailylexicon_tsne.html"><p>To the web demo: galaxy</p></a>
-            <p><br></p>
-            <a is_internal_link=1 href="./anarchdailylexicon.html"><p>To the web demo: selective grid</p></a>
-            <p><br></p>
-            <a is_internal_link=1 href="./anarchdailylexicon_full.html"><p>To the web demo: search engine</p></a>
-          </div>
-          <div class="project-text">
-            <p>
-            <i>An Archdaily Lexicon</i> is a search engine of architectural images. It challenges the representational paradigm suggested by the <i>Building Information Modeling</i> where everything has to be represented using the same pre-defined ontology.<br><br><i>An Archdaily Lexicon</i> proposes to encode objects by their relations to the plenty - a finite symbolic set from which objects are 'spelled' as of spelling texts with an alphabet. The symbolic set is derived from the plenty and carries no semantic meaning.<br><br><i>An Archdaily Lexicon</i> demonstrates this concept by clustering image patches of all <i>ArchDaily</i> images. The obtained clusters encode a given image by their Euclidean distances to the patches of the image. The query and comparision of the images are therefore based on the similarity of the encodings rather than the pixel colors.
-            </p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/symbols.jpg" width="100%" alt="">
-            <p>Symbolic set as the visual elements</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/encoding2.svg" width="100%" alt="">
-            <p>Image encoding using the symbolic set</p>
-          </div>
-          <div class="project-text-centered">
-            <p>case 1. "text" to "text": search for similar images</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/img-img-1.jpg" width="100%" alt="">
-            <p>Similar image search by the input source (top left)</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/img-img-2.jpg" width="100%" alt="">
-            <p>Similar image search by the input source (top left)</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/img-img-3.jpg" width="100%" alt="">
-            <p>Similar image search by the input source (top left)</p>
-          </div>
-          <div class="project-text-centered">
-            <p>case 2. "words" to "text": search for images that contain input objects</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/patch-img-1.jpg" width="100%" alt="">
-            <p>Patch-to-image search by the input patches (top left)</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/patch-img-2.jpg" width="100%" alt="">
-            <p>Patch-to-image search by the input patches (top left)</p>
-          </div>
-          <div class="project-text-centered">
-            <img src="./anarchdailylexicon/media/patch-img-3.jpg" width="100%" alt="">
-            <p>Patch-to-image search by the input patches (top left)
-          </div>
-          <div class="project-text-centered">-</div>
-        <!-- </section> -->
-      </div>
-    </div>
-
-    <script type="text/javascript">
-      (function(){
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        if (urlParams.get('gallery')>0) {
-          let elements = document.querySelectorAll("[is_internal_link]");
-          console.log(elements);
-          for (var i = 0; i < elements.length; i++)
-              elements[i].href=elements[i].href + "?gallery=1";
-        }
-      })();
-    </script>
+    If you are not redirected automatically, follow the <a href="/article_reader.html?url=/articles/archdaily_lexicon/an_archdaily_lexicon.md">link to the article</a>
   </body>
 </html>
