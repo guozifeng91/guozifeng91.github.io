@@ -110,7 +110,62 @@
         );
       }
 
-      fetch_and_do("/articles/index.md", add_md_to_main_page);
+      function page_scroll_position_ctrl(){
+        // initial page position ctrl
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.get('position')>0) {
+          // scroll down by 100hv (return from other pages)
+          window.scrollBy(0, window.innerHeight/2);
+        } else {
+          // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
+          // only triger when at the top of the page
+          setTimeout(function() {
+            // scroll down to precicely 50vh
+            const imax=50;
+            const ihalf=imax/2;
+            const delay=5;
+
+            // get the steps
+            const h=window.innerHeight/2;
+            let steps=[];
+            let total=0;
+            for (let n=0;n<imax;n++){
+              const v=Math.sin(n*3.14159265359/ihalf-1.57079632679)+1;
+              steps.push(v);
+              total+=v;
+            }
+
+            for (let n=0;n<imax;n++){
+              steps[n]/=total;
+              steps[n]*=h;
+              steps[n]=Math.ceil(steps[n]);
+            }
+
+            let i = 1;
+            function myLoop() {         //  create a loop function
+              setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+                // scroll following sine curve
+                window.scrollBy(0, steps[i]);   //  your code here
+                i++;                    //  increment the counter
+                if (i < imax) {           //  150 iterations
+                  myLoop();
+                }                       //  delay: 3ms
+              }, delay)
+            }
+            if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
+              myLoop();
+            }
+          }, 1000); // wait 1s
+        }
+      }
+      
+      function action(md){
+        add_md_to_main_page(md);
+        page_scroll_position_ctrl();
+      }
+
+      fetch_and_do("/articles/index.md", action);
     </script>
 
   </head>
@@ -126,11 +181,11 @@
         </div>
     </header>
     <script type="text/javascript">
+      // logo style control
       (function(){
         let logo = document.getElementsByClassName("logo-main-page")[0];
         window.onscroll = function(e) {
           const h = window.innerHeight * 0.3;
-          // console.log(document.body.scrollTop, document.documentElement.scrollTop, h);
           if (document.body.scrollTop > h || document.documentElement.scrollTop > h) {
             logo.className ="logo-main-page-fixed";
           } else {
@@ -145,56 +200,6 @@
         <!-- page content here -->
       </div>
     </div>
-
-    <script type="text/javascript">
-      // initial page position ctrl
-      const queryString = window.location.search;
-      const urlParams = new URLSearchParams(queryString);
-      if (urlParams.get('position')>0) {
-        // scroll down by 100hv (return from other pages)
-        window.scrollBy(0, window.innerHeight/2);
-      } else {
-        // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
-        // only triger when at the top of the page
-        setTimeout(function() {
-          // scroll down to precicely 50vh
-          const imax=50;
-          const ihalf=imax/2;
-          const delay=5;
-
-          // get the steps
-          const h=window.innerHeight/2;
-          let steps=[];
-          let total=0;
-          for (let n=0;n<imax;n++){
-            const v=Math.sin(n*3.14159265359/ihalf-1.57079632679)+1;
-            steps.push(v);
-            total+=v;
-          }
-
-          for (let n=0;n<imax;n++){
-            steps[n]/=total;
-            steps[n]*=h;
-            steps[n]=Math.ceil(steps[n]);
-          }
-
-          let i = 1;
-          function myLoop() {         //  create a loop function
-            setTimeout(function() {   //  call a 3s setTimeout when the loop is called
-              // scroll following sine curve
-              window.scrollBy(0, steps[i]);   //  your code here
-              i++;                    //  increment the counter
-              if (i < imax) {           //  150 iterations
-                myLoop();
-              }                       //  delay: 3ms
-            }, delay)
-          }
-          if (document.body.scrollTop < 10 && document.documentElement.scrollTop < 10) {
-            myLoop();
-          }
-        }, 1000); // wait 1s
-      }
-    </script>
     <!-- </main> -->
   </body>
 </html>
