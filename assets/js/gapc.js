@@ -21,7 +21,7 @@ export function fetch_and_do(url, action)
 const escape_char = (md) => md.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const parse_h1 = (md) => md.replace(/^# (.*$)/gim, '<h1>$1</h1>');
 const parse_h2 = (md) => md.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-const parse_h3 = (md) => md.replace(/^## (.*$)/gim, '<h3>$1</h3>');
+const parse_h3 = (md) => md.replace(/^### (.*$)/gim, '<h3>$1</h3>');
 const parse_bold = (md) => md.replace(/\*\*(.*?)\*\*/gim, '<b>$1</b>');
 const parse_italic = (md) => md.replace(/\*(.*?)\*/gim, '<i>$1</i>');
 const parse_link = (md) => md.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>');
@@ -37,7 +37,7 @@ const parse_p = (md, trim_empty) => {
     .split(/\n/)
     .map(block => {
         /* untrim to keep additional empty lines functional */
-        var trim = trim_empty ? trim.trim() : block;
+        var trim = trim_empty ? block.trim() : block;
         if (trim == "")
             return "";
 
@@ -54,7 +54,7 @@ const parse_p = (md, trim_empty) => {
 }
 
 /* parser main */
-export function parse_to_html(md, trim_empty)
+export function parse_to_html(md, options)
 {
     md = escape_char(md);
     md = parse_h1(md);
@@ -64,15 +64,15 @@ export function parse_to_html(md, trim_empty)
     md = parse_img(md);
     md = parse_link(md);
 
-    md = parse_bullet(md);
-    md = parse_number(md);
+    md = (options['no_list'] ?? false) ? md : parse_bullet(md);
+    md = (options['no_list'] ?? false) ? md : parse_number(md);
 
     md = parse_bold(md);
     md = parse_italic(md);
 
     md = parse_codeblock(md);
 
-    md = parse_p(md, trim_empty);
+    md = parse_p(md, options["trim_empty"] ?? false);
     return md;
 }
 
@@ -271,7 +271,7 @@ add_DOM_to_document(
 export function add_md_to_document(
     md,
     root,
-    trim_empty_when_parsing,
+    options,
     cls_special_tags,
     cls_normal,
     cls_centered,
@@ -279,7 +279,7 @@ export function add_md_to_document(
 ){
     var doc = parse_to_DOM(
         md,
-        trim_empty_when_parsing
+        options
     );
     
     // use the first H1 as title
@@ -310,15 +310,20 @@ export function add_md_to_document_default_style(
         'UL': "main-text"
       };
 
+    const default_options = {
+        "no_list" : false,
+        "trim_empty": false
+    }
+
     add_md_to_document(
         md,
         root,
-        false,
+        default_options,
         default_specials_tags,
         "main-text",
         "main-text-centered",
         "row-column-container"
-    )
+    );
 }
 
 /* 
@@ -336,6 +341,6 @@ export function fetch_article_and_add_to_document_default()
     console.debug(md_url);
 
     if (md_url != null) {
-        fetch_and_do(md_url, add_md_to_document_default_style)
+        fetch_and_do(md_url, add_md_to_document_default_style);
     }
 }

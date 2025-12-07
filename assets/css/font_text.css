@@ -31,6 +31,16 @@
     padding-bottom: 0.5em;
 }
 
+.main-text>p{
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.main-text-centered>p{
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
 .main-text>img{
     height: auto;
     max-width: 100%;
@@ -84,6 +94,9 @@ ol{
     font-style: normal;
     font-weight: bold;
     line-height: 2em;
+
+    padding-top: 1.25em;
+    padding-bottom: 1.25em;
 }
 
 /* sub title */
@@ -94,6 +107,9 @@ ol{
     font-weight: bold;
     line-height: 2em;
     text-align: left;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
 /* sub-sub title */
@@ -104,6 +120,48 @@ ol{
     font-weight: bold;
     line-height: 2em;
     text-align: left;
+
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+}
+
+/* main title */
+.title1-centered-light {
+    float: none;
+    font-size: 26px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 2em;
+    text-align: center;
+
+    padding-top: 1.25em;
+    padding-bottom: 1.25em;
+}
+
+/* sub title */
+.title2-centered-light {
+    float: none;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 2em;
+    text-align: center;
+
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+/* sub-sub title */
+.title3-centered-light {
+    float: none;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 2em;
+    text-align: center;
+
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
 }
 
 /* phone and narrow view */
